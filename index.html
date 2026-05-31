@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATTAQ Lab</title>
+  <style>
+    :root {
+      --bg: #050507;
+      --bg-soft: #0b0c11;
+      --panel: rgba(12, 14, 20, 0.86);
+      --panel-strong: rgba(18, 21, 31, 0.94);
+      --line: rgba(255, 255, 255, 0.15);
+      --line-hot: rgba(93, 237, 255, 0.72);
+      --text: #f4f4f1;
+      --muted: #a3a7b3;
+      --dim: #6e7482;
+      --cyan: #55e7ff;
+      --pink: #ff4fd8;
+      --violet: #8a67ff;
+      --acid: #d7ff5c;
+      --danger: #ff5b6e;
+      --shadow: 0 0 28px rgba(85, 231, 255, 0.14), 0 0 80px rgba(255, 79, 216, 0.08);
+      --font: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: "Courier New", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 50% 28%, rgba(0, 155, 170, 0.14), transparent 22%),
+        radial-gradient(circle at 50% 38%, rgba(0, 95, 105, 0.10), transparent 34%),
+        linear-gradient(180deg, #030406 0%, #020305 55%, #010204 100%);
+    }
+
+    body::before {
+      display: none;
+    }
+
+    body::after {
+      display: none;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar,
+    .page,
+    .footer {
+      position: relative;
+      z-index: 2;
+    }
+
+    .page {
+      width: min(1380px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(2, 3, 5, 0.78);
+    }
+
+    .topbar-inner {
+      width: min(1380px, calc(100% - 48px));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+      min-height: 72px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+    }
+
+    .brand-logo-mini {
+      display: inline-grid;
+      grid-template-columns: auto;
+      line-height: 0.86;
+      transform: translateY(1px);
+    }
+
+    .brand-logo-mini .mini-main,
+    .brand-logo-mini .mini-sub {
+      position: relative;
+      display: block;
+      width: max-content;
+      color: #f7f7f3;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-shadow:
+        1px 0 0 rgba(0, 238, 255, 0.95),
+        -1px 0 0 rgba(255, 42, 210, 0.95),
+        0 2px 0 rgba(0,0,0,0.62);
+    }
+
+    .brand-logo-mini .mini-main {
+      font-size: 29px;
+      letter-spacing: 0.085em;
+    }
+
+    .brand-logo-mini .mini-sub {
+      justify-self: end;
+      margin-top: 8px;
+      padding-right: 0;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+    }
+
+    .brand-mark {
+      display: none;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      color: var(--muted);
+      font-size: 14px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+    }
+
+    .nav a,
+    .nav-link {
+      padding: 8px 10px;
+      border: 1px solid transparent;
+      transition: 160ms ease;
+    }
+
+    .nav-link {
+      appearance: none;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-transform: inherit;
+      letter-spacing: inherit;
+      cursor: pointer;
+    }
+
+    .nav a:hover,
+    .nav-link:hover {
+      color: var(--text);
+      border-color: rgba(85,231,255,0.32);
+      box-shadow: 0 0 14px rgba(85,231,255,0.12);
+    }
+
+    .hero {
+      min-height: auto;
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 46px;
+      align-items: start;
+      padding: 34px 0 42px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--acid);
+      font-family: var(--mono);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 38px;
+      height: 1px;
+      background: var(--acid);
+      box-shadow: 0 0 16px rgba(215,255,92,0.7);
+    }
+
+    .hero-logo {
+      display: inline-grid;
+      grid-template-columns: auto;
+      line-height: 0.83;
+      margin: 0 0 18px;
+    }
+
+    .hero-logo-main,
+    .hero-logo-sub {
+      position: relative;
+      display: block;
+      width: max-content;
+      color: #f7f7f2;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      transform: translateZ(0);
+      text-shadow:
+        2px 0 0 rgba(0, 238, 255, 0.95),
+        -2px 0 0 rgba(255, 42, 210, 0.95),
+        0 5px 0 rgba(0,0,0,0.68),
+        0 7px 10px rgba(0,0,0,0.5);
+    }
+
+    .hero-logo-main {
+      font-size: clamp(68px, 9.2vw, 158px);
+      line-height: 0.86;
+      letter-spacing: 0.105em;
+    }
+
+    .hero-logo-main::before,
+    .hero-logo-main::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      text-shadow: none;
+      mix-blend-mode: screen;
+    }
+
+    .hero-logo-main::before {
+      color: rgba(0, 238, 255, 0.9);
+      animation: attaqGlitchA 6.8s infinite steps(1);
+    }
+
+    .hero-logo-main::after {
+      color: rgba(255, 42, 210, 0.88);
+      animation: attaqGlitchB 8.2s infinite steps(1);
+    }
+
+    @keyframes attaqGlitchA {
+      0%, 92%, 100% {
+        opacity: 0;
+        transform: translate(0, 0);
+        clip-path: inset(0 0 0 0);
+      }
+      93% {
+        opacity: 0.52;
+        transform: translate(3px, 0);
+        clip-path: inset(8% 0 62% 0);
+      }
+      94% {
+        opacity: 0.34;
+        transform: translate(-2px, 0);
+        clip-path: inset(58% 0 12% 0);
+      }
+      95% {
+        opacity: 0.18;
+        transform: translate(2px, 0);
+        clip-path: inset(32% 0 34% 0);
+      }
+      96% {
+        opacity: 0;
+        transform: translate(0, 0);
+        clip-path: inset(0 0 0 0);
+      }
+    }
+
+    @keyframes attaqGlitchB {
+      0%, 88%, 100% {
+        opacity: 0;
+        transform: translate(0, 0);
+        clip-path: inset(0 0 0 0);
+      }
+      89% {
+        opacity: 0.44;
+        transform: translate(-3px, 0);
+        clip-path: inset(42% 0 26% 0);
+      }
+      90% {
+        opacity: 0.26;
+        transform: translate(2px, 0);
+        clip-path: inset(12% 0 70% 0);
+      }
+      91% {
+        opacity: 0.16;
+        transform: translate(-1px, 0);
+        clip-path: inset(68% 0 8% 0);
+      }
+      92% {
+        opacity: 0;
+        transform: translate(0, 0);
+        clip-path: inset(0 0 0 0);
+      }
+    }
+
+    .hero-logo-sub {
+      justify-self: end;
+      margin-top: 34px;
+      padding-right: 3px;
+      font-size: clamp(28px, 3.15vw, 54px);
+      line-height: 0.82;
+      letter-spacing: 0.18em;
+      text-shadow:
+        1.5px 0 0 rgba(0, 238, 255, 0.95),
+        -1.5px 0 0 rgba(255, 42, 210, 0.95),
+        0 3px 0 rgba(0,0,0,0.68),
+        0 5px 8px rgba(0,0,0,0.48);
+    }
+
+    .hero-copy {
+      margin: 12px 0 0;
+      max-width: 780px;
+      color: #d8dbe5;
+      font-size: clamp(20px, 2.05vw, 27px);
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-copy strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 20px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(85,231,255,0.72);
+      box-shadow: 0 0 22px rgba(85,231,255,0.18);
+      background: rgba(85,231,255,0.08);
+    }
+
+    .btn.primary {
+      border-color: rgba(85,231,255,0.8);
+      background: linear-gradient(90deg, rgba(85,231,255,0.22), rgba(255,79,216,0.16));
+      box-shadow: var(--shadow);
+    }
+
+    .hero-device {
+      position: relative;
+      min-height: 560px;
+      align-self: start;
+      border: 1px solid rgba(255,255,255,0.14);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.08), transparent 30%),
+        rgba(10, 11, 16, 0.72);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-device::before,
+    .hero-device::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(85,231,255,0.18);
+      pointer-events: none;
+    }
+
+    .hero-device::after {
+      inset: 31px;
+      border-color: rgba(255,79,216,0.14);
+      transform: translate(4px, -4px);
+    }
+
+    .terminal {
+      position: absolute;
+      left: 38px;
+      right: 38px;
+      top: 46px;
+      bottom: 46px;
+      padding: 32px;
+      border: 1px solid rgba(85,231,255,0.28);
+      background:
+        radial-gradient(circle at 40% 0%, rgba(85,231,255,0.12), transparent 28%),
+        rgba(0,0,0,0.58);
+      font-family: var(--mono);
+      overflow: hidden;
+    }
+
+    .terminal-title {
+      display: flex;
+      justify-content: space-between;
+      color: var(--cyan);
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(85,231,255,0.22);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+
+    .signal-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .signal-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+      color: #dceeff;
+      font-size: 14px;
+    }
+
+    .signal-dot {
+      width: 9px;
+      height: 9px;
+      background: var(--cyan);
+      box-shadow: 0 0 14px rgba(85,231,255,0.8);
+    }
+
+    .signal-row:nth-child(2n) .signal-dot {
+      background: var(--pink);
+      box-shadow: 0 0 14px rgba(255,79,216,0.8);
+    }
+
+    .meter {
+      height: 7px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--pink));
+      box-shadow: 0 0 16px rgba(85,231,255,0.4);
+    }
+
+    .terminal-big {
+      margin: 38px 0 0;
+      font-size: clamp(42px, 5vw, 78px);
+      line-height: 0.88;
+      letter-spacing: -0.08em;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.92);
+      text-shadow: 2px 0 rgba(85,231,255,0.5), -2px 0 rgba(255,79,216,0.45);
+    }
+
+    .noise-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.4);
+      animation: tear 4.5s infinite steps(5);
+      opacity: 0.35;
+    }
+
+    @keyframes tear {
+      0% { top: 18%; transform: translateX(0); }
+      18% { top: 34%; transform: translateX(18px); }
+      31% { top: 29%; transform: translateX(-10px); }
+      62% { top: 66%; transform: translateX(24px); }
+      100% { top: 18%; transform: translateX(0); }
+    }
+
+    .page > section {
+      position: relative;
+      margin: 42px 0;
+      padding: 48px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.055), transparent 28%),
+        rgba(5, 7, 12, 0.72);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.62) inset,
+        0 22px 60px rgba(0,0,0,0.34),
+        0 0 44px rgba(85,231,255,0.055);
+      overflow: hidden;
+    }
+
+    .page > section::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(85,231,255,0.72), rgba(255,79,216,0.38), transparent);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .page > section::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(255,255,255,0.035);
+      pointer-events: none;
+    }
+
+    .page > section:first-child {
+      margin-top: 34px;
+    }
+
+    .page > section + section {
+      margin-top: 32px;
+    }
+
+    .hero {
+      padding: 48px;
+    }
+
+    .section-head {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 42px;
+      margin: -10px -10px 34px;
+      padding: 10px 10px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(90deg, rgba(85,231,255,0.035), transparent 52%);
+    }
+
+    .section-kicker {
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(30px, 4.4vw, 58px);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      text-transform: uppercase;
+    }
+
+    .section-note {
+      max-width: 560px;
+      color: var(--muted);
+      line-height: 1.62;
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .tools-head-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      max-width: 560px;
+    }
+
+    .inline-link {
+      color: var(--text);
+      border-bottom: 1px solid rgba(85,231,255,0.6);
+      transition: color 150ms ease, text-shadow 150ms ease, border-color 150ms ease;
+    }
+
+    .inline-link:hover {
+      color: var(--cyan);
+      border-color: rgba(85,231,255,0.95);
+      text-shadow: 0 0 14px rgba(85,231,255,0.45);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .panel {
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.13);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.055), transparent 34%),
+        rgba(12, 14, 20, 0.74);
+      padding: 24px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.55) inset;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(85,231,255,0.08), transparent);
+      transform: translateX(-110%);
+      transition: transform 480ms ease;
+      pointer-events: none;
+    }
+
+    .panel:hover::before {
+      transform: translateX(110%);
+    }
+
+    .panel h3 {
+      position: relative;
+      margin: 0 0 14px;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.035em;
+      text-transform: uppercase;
+    }
+
+    .panel p {
+      position: relative;
+      margin: 0;
+      color: #c8ccd8;
+      line-height: 1.64;
+      font-size: 18px;
+    }
+
+
+    .featured-line {
+      border: 1px solid rgba(85,231,255,0.24);
+      background:
+        linear-gradient(115deg, rgba(85,231,255,0.07), transparent 32%, rgba(255,79,216,0.07)),
+        rgba(7, 8, 12, 0.7);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.5) inset;
+      padding: 18px;
+    }
+
+    .featured-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      padding: 8px 8px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 18px;
+    }
+
+    .featured-title {
+      font-size: clamp(24px, 3vw, 38px);
+      line-height: 0.95;
+      letter-spacing: -0.055em;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .tools-collection-cta {
+      display: flex;
+      justify-content: center;
+      margin-top: 38px;
+    }
+
+    .featured-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0;
+      color: var(--acid);
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border: 1px solid rgba(215,255,92,0.35);
+      padding: 13px 18px;
+      white-space: nowrap;
+      box-shadow: 0 0 18px rgba(215,255,92,0.08);
+      transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .featured-badge:hover {
+      transform: translateY(-2px);
+      border-color: rgba(215,255,92,0.75);
+      box-shadow: 0 0 22px rgba(215,255,92,0.14);
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .tool-card {
+      position: relative;
+      min-height: 520px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      border: 1px solid rgba(255,255,255,0.14);
+      background:
+        radial-gradient(circle at 24% 0%, rgba(85,231,255,0.15), transparent 32%),
+        rgba(8, 10, 15, 0.86);
+      padding: 28px;
+      overflow: hidden;
+      transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
+    }
+
+    .tool-card > div {
+      display: grid;
+      grid-template-rows: 96px 42px 78px 170px minmax(60px, auto);
+      align-content: start;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(85,231,255,0.55);
+      box-shadow: 0 0 34px rgba(85,231,255,0.13);
+    }
+
+    .tool-card:nth-child(2) {
+      background:
+        radial-gradient(circle at 80% 0%, rgba(255,79,216,0.14), transparent 35%),
+        rgba(8, 10, 15, 0.86);
+    }
+
+    .tool-card:nth-child(3) {
+      background:
+        radial-gradient(circle at 50% 0%, rgba(215,255,92,0.11), transparent 35%),
+        rgba(8, 10, 15, 0.86);
+    }
+
+    .tool-card:nth-child(4) {
+      background:
+        radial-gradient(circle at 72% 0%, rgba(138,103,255,0.16), transparent 35%),
+        rgba(8, 10, 15, 0.86);
+    }
+
+    .tool-art {
+      height: 96px;
+      border: 1px solid rgba(255,255,255,0.11);
+      background:
+        linear-gradient(90deg, rgba(85,231,255,0.18), rgba(255,79,216,0.12)),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 7px),
+        rgba(0,0,0,0.35);
+      margin-bottom: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-art::before {
+      content: attr(data-symbol);
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: rgba(247,247,242,0.92);
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      line-height: 1;
+      text-shadow:
+        2px 0 0 rgba(0,238,255,0.75),
+        -2px 0 0 rgba(255,42,210,0.75),
+        0 4px 0 rgba(0,0,0,0.55),
+        0 0 18px rgba(255,255,255,0.08);
+      z-index: 1;
+    }
+
+    .tool-art::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(0deg, transparent 40%, rgba(255,255,255,0.16) 41%, transparent 43%),
+        radial-gradient(circle at 50% 50%, rgba(85,231,255,0.12), transparent 38%);
+      animation: miniScan 3.6s linear infinite;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    @keyframes miniScan {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(100%); }
+    }
+
+    .tool-label {
+      align-self: end;
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.35;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .tool-card h3 {
+      align-self: start;
+      margin: 0;
+      font-size: 23px;
+      line-height: 0.94;
+      letter-spacing: -0.045em;
+      text-transform: uppercase;
+    }
+
+    .tool-card p {
+      align-self: start;
+      margin: 0;
+      color: #c3c8d4;
+      line-height: 1.62;
+      font-size: 18px;
+    }
+
+    .tool-meta {
+      align-self: start;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 0;
+    }
+
+    .pill {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      padding: 7px 9px;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .tool-link {
+      align-self: end;
+      justify-self: start;
+      margin-top: 24px;
+      color: var(--text);
+      border-bottom: 1px solid rgba(85,231,255,0.55);
+      font-family: var(--mono);
+      font-size: 15px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding-bottom: 5px;
+      transition: color 150ms ease, text-shadow 150ms ease;
+    }
+
+    .tool-link:hover {
+      color: var(--cyan);
+      text-shadow: 0 0 16px rgba(85,231,255,0.55);
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+
+    .project-card {
+      min-height: 320px;
+      border: 1px solid rgba(255,255,255,0.13);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.052), transparent 35%),
+        rgba(10, 12, 18, 0.72);
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card.big {
+      background:
+        radial-gradient(circle at 80% 8%, rgba(255,79,216,0.13), transparent 34%),
+        radial-gradient(circle at 12% 96%, rgba(85,231,255,0.12), transparent 38%),
+        rgba(10, 12, 18, 0.84);
+    }
+
+    .project-card h3 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 0.88;
+      letter-spacing: -0.065em;
+      text-transform: uppercase;
+      max-width: 620px;
+    }
+
+    .project-card p {
+      color: #c7ccd8;
+      line-height: 1.58;
+      max-width: 650px;
+      margin: 18px 0 0;
+      font-size: 16px;
+    }
+
+    .project-status {
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--acid);
+      border: 1px solid rgba(215,255,92,0.28);
+      padding: 7px 8px;
+      background: rgba(0,0,0,0.25);
+    }
+
+    .values {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .value {
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      padding: 26px;
+      min-height: 230px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.45) inset;
+    }
+
+    .value-number {
+      color: var(--pink);
+      font-family: var(--mono);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .value h3 {
+      margin: 0 0 10px;
+      text-transform: uppercase;
+      font-size: 16px;
+      letter-spacing: -0.025em;
+    }
+
+    .value p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.58;
+      font-size: 16px;
+    }
+
+    .footer {
+      padding: 72px 0 44px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      font-size: clamp(34px, 6vw, 72px);
+      line-height: 0.85;
+      letter-spacing: 0.075em;
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-shadow:
+        1.8px 0 0 rgba(0,238,255,0.75),
+        -1.8px 0 0 rgba(255,42,210,0.75),
+        0 4px 0 rgba(0,0,0,0.55);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      font-family: var(--mono);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .footer p {
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .footer-links a,
+    .footer-links button {
+      border: 1px solid rgba(255,255,255,0.14);
+      padding: 10px 12px;
+      transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .footer-links button {
+      appearance: none;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-transform: inherit;
+      letter-spacing: inherit;
+      cursor: pointer;
+    }
+
+    .footer-links a:hover,
+    .footer-links button:hover {
+      color: var(--text);
+      border-color: rgba(85,231,255,0.45);
+      box-shadow: 0 0 18px rgba(85,231,255,0.12);
+    }
+
+
+    
+
+    @media (max-width: 920px) {
+      .hero,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 30px;
+      }
+
+      .hero-logo-main {
+        font-size: clamp(58px, 15vw, 124px);
+      }
+
+      .hero-logo-sub {
+        margin-top: 28px;
+        font-size: clamp(24px, 6vw, 44px);
+      }
+
+      .hero-device {
+        min-height: 430px;
+      }
+
+      .tools-grid,
+      .values {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .tool-card {
+        min-height: 500px;
+      }
+
+      .tool-card > div {
+        grid-template-rows: 92px 40px 70px 160px minmax(58px, au
+      }
+
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar-inner {
+        align-items: flex-start;
+        padding: 14px 0;
+        min-height: auto;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .hero {
+        padding: 24px;
+      }
+
+      .page > section {
+        padding: 26px;
+        margin: 22px 0;
+      }
+
+      .hero-logo-main {
+        font-size: clamp(42px, 14vw, 76px);
+        letter-spacing: 0.07em;
+      }
+
+      .hero-logo-sub {
+        margin-top: 20px;
+        font-size: clamp(18px, 5vw, 30px);
+        letter-spacing: 0.14em;
+      }
+
+      .hero-actions,
+      .footer-inner {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .tools-grid,
+      .values {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-card {
+        min-height: auto;
+      }
+
+      .tool-card > div {
+        grid-template-rows: 82px auto auto auto auto;
+        gap: 12px;
+      }
+
+      .terminal {
+        left: 18px;
+        right: 18px;
+        top: 22px;
+        bottom: 22px;
+        padding: 18px;
+      }
+
+      .signal-row {
+        grid-template-columns: auto 1fr;
+      }
+
+      .signal-row span:last-child {
+        grid-column: 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#tools">Audio Tools</a>
+        <a href="#values">Values</a>
+        <a href="https://discord.gg/W7pUZDcqs7" target="_blank" rel="noopener noreferrer">Discord</a>
+        <a href="https://www.linkedin.com/company/attaq-lab" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="page">
+    <section class="hero" aria-label="ATTAQ Lab intro">
+      <div>
+        <div class="eyebrow">Digital tools and audio experiments</div>
+        <div class="hero-logo" aria-label="ATTAQ Lab">
+          <div class="hero-logo-main" data-text="ATTAQ">ATTAQ</div>
+          <div class="hero-logo-sub" data-text="LAB">LAB</div>
+        </div>
+        <p class="hero-copy">
+          ATTAQ Lab makes <strong>fast creative tools</strong> and <strong>audio/software experiments</strong> for people who build video, sound, trailers, ads and strange media content.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#tools">Explore tools</a>
+          <a class="btn" href="https://www.linkedin.com/company/attaq-lab" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+      </div>
+
+      <div class="hero-device" aria-hidden="true">
+        <div class="terminal">
+          <div class="noise-line"></div>
+          <div class="terminal-title">
+            <span>ATTAQ SIGNAL</span>
+            <span>LAB ONLINE</span>
+          </div>
+          <div class="terminal-big">Make it<br />feel alive.</div>
+          <div class="signal-list">
+            <div class="signal-row">
+              <span class="signal-dot"></span>
+              <div class="meter"><span style="width: 84%"></span></div>
+              <span>audio tools</span>
+            </div>
+            <div class="signal-row">
+              <span class="signal-dot"></span>
+              <div class="meter"><span style="width: 69%"></span></div>
+              <span>software experiments</span>
+            </div>
+            <div class="signal-row">
+              <span class="signal-dot"></span>
+              <div class="meter"><span style="width: 92%"></span></div>
+              <span>creator workflows</span>
+            </div>
+            <div class="signal-row">
+              <span class="signal-dot"></span>
+              <div class="meter"><span style="width: 58%"></span></div>
+              <span>fast prototypes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools" aria-label="Audio tools">
+      <div class="section-head tools-head">
+        <div>
+          <div class="section-kicker">Toolkit</div>
+          <h2>Audio tools</h2>
+        </div>
+
+        <div class="tools-head-side">
+          <p class="section-note">Browser-based audio and media tools for fast production, rough prototypes, creator workflows and experimental sound design. No heavy setup, no studio gatekeeping – just load a file, twist the controls and get something usable.</p>
+        </div>
+      </div>
+
+      <div class="tools-grid">
+        <article class="tool-card">
+          <div>
+            <div class="tool-art" data-symbol="▣"></div>
+            <div class="tool-label">Tape degradation emulator</div>
+            <h3>ATTAQ Tape Chewer</h3>
+            <p>Chewed tape wobble, crushed playback, unstable pitch, dirty movement and hands-on texture for loops, voice, music and game audio.</p>
+            <div class="tool-meta">
+              <span class="pill">wow</span>
+              <span class="pill">flutter</span>
+              <span class="pill">chew</span>
+              <span class="pill">render wav</span>
+            </div>
+          </div>
+          <a class="tool-link" href="https://artemyzen.github.io/attaq-tape-chewer/">Open tool</a>
+        </article>
+
+        <article class="tool-card">
+          <div>
+            <div class="tool-art" data-symbol="◉"></div>
+            <div class="tool-label">Radio texture processor</div>
+            <h3>ATTAQ Old Radio</h3>
+            <p>Vintage transmission tone, narrow speaker color, noise, drift and worn broadcast character for dialogue, ambience and retro interfaces.</p>
+            <div class="tool-meta">
+              <span class="pill">radio</span>
+              <span class="pill">noise</span>
+              <span class="pill">lo-fi</span>
+              <span class="pill">dialogue</span>
+            </div>
+          </div>
+          <a class="tool-link" href="https://artemyzen.itch.io/attaq-old-radio">Project page</a>
+        </article>
+
+        <article class="tool-card">
+          <div>
+            <div class="tool-art" data-symbol="◎"></div>
+            <div class="tool-label">Vinyl texture emulator</div>
+            <h3>ATTAQ Vinyl Wrecker</h3>
+            <p>Dust, crackle, worn memory, old record color and unstable nostalgic texture for music, ambience, dialogue and game audio assets.</p>
+            <div class="tool-meta">
+              <span class="pill">vinyl</span>
+              <span class="pill">dust</span>
+              <span class="pill">crackle</span>
+              <span class="pill">warmth</span>
+            </div>
+          </div>
+          <a class="tool-link" href="https://artemyzen.github.io/attaq-vinyl-wrecker/">Open tool</a>
+        </article>
+
+        <article class="tool-card">
+          <div>
+            <div class="tool-art" data-symbol="⇄"></div>
+            <div class="tool-label">Utility converter</div>
+            <h3>ATTAQ Audio Converter</h3>
+            <p>Free, fast and convenient local audio conversion with batch support for prototypes, game assets and quick exports.</p>
+            <div class="tool-meta">
+              <span class="pill">batch</span>
+              <span class="pill">normalize</span>
+              <span class="pill">fade</span>
+              <span class="pill">export</span>
+            </div>
+          </div>
+          <a class="tool-link" href="https://artemyzen.github.io/attaq-audio-converter/">Open tool</a>
+        </article>
+      </div>
+
+      <div class="tools-collection-cta">
+        <a class="featured-badge" href="https://artemyzen.github.io/attaq-audio-tools/">ATTAQ AUDIO TOOLS COLLECTION</a>
+      </div>
+    </section>
+
+    <section id="values" aria-label="ATTAQ Lab values">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Principles</div>
+          <h2>Lab values</h2>
+        </div>
+        <p class="section-note">Every tool should be clear, tactile, useful and alive – with a strong character and a direct creative purpose.</p>
+      </div>
+
+      <div class="values">
+        <article class="value">
+          <div class="value-number">01</div>
+          <h3>Tactile first</h3>
+          <p>Buttons, knobs, sliders and interfaces should feel like real working controls, not paperwork.</p>
+        </article>
+        <article class="value">
+          <div class="value-number">02</div>
+          <h3>Fast results</h3>
+          <p>Tools should give a useful result quickly and let the user stay in the creative flow.</p>
+        </article>
+        <article class="value">
+          <div class="value-number">03</div>
+          <h3>Character wins</h3>
+          <p>Noise, imperfection, movement and attitude are part of the product, not a defect.</p>
+        </article>
+        <article class="value">
+          <div class="value-number">04</div>
+          <h3>Useful experiments</h3>
+          <p>Every experiment should become practical, useful or emotionally memorable.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="page footer-inner">
+      <div>
+        <div class="footer-logo">ATTAQ Lab</div>
+        <p>Digital tools, audio experiments and creator-focused software.</p>
+        <p>by <a class="inline-link" href="https://artemyzen.github.io/artemyzen/">Artemy Zen</a></p>
+      </div>
+      <div class="footer-links">
+        <a href="https://discord.gg/W7pUZDcqs7" target="_blank" rel="noopener noreferrer">Discord</a>
+        <a href="https://www.linkedin.com/company/attaq-lab" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
