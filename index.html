@@ -86,8 +86,8 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 18px;
-      min-height: 72px;
+      gap: 14px;
+      min-height: 62px;
     }
 
     .brand {
@@ -139,18 +139,18 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
       justify-content: flex-end;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 12px;
       font-family: var(--mono);
       text-transform: uppercase;
     }
 
     .nav a,
     .nav-link {
-      padding: 8px 10px;
+      padding: 7px 8px;
       border: 1px solid transparent;
       transition: 160ms ease;
     }
@@ -176,9 +176,9 @@
       min-height: auto;
       display: grid;
       grid-template-columns: 1.08fr 0.92fr;
-      gap: 46px;
+      gap: 34px;
       align-items: start;
-      padding: 34px 0 42px;
+      padding: 28px 0 34px;
     }
 
     .eyebrow {
@@ -187,10 +187,10 @@
       gap: 10px;
       color: var(--acid);
       font-family: var(--mono);
-      font-size: 14px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      margin-bottom: 22px;
+      margin-bottom: 16px;
     }
 
     .eyebrow::before {
@@ -226,7 +226,7 @@
     }
 
     .hero-logo-main {
-      font-size: clamp(68px, 9.2vw, 158px);
+      font-size: clamp(58px, 8.2vw, 132px);
       line-height: 0.86;
       letter-spacing: 0.105em;
     }
@@ -310,9 +310,9 @@
 
     .hero-logo-sub {
       justify-self: end;
-      margin-top: 34px;
+      margin-top: 26px;
       padding-right: 3px;
-      font-size: clamp(28px, 3.15vw, 54px);
+      font-size: clamp(24px, 2.7vw, 44px);
       line-height: 0.82;
       letter-spacing: 0.18em;
       text-shadow:
@@ -323,10 +323,10 @@
     }
 
     .hero-copy {
-      margin: 12px 0 0;
-      max-width: 780px;
+      margin: 10px 0 0;
+      max-width: 720px;
       color: #d8dbe5;
-      font-size: clamp(20px, 2.05vw, 27px);
+      font-size: clamp(17px, 1.75vw, 23px);
       line-height: 1.45;
       letter-spacing: -0.01em;
     }
@@ -339,8 +339,8 @@
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 14px;
-      margin-top: 32px;
+      gap: 10px;
+      margin-top: 24px;
     }
 
     .btn {
@@ -348,8 +348,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 50px;
-      padding: 0 20px;
+      min-height: 44px;
+      padding: 0 16px;
       border: 1px solid rgba(255,255,255,0.18);
       background: rgba(255,255,255,0.04);
       color: var(--text);
@@ -376,7 +376,7 @@
 
     .hero-device {
       position: relative;
-      min-height: 560px;
+      min-height: 470px;
       align-self: start;
       border: 1px solid rgba(255,255,255,0.14);
       background:
@@ -403,11 +403,11 @@
 
     .terminal {
       position: absolute;
-      left: 38px;
-      right: 38px;
-      top: 46px;
-      bottom: 46px;
-      padding: 32px;
+      left: 30px;
+      right: 30px;
+      top: 36px;
+      bottom: 36px;
+      padding: 24px;
       border: 1px solid rgba(85,231,255,0.28);
       background:
         radial-gradient(circle at 40% 0%, rgba(85,231,255,0.12), transparent 28%),
@@ -420,7 +420,7 @@
       display: flex;
       justify-content: space-between;
       color: var(--cyan);
-      font-size: 13px;
+      font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       border-bottom: 1px solid rgba(85,231,255,0.22);
@@ -430,17 +430,17 @@
 
     .signal-list {
       display: grid;
-      gap: 14px;
-      margin-top: 20px;
+      gap: 10px;
+      margin-top: 16px;
     }
 
     .signal-row {
       display: grid;
       grid-template-columns: auto 1fr auto;
-      gap: 14px;
+      gap: 10px;
       align-items: center;
       color: #dceeff;
-      font-size: 14px;
+      font-size: 12px;
     }
 
     .signal-dot {
@@ -470,8 +470,8 @@
     }
 
     .terminal-big {
-      margin: 38px 0 0;
-      font-size: clamp(42px, 5vw, 78px);
+      margin: 30px 0 0;
+      font-size: clamp(34px, 4.2vw, 62px);
       line-height: 0.88;
       letter-spacing: -0.08em;
       font-weight: 900;
@@ -500,8 +500,8 @@
 
     .page > section {
       position: relative;
-      margin: 42px 0;
-      padding: 48px;
+      margin: 30px 0;
+      padding: 36px;
       border: 1px solid rgba(255,255,255,0.14);
       background:
         linear-gradient(145deg, rgba(255,255,255,0.055), transparent 28%),
@@ -534,15 +534,15 @@
     }
 
     .page > section:first-child {
-      margin-top: 34px;
+      margin-top: 24px;
     }
 
     .page > section + section {
-      margin-top: 32px;
+      margin-top: 24px;
     }
 
     .hero {
-      padding: 48px;
+      padding: 36px;
     }
 
     .section-head {
@@ -550,9 +550,9 @@
       display: flex;
       justify-content: space-between;
       align-items: start;
-      gap: 42px;
-      margin: -10px -10px 34px;
-      padding: 10px 10px 24px;
+      gap: 30px;
+      margin: -8px -8px 26px;
+      padding: 8px 8px 18px;
       border-bottom: 1px solid rgba(255,255,255,0.12);
       background: linear-gradient(90deg, rgba(85,231,255,0.035), transparent 52%);
     }
@@ -560,7 +560,7 @@
     .section-kicker {
       color: var(--cyan);
       font-family: var(--mono);
-      font-size: 13px;
+      font-size: 11px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       margin-bottom: 9px;
@@ -568,17 +568,17 @@
 
     h2 {
       margin: 0;
-      font-size: clamp(30px, 4.4vw, 58px);
+      font-size: clamp(26px, 3.6vw, 46px);
       line-height: 0.92;
       letter-spacing: -0.06em;
       text-transform: uppercase;
     }
 
     .section-note {
-      max-width: 560px;
+      max-width: 500px;
       color: var(--muted);
-      line-height: 1.62;
-      font-size: 18px;
+      line-height: 1.56;
+      font-size: 15px;
       margin: 0;
     }
 
@@ -586,7 +586,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      max-width: 560px;
+      max-width: 500px;
     }
 
     .inline-link {
@@ -680,7 +680,7 @@
     .tools-collection-cta {
       display: flex;
       justify-content: center;
-      margin-top: 38px;
+      margin-top: 28px;
     }
 
     .featured-badge {
@@ -690,12 +690,12 @@
       margin-top: 0;
       color: var(--acid);
       font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       border: 1px solid rgba(215,255,92,0.35);
-      padding: 13px 18px;
+      padding: 10px 14px;
       white-space: nowrap;
       box-shadow: 0 0 18px rgba(215,255,92,0.08);
       transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
@@ -710,26 +710,26 @@
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 20px;
+      gap: 14px;
     }
 
     .tool-card {
       position: relative;
-      min-height: 520px;
+      min-height: 440px;
       display: grid;
       grid-template-rows: 1fr auto;
       border: 1px solid rgba(255,255,255,0.14);
       background:
         radial-gradient(circle at 24% 0%, rgba(85,231,255,0.15), transparent 32%),
         rgba(8, 10, 15, 0.86);
-      padding: 28px;
+      padding: 20px;
       overflow: hidden;
       transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
     }
 
     .tool-card > div {
       display: grid;
-      grid-template-rows: 96px 42px 78px 170px minmax(60px, auto);
+      grid-template-rows: 78px 34px 58px 134px minmax(48px, auto);
       align-content: start;
     }
 
@@ -758,7 +758,7 @@
     }
 
     .tool-art {
-      height: 96px;
+      height: 78px;
       border: 1px solid rgba(255,255,255,0.11);
       background:
         linear-gradient(90deg, rgba(85,231,255,0.18), rgba(255,79,216,0.12)),
@@ -777,7 +777,7 @@
       place-items: center;
       color: rgba(247,247,242,0.92);
       font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 48px;
+      font-size: 38px;
       font-weight: 800;
       line-height: 1;
       text-shadow:
@@ -809,7 +809,7 @@
       align-self: end;
       color: var(--dim);
       font-family: var(--mono);
-      font-size: 12px;
+      font-size: 10px;
       line-height: 1.35;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -819,7 +819,7 @@
     .tool-card h3 {
       align-self: start;
       margin: 0;
-      font-size: 23px;
+      font-size: 19px;
       line-height: 0.94;
       letter-spacing: -0.045em;
       text-transform: uppercase;
@@ -829,15 +829,15 @@
       align-self: start;
       margin: 0;
       color: #c3c8d4;
-      line-height: 1.62;
-      font-size: 18px;
+      line-height: 1.52;
+      font-size: 14px;
     }
 
     .tool-meta {
       align-self: start;
       display: flex;
       flex-wrap: wrap;
-      gap: 9px;
+      gap: 6px;
       margin-top: 0;
     }
 
@@ -845,20 +845,20 @@
       border: 1px solid rgba(255,255,255,0.14);
       background: rgba(255,255,255,0.04);
       color: var(--muted);
-      padding: 7px 9px;
+      padding: 6px 7px;
       font-family: var(--mono);
-      font-size: 12px;
+      font-size: 10px;
       text-transform: uppercase;
     }
 
     .tool-link {
       align-self: end;
       justify-self: start;
-      margin-top: 24px;
+      margin-top: 16px;
       color: var(--text);
       border-bottom: 1px solid rgba(85,231,255,0.55);
       font-family: var(--mono);
-      font-size: 15px;
+      font-size: 12px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       padding-bottom: 5px;
@@ -927,40 +927,40 @@
     .values {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 20px;
+      gap: 14px;
     }
 
     .value {
       border: 1px solid rgba(255,255,255,0.12);
       background: rgba(255,255,255,0.03);
-      padding: 26px;
-      min-height: 230px;
+      padding: 20px;
+      min-height: 175px;
       box-shadow: 0 0 0 1px rgba(0,0,0,0.45) inset;
     }
 
     .value-number {
       color: var(--pink);
       font-family: var(--mono);
-      font-size: 13px;
-      margin-bottom: 20px;
+      font-size: 11px;
+      margin-bottom: 14px;
     }
 
     .value h3 {
-      margin: 0 0 10px;
+      margin: 0 0 8px;
       text-transform: uppercase;
-      font-size: 16px;
+      font-size: 14px;
       letter-spacing: -0.025em;
     }
 
     .value p {
       margin: 0;
       color: var(--muted);
-      line-height: 1.58;
-      font-size: 16px;
+      line-height: 1.5;
+      font-size: 13px;
     }
 
     .footer {
-      padding: 72px 0 44px;
+      padding: 52px 0 34px;
       border-top: 1px solid rgba(255,255,255,0.1);
       color: var(--muted);
     }
@@ -974,7 +974,7 @@
     }
 
     .footer-logo {
-      font-size: clamp(34px, 6vw, 72px);
+      font-size: clamp(28px, 5vw, 56px);
       line-height: 0.85;
       letter-spacing: 0.075em;
       color: var(--text);
@@ -989,24 +989,24 @@
 
     .footer-links {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
       justify-content: flex-end;
       font-family: var(--mono);
-      font-size: 13px;
+      font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
 
     .footer p {
-      font-size: 16px;
+      font-size: 13px;
       line-height: 1.55;
     }
 
     .footer-links a,
     .footer-links button {
       border: 1px solid rgba(255,255,255,0.14);
-      padding: 10px 12px;
+      padding: 8px 9px;
       transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
     }
 
@@ -1060,11 +1060,11 @@
       }
 
       .tool-card {
-        min-height: 500px;
+        min-height: 420px;
       }
 
       .tool-card > div {
-        grid-template-rows: 92px 40px 70px 160px minmax(58px, auto);
+        grid-template-rows: 74px 32px 56px 128px minmax(46px, auto);
       }
 
       .section-head {
