@@ -1,0 +1,629 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATTAQ Audio Tools</title>
+  <meta name="description" content="A collection of browser-based audio tools by Artemy Zen." />
+  <style>
+    :root {
+      --bg: #09070d;
+      --bg-2: #15111d;
+      --card: rgba(18, 15, 26, 0.92);
+      --card-2: rgba(27, 21, 38, 0.96);
+      --text: #f3ecdf;
+      --muted: #b7adc6;
+      --accent: #ffb36b;
+      --accent-2: #7fe6f2;
+      --accent-3: #b06dff;
+      --line: rgba(240, 228, 214, 0.16);
+      --shadow: rgba(0, 0, 0, 0.64);
+
+      --synth-pink: rgba(255, 74, 167, 0.24);
+      --synth-cyan: rgba(78, 224, 255, 0.22);
+      --synth-violet: rgba(176, 109, 255, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 16% 12%, rgba(255, 179, 107, 0.10), transparent 34%),
+        radial-gradient(circle at 82% 18%, var(--synth-cyan), transparent 30%),
+        radial-gradient(circle at 55% 0%, var(--synth-violet), transparent 34%),
+        radial-gradient(circle at 14% 84%, var(--synth-pink), transparent 38%),
+        linear-gradient(180deg, #17111d 0%, #0d0a12 46%, #07070b 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.40;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.035) 0px,
+          rgba(255, 255, 255, 0.035) 1px,
+          transparent 1px,
+          transparent 4px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255, 74, 167, 0.06) 0%,
+          transparent 18%,
+          transparent 82%,
+          rgba(78, 224, 255, 0.06) 100%
+        );
+      mix-blend-mode: screen;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(255, 74, 167, 0.04),
+          transparent 30%,
+          transparent 70%,
+          rgba(78, 224, 255, 0.04)
+        ),
+        radial-gradient(circle at 50% 50%, transparent 48%, rgba(0, 0, 0, 0.30) 100%);
+      opacity: 0.95;
+    }
+
+    .page {
+      position: relative;
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0 36px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 20px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+        linear-gradient(135deg, rgba(255, 179, 107, 0.06), transparent 54%),
+        linear-gradient(225deg, rgba(78, 224, 255, 0.08), transparent 60%),
+        linear-gradient(90deg, rgba(255, 74, 167, 0.04), transparent 44%, rgba(176, 109, 255, 0.04)),
+        rgba(14, 13, 20, 0.92);
+      box-shadow:
+        0 24px 70px var(--shadow),
+        0 0 34px rgba(78, 224, 255, 0.07),
+        0 0 20px rgba(255, 74, 167, 0.04);
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .panel::after,
+    .tool-card::after,
+    .footer::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,0.018) 0px,
+          rgba(255,255,255,0.018) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+      opacity: 0.4;
+      mix-blend-mode: screen;
+    }
+
+    .intro {
+      padding: 34px;
+      position: relative;
+    }
+
+    .intro::before {
+      content: "AUDIO / BROWSER / TOOLS";
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      color: rgba(127, 230, 242, 0.34);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-2);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 38px;
+      height: 1px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(255, 179, 107, 0.2), 0 0 18px rgba(255, 74, 167, 0.08);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(42px, 8vw, 88px);
+      line-height: 0.88;
+      letter-spacing: -0.06em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-shadow:
+        1px 0 rgba(255, 74, 167, 0.22),
+        -1px 0 rgba(78, 224, 255, 0.18),
+        0 0 18px rgba(176, 109, 255, 0.12);
+    }
+
+    h1 span {
+      display: block;
+      color: var(--accent);
+      text-shadow:
+        1px 0 rgba(255, 74, 167, 0.18),
+        -1px 0 rgba(78, 224, 255, 0.14);
+    }
+
+    .subtitle {
+      max-width: 700px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .side-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100%;
+      padding: 26px;
+      background:
+        linear-gradient(160deg, rgba(255, 179, 107, 0.05), transparent 58%),
+        linear-gradient(20deg, rgba(78, 224, 255, 0.07), transparent 64%),
+        linear-gradient(110deg, rgba(176, 109, 255, 0.05), transparent 58%),
+        rgba(15, 14, 21, 0.92);
+    }
+
+    .brand-mark {
+      width: 100%;
+      aspect-ratio: 1.38;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, transparent 49%, rgba(255, 179, 107, 0.12) 50%, transparent 51%),
+        radial-gradient(circle, rgba(127, 230, 242, 0.14) 0 4px, transparent 5px),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.34));
+      background-size: auto, 28px 28px, auto;
+      display: grid;
+      place-items: center;
+      margin-bottom: 22px;
+      position: relative;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 88px;
+      height: 88px;
+      border: 2px solid rgba(127, 230, 242, 0.26);
+      border-radius: 50%;
+      box-shadow: 0 0 16px rgba(78, 224, 255, 0.06);
+    }
+
+    .brand-mark::before {
+      left: 14%;
+    }
+
+    .brand-mark::after {
+      right: 14%;
+    }
+
+    .brand-mark strong {
+      position: relative;
+      z-index: 1;
+      padding: 8px 12px;
+      background: #0c0b10;
+      border: 1px solid var(--line);
+      color: var(--accent-2);
+      font-size: 14px;
+      letter-spacing: 0.22em;
+    }
+
+    .side-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .tools {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .tool-card {
+      position: relative;
+      min-height: 330px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 179, 107, 0.04), transparent 40%),
+        linear-gradient(135deg, rgba(78, 224, 255, 0.05), transparent 54%),
+        linear-gradient(225deg, rgba(255, 74, 167, 0.04), transparent 62%),
+        var(--card);
+      box-shadow:
+        0 18px 55px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+      overflow: hidden;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(127, 230, 242, 0.34);
+      background:
+        linear-gradient(180deg, rgba(255, 179, 107, 0.06), transparent 42%),
+        linear-gradient(135deg, rgba(78, 224, 255, 0.07), transparent 58%),
+        linear-gradient(225deg, rgba(255, 74, 167, 0.05), transparent 64%),
+        var(--card-2);
+      box-shadow:
+        0 0 18px rgba(78, 224, 255, 0.08),
+        0 0 16px rgba(255, 74, 167, 0.05),
+        0 18px 55px rgba(0, 0, 0, 0.48);
+    }
+
+    .tool-card::before {
+      content: attr(data-number);
+      position: absolute;
+      right: 16px;
+      top: 12px;
+      color: rgba(255, 255, 255, 0.06);
+      font-size: 58px;
+      font-weight: 900;
+      letter-spacing: -0.12em;
+    }
+
+    .icon {
+      width: 58px;
+      height: 58px;
+      margin-bottom: 22px;
+      border: 1px solid rgba(255, 179, 107, 0.22);
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)),
+        rgba(255, 74, 167, 0.04);
+      color: var(--accent);
+      font-size: 26px;
+      box-shadow:
+        0 0 14px rgba(255, 74, 167, 0.05),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .tool-card h2 {
+      position: relative;
+      margin: 0 0 12px;
+      color: var(--text);
+      font-size: 20px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .tool-card p {
+      position: relative;
+      min-height: 116px;
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.58;
+    }
+
+    .tags {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: auto;
+      margin-bottom: 24px;
+      min-height: 52px;
+      align-content: flex-start;
+    }
+
+    .tag {
+      border: 1px solid rgba(127, 230, 242, 0.20);
+      color: var(--accent-2);
+      padding: 5px 7px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid rgba(240, 228, 214, 0.18);
+      color: #f5efe4;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)),
+        linear-gradient(90deg, rgba(255, 179, 107, 0.32), rgba(176, 109, 255, 0.30), rgba(78, 224, 255, 0.28));
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 0 14px rgba(176, 109, 255, 0.06);
+      margin-top: 0;
+    }
+
+    .button:hover {
+      filter: brightness(1.08) saturate(1.04);
+    }
+
+    .footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      margin-top: 18px;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+        rgba(10, 10, 14, 0.86);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer a {
+      color: var(--accent-2);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: none;
+    }
+
+    .site-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 8px 18px;
+      border: 1px solid rgba(127, 230, 242, 0.42);
+      color: #bff8ff;
+      background:
+        linear-gradient(180deg, rgba(127, 230, 242, 0.08), rgba(255, 74, 167, 0.035)),
+        rgba(255, 255, 255, 0.02);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow:
+        0 0 12px rgba(78, 224, 255, 0.20),
+        0 0 28px rgba(78, 224, 255, 0.10),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+      text-shadow:
+        0 0 8px rgba(127, 230, 242, 0.55),
+        0 0 18px rgba(127, 230, 242, 0.24);
+      transition: transform 160ms ease, border-color 160ms ease, color 160ms ease, filter 160ms ease, box-shadow 160ms ease;
+    }
+
+    .site-link:hover {
+      color: #fff;
+      border-color: rgba(255, 74, 167, 0.62);
+      text-decoration: none;
+      transform: scale(1.04);
+      filter: brightness(1.12) saturate(1.08);
+      box-shadow:
+        0 0 14px rgba(255, 74, 167, 0.34),
+        0 0 30px rgba(127, 230, 242, 0.22),
+        0 0 52px rgba(176, 109, 255, 0.14),
+        inset 0 1px 0 rgba(255,255,255,0.10);
+      text-shadow:
+        0 0 8px rgba(255, 255, 255, 0.55),
+        0 0 18px rgba(127, 230, 242, 0.38),
+        0 0 28px rgba(255, 74, 167, 0.30);
+    }
+
+    @media (max-width: 1080px) {
+      .tools {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 860px) {
+      .page {
+        width: min(100% - 22px, 620px);
+        padding-top: 28px;
+      }
+
+      .hero,
+      .tools {
+        grid-template-columns: 1fr;
+      }
+
+      .intro {
+        padding: 28px 22px;
+      }
+
+      .intro::before {
+        display: none;
+      }
+
+      .tool-card {
+        min-height: auto;
+      }
+
+      .tool-card p {
+        min-height: auto;
+      }
+
+      .footer {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+
+      .site-link {
+        width: 100%;
+      }
+    }
+  
+    .attaq-lab-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid rgba(83, 233, 255, 0.42);
+      background: rgba(255, 255, 255, 0.045);
+      color: #f5f7ef !important;
+      font-family: "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      text-shadow: 1px 0 0 rgba(83,233,255,0.88), -1px 0 0 rgba(255,79,203,0.72);
+      box-shadow: 0 0 20px rgba(83,233,255,0.12);
+    }
+
+    .attaq-lab-link:hover {
+      border-color: rgba(215,255,87,0.55);
+      color: #d7ff57 !important;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="panel intro">
+        <div class="eyebrow">By Artemy Zen</div>
+        <h1>ATTAQ <span>Audio Tools</span></h1>
+        <p class="subtitle">
+          A collection of quick and convenient browser-based audio tools that are useful for elegantly manipulating and distorting sound in various ways. TheyвЂ™re perfect for music, sound design, video games, movies, and much more.
+        </p>
+      </div>
+
+      <aside class="panel side-card">
+        <div class="brand-mark" aria-hidden="true">
+          <strong>ATTAQ</strong>
+        </div>
+        <p>
+          Open a tool, load or generate sound, destroy it beautifully, export the result, and use it in your projects.
+        </p>
+      </aside>
+    </section>
+
+    <section class="tools" aria-label="Audio tools list">
+      <article class="tool-card" data-number="01">
+        <div class="icon">в–Ј</div>
+        <h2>ATTAQ Tape Chewer</h2>
+        <p>
+          Chewed cassette emulator for wow, flutter, tape instability, dirty warble, damaged playback and lo-fi texture.
+        </p>
+        <div class="tags">
+          <span class="tag">Tape</span>
+          <span class="tag">Lo-Fi</span>
+          <span class="tag">Warble</span>
+          <span class="tag">Horror</span>
+        </div>
+        <a class="button" href="tape-chewer.html">Launch Tool</a>
+      </article>
+
+      <article class="tool-card" data-number="02">
+        <div class="icon">в—‰</div>
+        <h2>ATTAQ Old Radio</h2>
+        <p>
+          Old radio processor for vintage broadcasts, distant voices, noisy signal, haunted frequencies and degraded transmission.
+        </p>
+        <div class="tags">
+          <span class="tag">Radio</span>
+          <span class="tag">Noise</span>
+          <span class="tag">Vintage</span>
+          <span class="tag">Signal</span>
+        </div>
+        <a class="button" href="old-radio.html">Launch Tool</a>
+      </article>
+
+      <article class="tool-card" data-number="03">
+        <div class="icon">в—Ћ</div>
+        <h2>ATTAQ Vinyl Wrecker</h2>
+        <p>
+          Damaged vinyl emulator for dust, crackle, wobble, worn grooves, warped rotation and broken record textures.
+        </p>
+        <div class="tags">
+          <span class="tag">Vinyl</span>
+          <span class="tag">Crackle</span>
+          <span class="tag">Wobble</span>
+          <span class="tag">Dust</span>
+        </div>
+        <a class="button" href="vinyl-wrecker.html">Launch Tool</a>
+      </article>
+
+      <article class="tool-card" data-number="04">
+        <div class="icon">в‡„</div>
+        <h2>ATTAQ Audio Converter</h2>
+        <p>
+          Fast, free and handy audio converter with batch conversion support for quick exports.
+        </p>
+        <div class="tags">
+          <span class="tag">Convert</span>
+          <span class="tag">Batch</span>
+          <span class="tag">Export</span>
+          <span class="tag">Assets</span>
+        </div>
+        <a class="button" href="audio-converter.html">Launch Tool</a>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <a class="attaq-lab-link" href="../index.html">ATTAQ LAB</a>
+      <a class="site-link" href="https://artemyzen.github.io/artemyzen/" target="_blank" rel="noopener noreferrer">Artemy Zen</a>
+      <a class="site-link" href="https://artemyzen.itch.io/" target="_blank" rel="noopener noreferrer">itch.io</a>
+    </footer>
+  </main>
+</body>
+</html>
