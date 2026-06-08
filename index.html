@@ -39,8 +39,10 @@
       min-height: 100vh;
       color: var(--text);
       background:
-        radial-gradient(circle at 20% -10%, rgba(83, 233, 255, 0.15), transparent 34%),
-        radial-gradient(circle at 100% 20%, rgba(255, 79, 203, 0.12), transparent 30%),
+        linear-gradient(rgba(5, 6, 9, 0.66), rgba(5, 6, 9, 0.86)),
+        radial-gradient(circle at 20% -10%, rgba(83, 233, 255, 0.13), transparent 34%),
+        radial-gradient(circle at 100% 20%, rgba(255, 79, 203, 0.10), transparent 30%),
+        url("images/mainpage-background.png") center top / cover fixed,
         linear-gradient(180deg, #050609 0%, #090d12 48%, #050609 100%);
       font-family: var(--sans);
       overflow-x: hidden;
@@ -52,10 +54,10 @@
       inset: 0;
       z-index: -2;
       background:
-        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-      background-size: 100% 5px, 72px 72px;
-      mask-image: linear-gradient(to bottom, black, transparent 92%);
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 6px),
+        linear-gradient(90deg, rgba(83,233,255,0.035), transparent 18%, transparent 82%, rgba(255,79,203,0.035));
+      mask-image: linear-gradient(to bottom, black, black 78%, transparent 100%);
+      mix-blend-mode: screen;
       pointer-events: none;
     }
 
@@ -64,8 +66,9 @@
       position: fixed;
       inset: 0;
       z-index: -1;
-      background: linear-gradient(90deg, rgba(255,79,203,0.05), transparent 18%, transparent 82%, rgba(83,233,255,0.06));
-      mix-blend-mode: screen;
+      background:
+        radial-gradient(ellipse at center, transparent 0 48%, rgba(0,0,0,0.42) 100%),
+        linear-gradient(180deg, transparent 0 58%, rgba(0,0,0,0.36) 100%);
       pointer-events: none;
     }
 
@@ -84,7 +87,7 @@
       top: 0;
       z-index: 20;
       border-bottom: 1px solid rgba(255,255,255,0.09);
-      background: rgba(5, 6, 9, 0.78);
+      background: rgba(3, 4, 7, 0.72);
       backdrop-filter: blur(18px);
     }
 
@@ -179,11 +182,11 @@
     }
 
     .hero {
-      min-height: calc(100vh - 220px);
+      min-height: auto;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 28px 0 42px;
+      padding: 88px 0 44px;
     }
 
     .hero-copy {
@@ -193,6 +196,7 @@
     }
 
     h1 {
+      position: relative;
       margin: 0;
       max-width: none;
       font-size: clamp(54px, 11.4vw, 146px);
@@ -205,14 +209,64 @@
         3px 0 0 rgba(83,233,255,0.92),
         -3px 0 0 rgba(255,79,203,0.85),
         0 10px 24px rgba(0,0,0,0.55);
+      animation: logoGlitch 7s infinite steps(1, end);
+    }
+
+    h1::before,
+    h1::after {
+      content: "ATTAQ LAB";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      mix-blend-mode: screen;
+    }
+
+    h1::before {
+      color: var(--cyan);
+      transform: translateX(4px);
+      clip-path: inset(12% 0 66% 0);
+      animation: logoGlitchCyan 7s infinite steps(1, end);
+    }
+
+    h1::after {
+      color: var(--magenta);
+      transform: translateX(-4px);
+      clip-path: inset(58% 0 18% 0);
+      animation: logoGlitchMagenta 7s infinite steps(1, end);
+    }
+
+    @keyframes logoGlitch {
+      0%, 72%, 77%, 100% { transform: translate(0, 0); filter: none; }
+      73% { transform: translate(-1px, 0); filter: contrast(1.12); }
+      74% { transform: translate(2px, -1px); }
+      75% { transform: translate(-2px, 1px); }
+      76% { transform: translate(1px, 0); filter: none; }
+    }
+
+    @keyframes logoGlitchCyan {
+      0%, 72%, 77%, 100% { opacity: 0; transform: translateX(0); clip-path: inset(0 0 0 0); }
+      73% { opacity: 0.55; transform: translateX(8px); clip-path: inset(10% 0 72% 0); }
+      74% { opacity: 0.38; transform: translateX(-5px); clip-path: inset(44% 0 38% 0); }
+      75% { opacity: 0.50; transform: translateX(5px); clip-path: inset(70% 0 9% 0); }
+      76% { opacity: 0.28; transform: translateX(-2px); clip-path: inset(28% 0 54% 0); }
+    }
+
+    @keyframes logoGlitchMagenta {
+      0%, 72%, 77%, 100% { opacity: 0; transform: translateX(0); clip-path: inset(0 0 0 0); }
+      73% { opacity: 0.45; transform: translateX(-7px); clip-path: inset(68% 0 12% 0); }
+      74% { opacity: 0.34; transform: translateX(6px); clip-path: inset(18% 0 62% 0); }
+      75% { opacity: 0.48; transform: translateX(-5px); clip-path: inset(48% 0 32% 0); }
+      76% { opacity: 0.24; transform: translateX(2px); clip-path: inset(8% 0 78% 0); }
     }
 
     .lead {
       max-width: 760px;
-      margin: 28px auto 0;
+      margin: 24px auto 0;
       color: #dbe2e8;
       font-size: clamp(18px, 2.1vw, 24px);
       line-height: 1.42;
+      text-shadow: 0 2px 18px rgba(0,0,0,0.82);
     }
 
     .lead strong {
@@ -225,6 +279,147 @@
       justify-content: center;
       gap: 12px;
       margin-top: 34px;
+    }
+
+    .hero-product-shelf {
+      width: min(100%, 620px);
+      margin: 28px auto 0;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(83,233,255,0.055), transparent 34%),
+        rgba(3, 5, 8, 0.62);
+      box-shadow:
+        0 18px 54px rgba(0,0,0,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .shelf-label {
+      margin: 0;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-align: left;
+    }
+
+    .shelf-links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .shelf-links a {
+      min-height: 78px;
+      position: relative;
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr) 22px;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+      transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
+    }
+
+    .shelf-links a::before {
+      content: "";
+      position: absolute;
+      right: 14px;
+      top: 10px;
+      width: 42px;
+      height: 34px;
+      opacity: 0.13;
+      background:
+        linear-gradient(rgba(255,255,255,0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.16) 1px, transparent 1px);
+      background-size: 100% 7px, 7px 100%;
+      pointer-events: none;
+    }
+
+    .shelf-links a:last-child {
+      border-right: 0;
+    }
+
+    .shelf-icon {
+      width: 56px;
+      height: 56px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(83,233,255,0.22);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015)),
+        rgba(255,79,203,0.025);
+      color: var(--text);
+      box-shadow:
+        0 0 14px rgba(83,233,255,0.07),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+      overflow: hidden;
+    }
+
+    .shelf-icon::before {
+      content: attr(data-symbol);
+      position: relative;
+      z-index: 1;
+      color: var(--text);
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1;
+      text-shadow:
+        2px 0 rgba(83,233,255,0.65),
+        -2px 0 rgba(255,79,203,0.55),
+        0 0 10px rgba(255,255,255,0.08);
+    }
+
+    .shelf-icon::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, transparent 40%, rgba(255,255,255,0.16) 41%, transparent 43%);
+      animation: miniScan 3.6s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes miniScan {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(100%); }
+    }
+
+    .shelf-copy {
+      min-width: 0;
+      display: grid;
+      gap: 6px;
+      text-align: left;
+    }
+
+    .shelf-copy b {
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .shelf-copy small {
+      color: var(--dim);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+    }
+
+    .shelf-arrow {
+      color: var(--cyan);
+      justify-self: end;
+    }
+
+    .shelf-links a:hover {
+      color: var(--acid);
+      border-color: rgba(83,233,255,0.22);
+      background: rgba(255,255,255,0.045);
     }
 
     .button {
@@ -421,8 +616,16 @@
     .mocap i:nth-child(5) { left: 56%; top: 70%; background: var(--magenta); }
 
     section {
-      padding: 76px 0;
-      border-top: 1px solid rgba(255,255,255,0.08);
+      margin: 28px 0;
+      padding: 34px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(83,233,255,0.045), transparent 34%),
+        radial-gradient(circle at 100% 0%, rgba(255,79,203,0.035), transparent 30%),
+        rgba(3, 5, 8, 0.52);
+      box-shadow:
+        0 20px 62px rgba(0,0,0,0.26),
+        inset 0 1px 0 rgba(255,255,255,0.035);
     }
 
     .section-head {
@@ -442,7 +645,7 @@
 
     .section-label {
       margin: 0 0 13px;
-      color: var(--cyan);
+      color: rgba(83,233,255,0.82);
       font-family: var(--mono);
       font-size: 11px;
       letter-spacing: 0.14em;
@@ -459,17 +662,37 @@
 
     .section-note {
       margin: 0;
-      color: var(--muted);
+      color: #b5bdc8;
       font-size: 17px;
       line-height: 1.55;
+    }
+
+    #focus-map .section-head {
+      grid-template-columns: minmax(0, 0.82fr) minmax(280px, 0.58fr);
+      align-items: end;
+      margin-bottom: 20px;
+    }
+
+    #focus-map h2 {
+      max-width: 720px;
+      font-size: clamp(34px, 4.2vw, 56px);
+      line-height: 0.96;
+    }
+
+    #focus-map .section-note {
+      max-width: 520px;
+      justify-self: end;
+      font-size: 16px;
+      line-height: 1.48;
     }
 
     .signal-card {
       border: 1px solid var(--line);
       background:
         linear-gradient(135deg, rgba(83,233,255,0.07), transparent 38%),
-        rgba(0,0,0,0.28);
+        rgba(0,0,0,0.44);
       padding: 16px;
+      box-shadow: inset 0 0 28px rgba(255,255,255,0.025);
     }
 
     .signal-card .module-title {
@@ -484,16 +707,16 @@
 
     .launch-card {
       min-width: 0;
-      min-height: 276px;
+      min-height: 220px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       border: 1px solid var(--line);
       background:
-        linear-gradient(135deg, rgba(255,255,255,0.06), transparent 36%),
-        var(--panel);
-      padding: 18px;
-      box-shadow: 0 18px 52px rgba(0,0,0,0.24);
+        linear-gradient(135deg, rgba(83,233,255,0.06), transparent 36%),
+        rgba(4, 7, 10, 0.74);
+      padding: 20px;
+      box-shadow: 0 22px 64px rgba(0,0,0,0.34), inset 0 0 34px rgba(255,255,255,0.025);
       transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
     }
 
@@ -506,7 +729,6 @@
     }
 
     .card-meta,
-    .status-tag,
     .log-meta {
       font-family: var(--mono);
       font-size: 10px;
@@ -519,10 +741,6 @@
       justify-content: space-between;
       gap: 12px;
       color: var(--dim);
-    }
-
-    .status-tag {
-      color: var(--acid);
     }
 
     .launch-card h3 {
@@ -551,6 +769,116 @@
       text-transform: uppercase;
     }
 
+    .featured-product {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(360px, 1.02fr) minmax(340px, 0.98fr);
+      gap: 18px;
+      align-items: center;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(83,233,255,0.045), transparent 42%),
+        rgba(2, 4, 7, 0.68);
+      padding: 14px;
+      overflow: hidden;
+      box-shadow: 0 22px 62px rgba(0,0,0,0.38), inset 0 0 28px rgba(255,255,255,0.018);
+    }
+
+    .featured-product::before {
+      content: none;
+    }
+
+    .featured-copy {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 6px 4px 6px 8px;
+    }
+
+    .featured-copy h3 {
+      max-width: 560px;
+      margin: 12px 0;
+      font-size: clamp(34px, 4.4vw, 56px);
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .featured-copy p {
+      max-width: 560px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.52;
+    }
+
+    .featured-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .featured-actions .button {
+      min-height: 42px;
+      padding: 0 14px;
+      font-size: 11px;
+    }
+
+    .cover-frame {
+      position: relative;
+      background: #070a0d;
+      overflow: hidden;
+      isolation: isolate;
+      border-radius: 7px;
+      box-shadow:
+        0 24px 72px rgba(0,0,0,0.50),
+        inset 0 0 0 1px rgba(255,255,255,0.08),
+        inset 0 0 42px rgba(0,0,0,0.52);
+    }
+
+    .cover-frame::before,
+    .cover-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .cover-frame::before {
+      opacity: 0.10;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.18) 0 1px, transparent 1px 6px),
+        linear-gradient(90deg, rgba(255,79,203,0.16), transparent 24%, transparent 76%, rgba(83,233,255,0.16));
+      mix-blend-mode: screen;
+    }
+
+    .cover-frame::after {
+      opacity: 0.12;
+      background:
+        linear-gradient(90deg, transparent 0 18%, rgba(83,233,255,0.22) 18% 19%, transparent 19% 58%, rgba(255,79,203,0.20) 58% 59%, transparent 59%),
+        radial-gradient(circle at 50% 50%, transparent 62%, rgba(0,0,0,0.48));
+      mix-blend-mode: screen;
+    }
+
+    .featured-cover {
+      aspect-ratio: 4 / 3;
+      border: 1px solid var(--line);
+      align-self: center;
+      justify-self: end;
+      width: min(100%, 500px);
+    }
+
+    .featured-cover img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
     .audio-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -575,9 +903,7 @@
 
     .audio-cover {
       aspect-ratio: 1024 / 811;
-      background: #070a0d;
       border-bottom: 1px solid var(--line);
-      overflow: hidden;
     }
 
     .audio-card.converter .audio-cover {
@@ -776,7 +1102,10 @@
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
       border: 1px solid var(--line);
-      background: var(--panel-strong);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.035), transparent 58%),
+        rgba(3, 5, 8, 0.76);
+      box-shadow: 0 22px 70px rgba(0,0,0,0.34);
     }
 
     .manifesto div {
@@ -844,6 +1173,14 @@
         grid-template-columns: 1fr;
       }
 
+      .featured-product {
+        grid-template-columns: 1fr;
+      }
+
+      .featured-cover {
+        justify-self: start;
+      }
+
       .hero {
         min-height: auto;
       }
@@ -862,6 +1199,7 @@
     @media (max-width: 760px) {
       body {
         overflow-x: hidden;
+        background-attachment: scroll, scroll, scroll, scroll, scroll;
       }
 
       .site-shell,
@@ -901,6 +1239,28 @@
       .hero,
       .hero-copy {
         min-width: 0;
+      }
+
+      .featured-copy {
+        padding: 22px;
+      }
+
+      .featured-cover {
+        width: 100%;
+        margin: 0;
+      }
+
+      .shelf-links {
+        grid-template-columns: 1fr;
+      }
+
+      .shelf-links a {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .shelf-links a:last-child {
+        border-bottom: 0;
       }
 
       h1 {
@@ -951,7 +1311,8 @@
       }
 
       section {
-        padding: 54px 0;
+        margin: 20px 0;
+        padding: 24px;
       }
 
       .launch-card {
@@ -982,6 +1343,15 @@
         border-bottom: 0;
       }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      h1,
+      h1::before,
+      h1::after,
+      .shelf-icon::after {
+        animation: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -991,7 +1361,7 @@
         <span>ATTAQ LAB</span>
       </a>
       <nav class="nav" aria-label="Main navigation">
-        <a href="#tools">Tools</a>
+        <a href="#focus-map">Focus Map</a>
         <a href="#audio-tools">Audio Tools</a>
         <a href="#manifesto">Manifesto</a>
         <a class="social-icon-link discord" href="https://discord.gg/W7pUZDcqs7" aria-label="Discord" title="Discord">
@@ -1014,48 +1384,54 @@
         <div class="hero-copy">
           <h1>ATTAQ LAB</h1>
           <p class="lead">
-            We build <strong>fast, useful creative tools</strong> for sound and browser-based media work.
+            We build <strong>useful digital tools</strong> for creators across sound, focus, media and whatever comes next.
           </p>
-          <div class="hero-actions">
-            <a class="button primary" href="#audio-tools">Explore audio tools</a>
+          <div class="hero-product-shelf" aria-label="Product shelf">
+            <p class="shelf-label">Product shelf</p>
+            <div class="shelf-links">
+              <a href="#focus-map">
+                <span class="shelf-icon" data-symbol="◇" aria-hidden="true"></span>
+                <span class="shelf-copy"><b>Focus Map</b><small>Product page</small></span>
+                <span class="shelf-arrow">&darr;</span>
+              </a>
+              <a href="#audio-tools">
+                <span class="shelf-icon" data-symbol="≋" aria-hidden="true"></span>
+                <span class="shelf-copy"><b>Audio Tools</b><small>Tool stack</small></span>
+                <span class="shelf-arrow">&darr;</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="tools" aria-label="Tool categories">
+      <section id="focus-map" aria-label="ATTAQ Focus Map">
         <div class="section-head">
           <div>
-            <p class="section-label">Launch directory</p>
-            <h2>Tools for different kinds of making.</h2>
+            <p class="section-label">Featured product</p>
+            <h2>Focus Map for overloaded creative minds.</h2>
           </div>
-          <div class="section-side">
-            <div class="signal-card" aria-label="ATTAQ LAB tool stack">
-              <div class="module-title">
-                <span>Tool Stack</span>
-                <span>Live</span>
-              </div>
-              <div class="bars">
-                <div class="bar"><b>Tape</b><div><span style="width: 86%"></span></div></div>
-                <div class="bar"><b>Radio</b><div><span style="width: 78%"></span></div></div>
-                <div class="bar"><b>Vinyl</b><div><span style="width: 72%"></span></div></div>
-                <div class="bar"><b>Utility</b><div><span style="width: 64%"></span></div></div>
-              </div>
-            </div>
-            <p class="section-note">
-              A home for polished tools and product lines. Each tile can later grow into a full product page, changelog or docs.
-            </p>
-          </div>
+          <p class="section-note">
+            A visual workspace for people who think in branches, references and half-finished directions.
+          </p>
         </div>
 
-        <div class="launch-grid">
-          <a class="launch-card" href="#audio-tools">
-            <div class="card-meta"><span>Audio</span><span class="status-tag">Live</span></div>
+        <div class="featured-product">
+          <div class="featured-copy">
             <div>
-              <h3>Fast audio tools</h3>
-              <p>Convert, chew, wreck, radio-tune and process sound quickly from the browser.</p>
+              <div class="card-meta"><span>Focus</span></div>
+              <h3>Focus on what matters right now.</h3>
+              <p>
+                ATTAQ Focus Map turns scattered projects, ideas and next actions into a visible map. It helps creators who keep too much in their head find the signal, group the work and move forward without opening a heavy project-management system.
+              </p>
             </div>
-            <div class="card-bottom"><span>View tools</span><span>&darr;</span></div>
-          </a>
+            <div class="featured-actions">
+              <a class="button primary" href="https://artemyzen.github.io/attaq-focus-map/" target="_blank" rel="noreferrer">Open Focus Map</a>
+              <a class="button" href="productiontools/focusmap/about-focus-map.html">About Focus Map</a>
+            </div>
+          </div>
+          <div class="featured-cover cover-frame">
+            <img src="images/focus-map-cover.png" alt="ATTAQ Focus Map cover" />
+          </div>
         </div>
       </section>
 
@@ -1074,12 +1450,12 @@
 
         <div class="audio-grid">
           <a class="audio-card" href="audiotools/tape-chewer.html">
-            <div class="audio-cover">
+            <div class="audio-cover cover-frame">
               <img src="images/tape-chewer-cover.jpg" alt="ATTAQ Tape Chewer cover" />
             </div>
             <div class="audio-body">
               <div>
-                <div class="card-meta"><span>Cassette</span><span class="status-tag">Tool</span></div>
+                <div class="card-meta"><span>Cassette</span></div>
                 <h3>Tape Chewer</h3>
                 <p>Warp pitch, chew tape, add dropouts, saturation and unstable cassette damage.</p>
               </div>
@@ -1088,12 +1464,12 @@
           </a>
 
           <a class="audio-card" href="audiotools/old-radio.html">
-            <div class="audio-cover">
+            <div class="audio-cover cover-frame">
               <img src="images/old-radio-cover.jpg" alt="ATTAQ Old Radio cover" />
             </div>
             <div class="audio-body">
               <div>
-                <div class="card-meta"><span>Broadcast</span><span class="status-tag">Tool</span></div>
+                <div class="card-meta"><span>Broadcast</span></div>
                 <h3>Old Radio</h3>
                 <p>Shape audio into distant AM, bad tuning, static and vintage broadcast texture.</p>
               </div>
@@ -1102,12 +1478,12 @@
           </a>
 
           <a class="audio-card" href="audiotools/vinyl-wrecker.html">
-            <div class="audio-cover">
+            <div class="audio-cover cover-frame">
               <img src="images/vinyl-wrecker-cover.jpg" alt="ATTAQ Vinyl Wrecker cover" />
             </div>
             <div class="audio-body">
               <div>
-                <div class="card-meta"><span>Vinyl</span><span class="status-tag">Tool</span></div>
+                <div class="card-meta"><span>Vinyl</span></div>
                 <h3>Vinyl Wrecker</h3>
                 <p>Destroy clean audio with warped discs, dust, wobble, reverse playback and wear.</p>
               </div>
@@ -1116,12 +1492,12 @@
           </a>
 
           <a class="audio-card converter" href="audiotools/audio-converter.html">
-            <div class="audio-cover">
+            <div class="audio-cover cover-frame">
               <img src="images/audio-converter-cover.jpg" alt="ATTAQ Audio Converter cover" />
             </div>
             <div class="audio-body">
               <div>
-                <div class="card-meta"><span>Utility</span><span class="status-tag">Tool</span></div>
+                <div class="card-meta"><span>Utility</span></div>
                 <h3>Audio Converter</h3>
                 <p>Convert audio files quickly in batches with useful output controls.</p>
               </div>
@@ -1134,34 +1510,34 @@
       <section id="manifesto" aria-label="ATTAQ LAB manifesto">
         <div class="section-head">
           <div>
-            <p class="section-label">Operating rules</p>
-            <h2>Make tools that feel alive.</h2>
+            <p class="section-label">Manifesto</p>
+            <h2>Tools with signal, speed and character.</h2>
           </div>
           <p class="section-note">
-            ATTAQ LAB publishes tools when they are ready to use: focused, fast and clear enough to become part of real creative work.
+            ATTAQ LAB is a place for practical creative software: small enough to open fast, opinionated enough to feel authored, and useful enough to become part of real work.
           </p>
         </div>
 
         <div class="manifesto">
           <div>
-            <b>01 / Fast</b>
-            <p>Open the tool, get a result, stay in motion.</p>
+            <b>01 / Signal</b>
+            <p>Every tool should help a creator find the next useful move.</p>
           </div>
           <div>
-            <b>02 / Useful</b>
-            <p>Every product should have a clear interaction and a real use.</p>
+            <b>02 / Character</b>
+            <p>Interfaces can have texture, attitude and a point of view.</p>
           </div>
           <div>
-            <b>03 / Browser-first</b>
-            <p>Reduce setup whenever a web tool can do the job.</p>
+            <b>03 / Momentum</b>
+            <p>Good tools keep people making instead of managing the tool itself.</p>
           </div>
           <div>
-            <b>04 / Polished</b>
-            <p>Publish the work when it feels ready to stand on its own.</p>
+            <b>04 / Range</b>
+            <p>Sound, focus, visuals, motion, games and odd utilities can live in one lab.</p>
           </div>
           <div>
-            <b>05 / Built to use</b>
-            <p>Every page should lead to a working tool, not a promise.</p>
+            <b>05 / Craft</b>
+            <p>Release things when they feel considered, usable and worth returning to.</p>
           </div>
         </div>
       </section>
