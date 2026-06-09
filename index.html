@@ -832,41 +832,12 @@
       background: #070a0d;
       overflow: hidden;
       isolation: isolate;
-      border-radius: 7px;
-      box-shadow:
-        0 24px 72px rgba(0,0,0,0.50),
-        inset 0 0 0 1px rgba(255,255,255,0.08),
-        inset 0 0 42px rgba(0,0,0,0.52);
-    }
-
-    .cover-frame::before,
-    .cover-frame::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .cover-frame::before {
-      opacity: 0.10;
-      background:
-        repeating-linear-gradient(0deg, rgba(255,255,255,0.18) 0 1px, transparent 1px 6px),
-        linear-gradient(90deg, rgba(255,79,203,0.16), transparent 24%, transparent 76%, rgba(83,233,255,0.16));
-      mix-blend-mode: screen;
-    }
-
-    .cover-frame::after {
-      opacity: 0.12;
-      background:
-        linear-gradient(90deg, transparent 0 18%, rgba(83,233,255,0.22) 18% 19%, transparent 19% 58%, rgba(255,79,203,0.20) 58% 59%, transparent 59%),
-        radial-gradient(circle at 50% 50%, transparent 62%, rgba(0,0,0,0.48));
-      mix-blend-mode: screen;
+      border-radius: 0;
+      box-shadow: 0 22px 64px rgba(0,0,0,0.34);
     }
 
     .featured-cover {
       aspect-ratio: 4 / 3;
-      border: 1px solid var(--line);
       align-self: center;
       justify-self: end;
       width: min(100%, 500px);
@@ -902,11 +873,6 @@
     }
 
     .audio-cover {
-      aspect-ratio: 1024 / 811;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .audio-card.converter .audio-cover {
       aspect-ratio: 4 / 3;
     }
 
@@ -1430,7 +1396,7 @@
             </div>
           </div>
           <div class="featured-cover cover-frame">
-            <img src="images/focus-map-cover.png" alt="ATTAQ Focus Map cover" />
+            <img src="images/focus-map-cover.jpg" alt="ATTAQ Focus Map cover" />
           </div>
         </div>
       </section>
