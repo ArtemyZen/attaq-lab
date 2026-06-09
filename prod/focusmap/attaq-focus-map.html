@@ -1,0 +1,4942 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ATTAQ Focus Map</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --panel: rgba(16, 19, 29, 0.9);
+      --panel-2: rgba(24, 28, 40, 0.88);
+      --line: rgba(255,255,255,0.12);
+      --text: #edf1ff;
+      --muted: #9ca7bf;
+      --soft: rgba(255,255,255,0.07);
+      --soft-2: rgba(255,255,255,0.12);
+      --accent: #9ddcff;
+      --danger: #ff6b7c;
+      --ok: #91ffbd;
+      --shadow: 0 20px 60px rgba(0,0,0,0.45);
+      --scroll-track: rgba(255,255,255,0.04);
+      --scroll-thumb: rgba(157,220,255,0.34);
+      --scroll-thumb-hover: rgba(157,220,255,0.56);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--body-bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+
+
+    /* Theme-aware scrollbars */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+    }
+
+    *::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: var(--scroll-track);
+      border-radius: 999px;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: var(--scroll-thumb);
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background-clip: padding-box;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background: var(--scroll-thumb-hover);
+      background-clip: padding-box;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 0%, transparent 86%);
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+    }
+
+    #mapCanvas {
+      grid-column: 2;
+      grid-row: 1;
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    #mapCanvas.dragging { cursor: grabbing; }
+    #mapCanvas.selecting { cursor: crosshair; }
+    #mapCanvas.move-hotkey { cursor: alias; }
+    #mapCanvas.connect-hotkey { cursor: crosshair; }
+
+    .topbar {
+      position: fixed;
+      left: 360px;
+      top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      z-index: 2;
+      max-width: calc(100vw - 380px);
+    }
+
+    .brand {
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(12, 15, 22, 0.72);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(12, 15, 22, 0.72);
+      color: var(--text);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+      font-size: 13px;
+      user-select: none;
+    }
+
+    .pill.muted { color: var(--muted); }
+    .pill strong { color: var(--text); }
+    .pill.saved { color: var(--ok); }
+
+    .pathline {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      user-select: none;
+      text-shadow: 0 2px 18px rgba(0,0,0,0.7);
+      max-width: min(620px, calc(100vw - 560px));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pathline strong { color: rgba(237,241,255,0.74); }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      border-radius: 12px;
+      min-height: 38px;
+      padding: 9px 12px;
+      font: inherit;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .btn:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn.primary { background: rgba(157,220,255,0.17); border-color: rgba(157,220,255,0.42); }
+    .btn.danger { background: rgba(255,107,124,0.12); border-color: rgba(255,107,124,0.35); }
+    .btn.ok { background: rgba(145,255,189,0.11); border-color: rgba(145,255,189,0.35); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    .sidebar {
+      grid-column: 1;
+      grid-row: 1;
+      position: relative;
+      z-index: 3;
+      height: 100vh;
+      padding: 18px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      overflow-y: auto;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .panel h1, .panel h2 {
+      margin: 0 0 10px;
+      line-height: 1.1;
+    }
+
+    .panel h1 { font-size: 20px; }
+    .panel h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .row { display: flex; gap: 8px; align-items: center; }
+    .row.wrap { flex-wrap: wrap; }
+    .row + .row { margin-top: 8px; }
+
+    .sidebar .panel {
+      padding: 15px 16px;
+      margin-bottom: 14px;
+    }
+
+    .sidebar .row {
+      gap: 7px;
+      align-items: flex-start;
+    }
+
+    .sidebar .row.wrap {
+      flex-wrap: wrap;
+      align-content: flex-start;
+    }
+
+    .sidebar .row + .row { margin-top: 7px; }
+
+    .sidebar .btn {
+      min-height: 32px;
+      padding: 6px 9px;
+      border-radius: 10px;
+      gap: 5px;
+      font-size: 12px;
+      line-height: 1.15;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .sidebar .action-icon {
+      width: 12px;
+      height: 12px;
+    }
+
+    .sidebar .hint {
+      font-size: 12px;
+      line-height: 1.42;
+    }
+
+    .sidebar .map-tools-divider {
+      margin: 12px 0 12px;
+    }
+
+    .sidebar .map-management-row .btn,
+    .sidebar .map-transfer-row .btn,
+    .sidebar .action-row .btn {
+      flex: 0 1 auto;
+    }
+
+    .sidebar .map-management-row,
+    .sidebar .map-transfer-row,
+    .sidebar .action-row {
+      flex-wrap: nowrap;
+      gap: 5px;
+    }
+
+    .sidebar .map-management-row .btn,
+    .sidebar .map-transfer-row .btn,
+    .sidebar .action-row .btn {
+      min-width: 0;
+      padding-inline: 7px;
+    }
+
+    .sidebar .map-folder-btn {
+      flex: 0 0 32px;
+      width: 32px;
+      padding-inline: 0;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+
+    input[type="text"]:focus { border-color: rgba(157,220,255,0.6); }
+
+    input[type="color"] {
+      width: 46px;
+      height: 40px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--line);
+      margin: 12px 0;
+    }
+
+    .stat {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .stat:last-child { border-bottom: 0; }
+    .stat strong { color: var(--text); font-weight: 700; }
+
+    .selected-title {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .node-note-block {
+      margin-top: 12px;
+    }
+
+    .node-note-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .node-note-field {
+      width: 100%;
+      min-height: 118px;
+      max-height: 260px;
+      resize: vertical;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.055);
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.45;
+      outline: none;
+    }
+
+    .node-note-field:focus {
+      border-color: rgba(157,220,255,0.52);
+      background: rgba(255,255,255,0.075);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: rgba(255,255,255,0.045);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      background: currentColor;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .file-input { display: none; }
+
+    .web-only { display: none; }
+    body.web-mode .desktop-only { display: none !important; }
+    body.web-mode .web-only { display: block; }
+    body.web-mode .row.web-only { display: flex; }
+
+    .map-tools-divider {
+      width: 100%;
+      height: 1px;
+      margin: 14px 0 14px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(255,76,139,0.34);
+      opacity: 0.9;
+    }
+
+    .map-picker {
+      position: relative;
+      width: 100%;
+    }
+
+    .map-picker-button {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--soft);
+      color: var(--text);
+      padding: 0 32px 0 10px;
+      font: inherit;
+      font-size: 13px;
+      outline: none;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .map-picker-button::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: translateY(-65%) rotate(45deg);
+      opacity: 0.8;
+    }
+
+    .map-picker-button:focus {
+      border-color: rgba(157,220,255,0.45);
+    }
+
+    .map-picker-menu {
+      display: none;
+      position: absolute;
+      z-index: 25;
+      left: 0;
+      right: 0;
+      top: calc(100% + 5px);
+      max-height: 180px;
+      overflow: auto;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--menu-bg);
+      box-shadow: var(--shadow);
+    }
+
+    .map-picker.open .map-picker-menu { display: block; }
+
+    .map-picker-option {
+      width: 100%;
+      min-height: 28px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      padding: 0 8px;
+      font: inherit;
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .map-picker-option:hover,
+    .map-picker-option.active {
+      background: var(--soft-2);
+      color: var(--text);
+    }
+
+    .footer {
+      color: rgba(255,255,255,0.34);
+      font-size: 12px;
+      text-align: center;
+      padding: 8px 0 2px;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.16s ease;
+    }
+
+    .footer-socials {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 7px;
+    }
+
+    .footer-links a:hover,
+    .footer-socials a:hover {
+      color: var(--accent);
+    }
+
+    .footer-wordmark {
+      position: relative;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 0.12em;
+      line-height: 1;
+      text-transform: uppercase;
+      text-shadow:
+        1px 0 rgba(255,76,139,0.7),
+        -1px 0 rgba(0,234,255,0.7),
+        0 0 8px rgba(157,220,255,0.32);
+      filter: saturate(1.2);
+    }
+
+    .footer-wordmark::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 48%;
+      height: 1px;
+      background: rgba(255,255,255,0.55);
+      box-shadow: 0 4px 0 rgba(255,255,255,0.16);
+      opacity: 0.62;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .footer-icon-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      color: var(--muted);
+    }
+
+    .footer-icon-link svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .itch-support {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 18;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      max-width: min(360px, calc(100vw - 36px));
+      border: 1px solid rgba(255,255,255,0.24);
+      border-radius: 12px;
+      background: #fa5c5c;
+      color: #fff;
+      padding: 10px 12px;
+      text-decoration: none;
+      box-shadow: 0 18px 55px rgba(0,0,0,0.36);
+      font-weight: 850;
+      line-height: 1.2;
+    }
+
+    body.web-mode .itch-support { display: flex; }
+
+    .itch-support svg {
+      width: 25px;
+      height: 25px;
+      flex: 0 0 auto;
+      fill: currentColor;
+    }
+
+    .itch-support small {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      font-weight: 650;
+      opacity: 0.9;
+    }
+
+    .kbd {
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      border-radius: 7px;
+      padding: 2px 6px;
+    }
+
+
+
+    .context-menu,
+    .color-popover {
+      position: fixed;
+      z-index: 10;
+      display: none;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--menu-bg);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .context-menu { width: 236px; }
+    .color-popover { width: 256px; }
+
+    .context-menu.open,
+    .color-popover.open { display: block; }
+
+    .context-title,
+    .color-title {
+      padding: 8px 10px 9px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .context-title {
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 8px;
+    }
+
+    .color-title {
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .context-menu button,
+    .color-popover button {
+      width: 100%;
+      min-height: 34px;
+      margin: 2px 0;
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .action-icon {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: currentColor;
+      opacity: 0.95;
+    }
+
+    .action-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.15;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .context-menu button:hover,
+    .color-popover button:hover { background: rgba(255,255,255,0.09); }
+
+    .context-menu button:disabled,
+    .color-popover button:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+    }
+
+    .context-menu button:disabled:hover,
+    .color-popover button:disabled:hover { background: transparent; }
+
+    .context-menu button.danger { color: #ff9aa7; }
+    .context-menu button.lock { color: #ffaaa5; }
+    .context-menu button.postpone { color: #cbd6ff; }
+
+    .context-menu button.add-child-main {
+      min-height: 40px;
+      margin: 8px 0 10px;
+      border: 1px solid rgba(157,220,255,0.32);
+      background: linear-gradient(135deg, rgba(157,220,255,0.14), rgba(145,255,189,0.08));
+      font-weight: 800;
+      text-align: center;
+      justify-content: center;
+      letter-spacing: 0.01em;
+    }
+
+    .context-main-action {
+      padding: 0 0 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .context-menu button.main-toggle {
+      min-height: 46px;
+      margin: 0;
+      border: 1px solid rgba(145,255,189,0.36);
+      background: linear-gradient(135deg, rgba(145,255,189,0.18), rgba(157,220,255,0.10));
+      font-weight: 800;
+      text-align: center;
+      justify-content: center;
+      letter-spacing: 0.01em;
+    }
+
+    .context-menu button.main-toggle.closed {
+      border-color: rgba(255,184,107,0.45);
+      background: linear-gradient(135deg, rgba(255,184,107,0.20), rgba(157,220,255,0.08));
+    }
+
+    .context-divider {
+      height: 1px;
+      background: var(--line);
+      margin: 8px 0;
+    }
+
+    .color-picker-row {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 6px 8px 10px;
+    }
+
+    .color-picker-row input[type="color"] {
+      width: 46px;
+      height: 42px;
+      border-radius: 12px;
+    }
+
+    .color-picker-row span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .context-menu button.color-active {
+      background: rgba(157,220,255,0.12);
+      border: 1px solid rgba(157,220,255,0.22);
+    }
+
+    .color-full-row {
+      padding: 4px 8px 8px;
+    }
+
+    .color-full-row input[type="color"] {
+      width: 100%;
+      height: 50px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(255,255,255,0.05);
+      padding: 4px;
+      cursor: pointer;
+    }
+
+    .color-actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 0 8px 8px;
+    }
+
+    .color-actions-row button {
+      min-height: 32px;
+      margin: 0 !important;
+      text-align: center;
+      background: rgba(157,220,255,0.10);
+      border: 1px solid rgba(157,220,255,0.20);
+    }
+
+    .preset-title {
+      padding: 4px 8px 0;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .color-swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 5px;
+      max-height: 112px;
+      overflow: auto;
+      padding: 7px 8px 10px;
+    }
+
+    .color-swatch {
+      width: 20px !important;
+      height: 20px;
+      min-height: 20px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 1px solid rgba(255,255,255,0.25) !important;
+      border-radius: 6px !important;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25);
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.12);
+      background: var(--swatch) !important;
+    }
+
+    .color-swatch.active {
+      border-color: rgba(255,255,255,0.85) !important;
+      box-shadow: 0 0 0 2px rgba(157,220,255,0.22), inset 0 0 0 1px rgba(0,0,0,0.25);
+    }
+
+    .color-hex-row {
+      display: grid;
+      grid-template-columns: 1fr 78px;
+      gap: 8px;
+      padding: 2px 8px 8px;
+    }
+
+    .color-hex-row input {
+      width: 100%;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      padding: 0 9px;
+      font: inherit;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .color-hex-row input:focus { border-color: rgba(157,220,255,0.45); }
+
+    .color-hex-row button {
+      min-height: 34px;
+      text-align: center;
+      background: rgba(157,220,255,0.10);
+      border: 1px solid rgba(157,220,255,0.20);
+    }
+
+    .color-popover .hint {
+      padding: 0 8px 6px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .move-banner {
+      border-color: rgba(255,184,107,0.45);
+      background: rgba(255,184,107,0.12);
+      color: #ffd7a3;
+    }
+
+    .move-banner strong { color: #fff1d8; }
+
+
+    .floating-controls {
+      position: fixed;
+      right: 20px;
+      top: 18px;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .floating-controls .theme-cycle {
+      height: 38px;
+      min-width: 96px;
+      padding: 0 14px;
+      background: rgba(12, 15, 22, 0.82);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+
+    .floating-controls .floating-sound { min-width: 96px; }
+
+    .help-button {
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(157,220,255,0.35);
+      background: rgba(12, 15, 22, 0.82);
+      color: var(--text);
+      font-weight: 900;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .help-button:hover { transform: translateY(-1px); background: rgba(157,220,255,0.12); }
+
+    .help-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    .help-modal.open { display: flex; }
+
+    .help-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.62);
+      backdrop-filter: blur(8px);
+    }
+
+    .help-window {
+      position: relative;
+      width: min(820px, calc(100vw - 42px));
+      max-height: min(82vh, 820px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      border: 1px solid rgba(157,220,255,0.22);
+      border-radius: 24px;
+      background: var(--help-bg);
+      box-shadow: 0 28px 100px rgba(0,0,0,0.7);
+      padding: 30px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .help-window::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+
+    .help-close {
+      position: absolute;
+      right: 18px;
+      top: 16px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .help-kicker {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .help-topline {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: start;
+      padding-right: 48px;
+    }
+
+    .help-topline .help-kicker { margin-bottom: 12px; }
+
+    .help-tutorial-card {
+      width: 290px;
+      margin-top: 38px;
+      border: 1px solid rgba(157,220,255,0.26);
+      border-radius: 14px;
+      background: rgba(157,220,255,0.06);
+      padding: 10px;
+    }
+
+    .help-tutorial-card .btn {
+      width: 100%;
+      min-height: 38px;
+      border-radius: 11px;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .help-window h2 { margin: 20px 0 10px; font-size: 24px; }
+    .help-window h2:first-of-type { margin-top: 0; font-size: 34px; letter-spacing: -0.04em; }
+    .help-window h3 { margin: 0 0 8px; font-size: 16px; }
+    .help-window p, .help-window li { color: #c3cce0; line-height: 1.6; }
+    .help-window strong { color: #fff; }
+    .help-window ul { padding-left: 21px; }
+    .help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+    .help-grid > div { border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,0.045); padding: 16px; }
+
+    .help-controls-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 14px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .help-controls-list li {
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      gap: 9px;
+      align-items: baseline;
+      margin: 0;
+      color: #c3cce0;
+      line-height: 1.35;
+    }
+
+    .help-controls-list .kbd {
+      justify-self: start;
+      white-space: nowrap;
+    }
+
+    .tutorial-panel {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 18;
+      width: min(380px, calc(100vw - 36px));
+      display: none;
+      border: 1px solid rgba(157,220,255,0.28);
+      border-radius: 18px;
+      background: rgba(12,15,22,0.92);
+      color: var(--text);
+      box-shadow: 0 24px 90px rgba(0,0,0,0.58);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+    }
+
+    .tutorial-panel.open { display: block; }
+
+    .tutorial-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 14px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tutorial-kicker {
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .tutorial-close {
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-size: 19px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .tutorial-body { padding: 14px; }
+
+    .tutorial-title {
+      margin: 0 0 8px;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+
+    .tutorial-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.48;
+    }
+
+    .tutorial-task {
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px solid rgba(157,220,255,0.18);
+      border-radius: 12px;
+      background: rgba(157,220,255,0.07);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .tutorial-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 14px 12px;
+    }
+
+    .tutorial-step-dot {
+      min-width: 27px;
+      height: 25px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.055);
+      color: var(--muted);
+      font: inherit;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .tutorial-step-dot.active {
+      border-color: rgba(157,220,255,0.62);
+      color: var(--text);
+      background: rgba(157,220,255,0.16);
+    }
+
+    .tutorial-step-dot.done {
+      color: var(--ok);
+      border-color: rgba(145,255,189,0.38);
+    }
+
+    .tutorial-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 12px 14px 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .tutorial-footer .btn {
+      min-height: 32px;
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+
+    body[data-theme="light"] .tutorial-panel {
+      background: rgba(255,255,255,0.94);
+      border-color: rgba(43,49,65,0.16);
+      box-shadow: 0 18px 60px rgba(35,35,45,0.18);
+    }
+
+    body[data-theme="light"] .help-tutorial-card {
+      background: rgba(255,255,255,0.58);
+      border-color: rgba(43,49,65,0.14);
+    }
+
+    body[data-theme="attaq"] .help-tutorial-card {
+      border-color: rgba(255,76,139,0.35);
+      background: linear-gradient(135deg, rgba(255,76,139,0.10), rgba(0,234,255,0.055));
+    }
+
+    body[data-theme="attaq"] .tutorial-panel {
+      border-color: rgba(255,76,139,0.35);
+      box-shadow: 0 22px 80px rgba(0,0,0,0.62), 0 0 34px rgba(0,234,255,0.07);
+    }
+
+    .input-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .input-modal.open { display: flex; }
+
+    .input-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.58);
+      backdrop-filter: blur(8px);
+    }
+
+    .input-window {
+      position: relative;
+      width: min(420px, calc(100vw - 36px));
+      border: 1px solid rgba(157,220,255,0.24);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: 0 26px 90px rgba(0,0,0,0.68);
+      padding: 18px;
+    }
+
+    .input-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 850;
+      color: var(--text);
+    }
+
+    .input-field {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      padding: 12px 13px;
+      font: inherit;
+      outline: none;
+    }
+
+    .input-field:focus {
+      border-color: rgba(157,220,255,0.62);
+      box-shadow: 0 0 0 3px rgba(157,220,255,0.12);
+    }
+
+    .input-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .message-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 41;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .message-modal.open { display: flex; }
+
+    .message-window {
+      position: relative;
+      width: min(440px, calc(100vw - 36px));
+      border: 1px solid rgba(157,220,255,0.24);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: 0 26px 90px rgba(0,0,0,0.68);
+      padding: 18px;
+    }
+
+    .message-text {
+      margin: 0;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+
+
+    .brand-panel { position: relative; overflow: hidden; }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .theme-label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-left: auto;
+      opacity: 0.86;
+    }
+
+    .theme-cycle {
+      flex: 0 0 auto;
+      min-width: 44px;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--text);
+      font: inherit;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+    .theme-cycle:hover { background: var(--soft-2); transform: translateY(-1px); }
+    .sound-toggle {
+      min-width: 44px;
+      width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .sound-toggle svg {
+      width: 17px;
+      height: 17px;
+      display: block;
+    }
+    .sound-toggle.muted { opacity: 0.62; }
+
+    :root {
+      --body-bg: radial-gradient(circle at 25% 15%, #172033 0%, var(--bg) 38%, #05060a 100%);
+      --sidebar-bg: linear-gradient(180deg, rgba(18,22,32,0.94), rgba(9,11,17,0.95));
+      --menu-bg: rgba(12, 15, 22, 0.96);
+      --help-bg: linear-gradient(180deg, rgba(17,22,34,0.98), rgba(8,10,16,0.98));
+      --grid-dot: rgba(255,255,255,0.018);
+      --node-core: #05060a;
+      --node-text: #edf1ff;
+      --node-text-soft: rgba(237,241,255,0.66);
+      --canvas-empty: rgba(237,241,255,0.50);
+      --selection-fill: rgba(157,220,255,0.08);
+      --selection-line: rgba(157,220,255,0.72);
+      --scroll-track: rgba(255,255,255,0.045);
+      --scroll-thumb: rgba(157,220,255,0.34);
+      --scroll-thumb-hover: rgba(157,220,255,0.56);
+    }
+
+    body[data-theme="dark"] {
+      --bg: #0b0d12;
+      --panel: rgba(16, 19, 29, 0.90);
+      --panel-2: rgba(24, 28, 40, 0.88);
+      --line: rgba(255,255,255,0.12);
+      --text: #edf1ff;
+      --muted: #9ca7bf;
+      --soft: rgba(255,255,255,0.07);
+      --soft-2: rgba(255,255,255,0.12);
+      --accent: #9ddcff;
+      --danger: #ff6b7c;
+      --ok: #91ffbd;
+      --shadow: 0 20px 60px rgba(0,0,0,0.45);
+      --body-bg: radial-gradient(circle at 25% 15%, #172033 0%, #0b0d12 38%, #05060a 100%);
+      --sidebar-bg: linear-gradient(180deg, rgba(18,22,32,0.94), rgba(9,11,17,0.95));
+      --menu-bg: rgba(12, 15, 22, 0.96);
+      --help-bg: linear-gradient(180deg, rgba(17,22,34,0.98), rgba(8,10,16,0.98));
+      --grid-dot: rgba(255,255,255,0.018);
+      --node-core: #05060a;
+      --node-text: #edf1ff;
+      --node-text-soft: rgba(237,241,255,0.66);
+      --canvas-empty: rgba(237,241,255,0.50);
+      --selection-fill: rgba(157,220,255,0.08);
+      --selection-line: rgba(157,220,255,0.72);
+      --scroll-track: rgba(255,255,255,0.045);
+      --scroll-thumb: rgba(157,220,255,0.34);
+      --scroll-thumb-hover: rgba(157,220,255,0.56);
+    }
+
+    body[data-theme="light"] {
+      --bg: #f4f1e8;
+      --panel: rgba(255,255,255,0.82);
+      --panel-2: rgba(250,247,238,0.88);
+      --line: rgba(43, 49, 65, 0.14);
+      --text: #202431;
+      --muted: #687085;
+      --soft: rgba(32,36,49,0.055);
+      --soft-2: rgba(32,36,49,0.10);
+      --accent: #1769aa;
+      --danger: #b54150;
+      --ok: #237a4b;
+      --shadow: 0 18px 55px rgba(35, 35, 45, 0.16);
+      --body-bg: radial-gradient(circle at 18% 12%, #ffffff 0%, #f6f2e8 36%, #e9e5da 100%);
+      --sidebar-bg: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(244,241,232,0.94));
+      --menu-bg: rgba(255,255,255,0.96);
+      --help-bg: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(246,242,232,0.98));
+      --grid-dot: rgba(32,36,49,0.060);
+      --node-core: #f7f4ec;
+      --node-text: #202431;
+      --node-text-soft: rgba(32,36,49,0.64);
+      --canvas-empty: rgba(32,36,49,0.54);
+      --selection-fill: rgba(23,105,170,0.08);
+      --selection-line: rgba(23,105,170,0.62);
+      --scroll-track: rgba(32,36,49,0.065);
+      --scroll-thumb: rgba(32,36,49,0.24);
+      --scroll-thumb-hover: rgba(23,105,170,0.45);
+    }
+
+
+
+    body[data-theme="light"] .floating-controls .theme-cycle,
+    body[data-theme="light"] .floating-controls .sound-toggle,
+    body[data-theme="light"] .floating-controls .help-button {
+      background: rgba(255,255,255,0.86);
+      color: #202431;
+      border-color: rgba(43,49,65,0.18);
+      box-shadow: 0 12px 34px rgba(35,35,45,0.14);
+    }
+
+    body[data-theme="light"] .floating-controls .theme-cycle:hover,
+    body[data-theme="light"] .floating-controls .sound-toggle:hover,
+    body[data-theme="light"] .floating-controls .help-button:hover {
+      background: rgba(247,244,236,0.96);
+    }
+
+
+    body[data-theme="light"] .pill {
+      background: rgba(255,255,255,0.82);
+      color: #202431;
+      border-color: rgba(43,49,65,0.16);
+      box-shadow: 0 10px 30px rgba(35,35,45,0.12);
+    }
+
+    body[data-theme="light"] .pill.saved {
+      background: rgba(255,255,255,0.84);
+      color: #237a4b;
+      border-color: rgba(35,122,75,0.20);
+    }
+
+    body[data-theme="light"] .node-note-field {
+      background: rgba(255,255,255,0.64);
+      border-color: rgba(43,49,65,0.16);
+      color: #202431;
+    }
+
+    body[data-theme="light"] .node-note-field:focus {
+      background: rgba(255,255,255,0.92);
+      border-color: rgba(23,105,170,0.48);
+      box-shadow: 0 0 0 3px rgba(23,105,170,0.10);
+    }
+
+    body[data-theme="light"] .pill.muted {
+      color: #687085;
+    }
+
+    body[data-theme="attaq"] {
+      --bg: #07070a;
+      --panel: rgba(18, 14, 20, 0.88);
+      --panel-2: rgba(29, 18, 28, 0.90);
+      --line: rgba(255, 76, 139, 0.24);
+      --text: #fff4fb;
+      --muted: #bda9be;
+      --soft: rgba(255, 76, 139, 0.08);
+      --soft-2: rgba(0, 234, 255, 0.10);
+      --accent: #ff4c8b;
+      --danger: #ff5464;
+      --ok: #7dffcc;
+      --shadow: 0 22px 70px rgba(0,0,0,0.65), 0 0 42px rgba(255,76,139,0.08);
+      --body-bg:
+        radial-gradient(circle at 78% 18%, rgba(0, 234, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 18% 12%, rgba(255, 76, 139, 0.24), transparent 34%),
+        linear-gradient(180deg, #09070c 0%, #110711 46%, #050507 100%);
+      --sidebar-bg: linear-gradient(180deg, rgba(27, 12, 24, 0.95), rgba(7, 7, 10, 0.96));
+      --menu-bg: rgba(18, 10, 18, 0.97);
+      --help-bg: linear-gradient(180deg, rgba(28,13,28,0.98), rgba(7,7,10,0.98));
+      --grid-dot: rgba(255, 76, 139, 0.028);
+      --node-core: #060409;
+      --node-text: #fff4fb;
+      --node-text-soft: rgba(255,244,251,0.68);
+      --canvas-empty: rgba(255,244,251,0.50);
+      --selection-fill: rgba(255,76,139,0.10);
+      --selection-line: rgba(0,234,255,0.78);
+      --scroll-track: rgba(255,76,139,0.075);
+      --scroll-thumb: linear-gradient(180deg, rgba(255,76,139,0.72), rgba(0,234,255,0.52));
+      --scroll-thumb-hover: linear-gradient(180deg, rgba(255,76,139,0.92), rgba(0,234,255,0.72));
+    }
+
+    body[data-theme="attaq"]::before {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.030) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,76,139,0.025) 1px, transparent 1px);
+      background-size: 38px 38px;
+      opacity: 0.9;
+    }
+    body[data-theme="attaq"]::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+      opacity: 0.22;
+      mix-blend-mode: screen;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.075) 0 1px, transparent 1px 4px),
+        linear-gradient(90deg, rgba(255,0,90,0.05), transparent 18%, rgba(0,235,255,0.045) 82%, transparent);
+    }
+    body[data-theme="attaq"] .panel,
+    body[data-theme="attaq"] .context-menu,
+    body[data-theme="attaq"] .color-popover,
+    body[data-theme="attaq"] .help-window {
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(0,234,255,0.035);
+    }
+    body[data-theme="attaq"] .brand-panel h1 {
+      text-shadow: 2px 0 rgba(0,234,255,0.34), -2px 0 rgba(255,76,139,0.36), 0 0 18px rgba(255,76,139,0.22);
+      letter-spacing: -0.02em;
+    }
+    body[data-theme="attaq"] .btn.primary,
+    body[data-theme="attaq"] .context-menu button.add-child-main,
+    body[data-theme="attaq"] .context-menu button.main-toggle,
+    body[data-theme="attaq"] .theme-cycle {
+      border-color: rgba(255,76,139,0.45);
+      background: linear-gradient(135deg, rgba(255,76,139,0.18), rgba(0,234,255,0.09));
+    }
+
+    body[data-theme="attaq"] .node-note-field:focus {
+      border-color: rgba(0,234,255,0.46);
+      box-shadow: 0 0 0 3px rgba(255,76,139,0.08), 0 0 22px rgba(0,234,255,0.08);
+    }
+    @media (max-width: 760px) {
+      .help-grid { grid-template-columns: 1fr; }
+      .help-controls-list { grid-template-columns: 1fr; }
+      .help-window { padding: 24px 20px; }
+      .help-topline {
+        grid-template-columns: 1fr;
+        padding-right: 42px;
+      }
+      .help-tutorial-card {
+        width: 100%;
+        margin-top: 0;
+      }
+    }
+
+    @media (max-width: 900px) {
+      #app { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+      #mapCanvas { grid-column: 1; grid-row: 1; }
+      .sidebar {
+        grid-column: 1;
+        grid-row: 2;
+        height: 42vh;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+      .topbar { left: 18px; max-width: calc(100vw - 36px); }
+      .pathline { max-width: calc(100vw - 190px); }
+      .itch-support { right: 12px; bottom: 12px; }
+    }
+  </style>
+</head>
+<body data-theme="attaq">
+  <div id="app">
+    <canvas id="mapCanvas"></canvas>
+    <aside class="sidebar">
+      <div class="panel brand-panel">
+        <div class="brand-row">
+          <h1>ATTAQ Focus Map</h1>
+        </div>
+        <p class="hint">Visual project breakdown into connected nodes. No long task descriptions – just structure, focus, and progress.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Maps</h2>
+        <div class="row">
+          <div class="map-picker desktop-only" id="mapPicker">
+            <button class="map-picker-button" id="mapPickerButton" type="button" aria-haspopup="listbox" aria-expanded="false">No map loaded</button>
+            <div class="map-picker-menu" id="mapPickerMenu" role="listbox"></div>
+          </div>
+        </div>
+        <div class="row wrap desktop-only map-management-row">
+          <button class="btn primary" id="newMapBtn" data-icon="plus">New</button>
+          <button class="btn" id="renameMapBtn" data-icon="edit">Rename</button>
+          <button class="btn danger" id="deleteMapBtn" data-icon="trash">Delete</button>
+        </div>
+        <div class="map-tools-divider desktop-only"></div>
+        <div class="row wrap map-transfer-row">
+          <button class="btn" id="exportJsonBtn" data-icon="download">Export</button>
+          <button class="btn" id="importJsonBtn" data-icon="upload">Import</button>
+          <button class="btn desktop-only map-folder-btn" id="openMapsFolderBtn" data-icon="folder" title="Open MAPS folder" aria-label="Open MAPS folder"></button>
+          <input class="file-input" id="importJsonFile" type="file" accept="application/json,.json" />
+        </div>
+        <p class="hint desktop-only">Autosave writes directly to the active JSON file in the MAPS folder.</p>
+        <p class="hint web-only">Autosave uses this browser. Export map to keep a portable backup.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Actions</h2>
+        <div class="row wrap action-row">
+          <button class="btn" id="backBtn" data-icon="arrowLeft">Back</button>
+          <button class="btn" id="allMapBtn" data-icon="search">Full map</button>
+          <button class="btn" id="toggleClosedBtn" data-icon="eyeOff">Hide closed</button>
+        </div>
+      </div>
+
+      <div class="panel" id="selectedPanel">
+        <h2>Selected node</h2>
+        <div id="selectedContent" class="empty-state">Click any node on the map. Node actions are available with right-click.</div>
+      </div>
+
+      <div class="panel">
+        <h2>Map</h2>
+        <div class="stat"><span>Total nodes</span><strong id="totalNodes">0</strong></div>
+        <div class="stat"><span>Open</span><strong id="openNodes">0</strong></div>
+        <div class="stat"><span>Closed</span><strong id="closedNodes">0</strong></div>
+        <div class="stat"><span>Current mode</span><strong id="modeName">Full map</strong></div>
+        <div class="divider"></div>
+        <div class="row wrap">
+          <button class="btn danger desktop-only" id="resetBtn" data-icon="trash">Reset</button>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div>v0.1.1</div>
+        <div class="footer-links" aria-label="ATTAQ LAB links">
+          <a class="footer-wordmark" href="../../index.html" title="ATTAQ LAB website">ATTAQ LAB</a>
+        </div>
+        <div class="footer-socials">
+          <a class="footer-icon-link" href="https://www.linkedin.com/company/attaq-lab" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.95v5.66H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.32 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14Zm1.78 13.02H3.54V9H7.1v11.45ZM22.23 0H1.76C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.76 24h20.47c.97 0 1.77-.77 1.77-1.72V1.72C24 .77 23.2 0 22.23 0Z"/>
+            </svg>
+          </a>
+          <a class="footer-icon-link" href="https://discord.com/invite/W7pUZDcqs7" target="_blank" rel="noreferrer" aria-label="Discord" title="Discord">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.32 4.37A19.8 19.8 0 0 0 15.36 2c-.22.4-.47.92-.64 1.34a18.27 18.27 0 0 0-5.44 0A12.4 12.4 0 0 0 8.64 2a19.74 19.74 0 0 0-4.97 2.38C.53 9.06-.32 13.62.1 18.11A19.9 19.9 0 0 0 6.2 21.2c.49-.67.93-1.38 1.3-2.12-.71-.27-1.39-.6-2.03-.97.17-.12.33-.25.49-.38a14.17 14.17 0 0 0 12.08 0l.49.38c-.64.38-1.32.7-2.04.97.38.74.82 1.45 1.31 2.12a19.86 19.86 0 0 0 6.09-3.09c.5-5.2-.84-9.72-3.57-13.74ZM8.02 15.35c-1.19 0-2.16-1.09-2.16-2.43 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.43-2.16 2.43Zm7.96 0c-1.19 0-2.16-1.09-2.16-2.43 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.43-2.16 2.43Z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="floating-controls" aria-label="Quick controls">
+    <button class="theme-cycle floating-theme" id="themeBtn" title="Switch theme">ATTAQ Theme</button>
+    <button class="theme-cycle sound-toggle floating-sound" id="soundBtn" title="Toggle UI sounds" aria-label="Sound on"></button>
+    <button class="help-button" id="helpBtn" title="Help">?</button>
+  </div>
+
+  <a class="itch-support" href="https://artemyzen.itch.io/attaq-focus-map" target="_blank" rel="noreferrer">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4.7 2.8h14.6l1.7 4.6v2.1c0 1.2-.9 2.2-2.1 2.2-.8 0-1.5-.4-1.9-1.1-.4.7-1.1 1.1-1.9 1.1s-1.5-.4-1.9-1.1c-.4.7-1.1 1.1-1.9 1.1s-1.5-.4-1.9-1.1c-.4.7-1.1 1.1-1.9 1.1-1.2 0-2.1-1-2.1-2.2V7.4l1.7-4.6Zm.7 10.1c.7.4 1.6.5 2.5.2.6-.2 1.1-.5 1.5-1 .6.7 1.5 1.1 2.6 1.1s2-.4 2.6-1.1c.4.5.9.8 1.5 1 .9.3 1.8.2 2.5-.2v5.7c0 1.5-1.2 2.7-2.7 2.7H8.1c-1.5 0-2.7-1.2-2.7-2.7v-5.7Zm4.4 2.1v2.7h4.4V15H9.8Z"/>
+    </svg>
+    <span>Get the offline app<small>Support the developer on itch.io</small></span>
+  </a>
+
+  <div class="topbar">
+    <div class="pathline" id="breadcrumb">Full map</div>
+    <div class="pill" id="currentMapName">No map loaded</div>
+    <div class="pill saved" id="saveIndicator">Autosaved</div>
+  </div>
+
+  <div class="context-menu" id="contextMenu"></div>
+  <div class="color-popover" id="colorPopover"></div>
+
+  <div class="help-modal" id="helpModal" aria-hidden="true">
+    <div class="help-backdrop" data-help-close></div>
+    <section class="help-window" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button class="help-close" data-help-close title="Close">×</button>
+      <div class="help-topline">
+        <div>
+          <div class="help-kicker">A visual workspace for noisy projects</div>
+          <h2 id="helpTitle">Why this app exists</h2>
+        </div>
+        <div class="help-tutorial-card">
+          <button class="btn primary" id="startTutorialHelpBtn" type="button" data-icon="search">Start Live Tutorial</button>
+        </div>
+      </div>
+      <p><strong>Projects often feel bigger than they really are.</strong> A big goal turns into a foggy cloud of half-remembered tasks, unfinished branches, blocked chunks, and things you promised to return to later.</p>
+      <p><strong>This app turns that cloud into a living map.</strong> You do not write long task descriptions. You create small connected nodes, split big work into visible pieces, focus on one branch when the full map is too much, and close nodes when a piece is done.</p>
+      <div class="help-grid">
+        <div><h3>What it is good for</h3><p>Breaking projects into subprojects, seeing what belongs where, moving branches when plans change, and keeping progress visible without building a heavy task database.</p></div>
+        <div><h3>What it avoids</h3><p>No required deadlines, no giant forms, no assignees, no status spreadsheets, no fake productivity ritual. A node is just a piece of the project.</p></div>
+      </div>
+      <h2>How it works</h2>
+      <ul>
+        <li><strong>Root nodes</strong> are projects. Create them with <span class="kbd">+ Project</span>.</li>
+        <li><strong>Child nodes</strong> are smaller pieces. Right-click a node and use <span class="kbd">+ Child node</span>.</li>
+        <li><strong>Double-click a node</strong> to focus on it. Everything above it is hidden; its children stay visible.</li>
+        <li><strong>Group focus</strong> lets you select several nodes from different branches and focus only on them and their children.</li>
+        <li><strong>Close nodes</strong> when a piece is done. Closed nodes stay on the map, so progress is visible.</li>
+        <li><strong>Defer a branch</strong> to dim it without deleting it. Returning it restores the original colors.</li>
+        <li><strong>Move a branch</strong> when a chunk of work belongs somewhere else now.</li>
+        <li><strong>Autosave</strong> writes every action to the active JSON map file in the MAPS folder.</li>
+      </ul>
+      <h2>Controls</h2>
+      <ul class="help-controls-list">
+        <li><span class="kbd">Click</span><span>Select node</span></li>
+        <li><span class="kbd">Shift + click</span><span>Add or remove from selection</span></li>
+        <li><span class="kbd">Right-click node</span><span>Open node actions</span></li>
+        <li><span class="kbd">Right-click empty</span><span>Create a new project</span></li>
+        <li><span class="kbd">Right-drag</span><span>Pan the map</span></li>
+        <li><span class="kbd">Left-drag empty</span><span>Box select</span></li>
+        <li><span class="kbd">Double-click</span><span>Focus node</span></li>
+        <li><span class="kbd">Alt + click</span><span>Move selected branch</span></li>
+        <li><span class="kbd">Ctrl + click</span><span>Connect selected node</span></li>
+        <li><span class="kbd">F2</span><span>Rename one selected node</span></li>
+        <li><span class="kbd">Enter</span><span>Close or reopen selected</span></li>
+        <li><span class="kbd">D</span><span>Defer or return selected branches</span></li>
+        <li><span class="kbd">M</span><span>Move one selected branch</span></li>
+        <li><span class="kbd">C</span><span>Change node or selection color</span></li>
+        <li><span class="kbd">Shift + C</span><span>Change branch color</span></li>
+        <li><span class="kbd">Wheel</span><span>Zoom</span></li>
+        <li><span class="kbd">Esc</span><span>Clear selection or leave focus</span></li>
+        <li><span class="kbd">Delete</span><span>Delete selected nodes</span></li>
+        <li><span class="kbd">Ctrl + Z</span><span>Undo</span></li>
+        <li><span class="kbd">Ctrl + Y</span><span>Redo</span></li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="tutorial-panel" id="tutorialPanel" aria-live="polite" aria-label="Live Tutorial">
+    <div class="tutorial-header">
+      <div>
+        <div class="tutorial-kicker">Live Tutorial</div>
+        <div class="tutorial-progress" id="tutorialProgress">Step 1 / 1</div>
+      </div>
+      <button class="tutorial-close" id="tutorialCloseBtn" type="button" aria-label="Close tutorial">×</button>
+    </div>
+    <div class="tutorial-body">
+      <h2 class="tutorial-title" id="tutorialTitle">Tutorial</h2>
+      <p class="tutorial-text" id="tutorialText"></p>
+      <div class="tutorial-task" id="tutorialTask"></div>
+    </div>
+    <div class="tutorial-steps" id="tutorialSteps" aria-label="Tutorial blocks"></div>
+    <div class="tutorial-footer">
+      <button class="btn" id="tutorialPrevBtn" type="button">Back</button>
+      <button class="btn primary" id="tutorialNextBtn" type="button">Next</button>
+    </div>
+  </section>
+
+  <div class="input-modal" id="inputModal" aria-hidden="true">
+    <div class="input-backdrop" data-input-cancel></div>
+    <section class="input-window" role="dialog" aria-modal="true" aria-labelledby="inputTitle">
+      <h2 class="input-title" id="inputTitle">Name</h2>
+      <input class="input-field" id="inputField" type="text" autocomplete="off" spellcheck="false">
+      <div class="input-actions">
+        <button class="btn" type="button" data-input-cancel>Cancel</button>
+        <button class="btn primary" type="button" id="inputOkBtn">Create</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="message-modal" id="messageModal" aria-hidden="true">
+    <div class="input-backdrop" data-message-cancel></div>
+    <section class="message-window" role="dialog" aria-modal="true" aria-labelledby="messageTitle">
+      <h2 class="input-title" id="messageTitle">Confirm</h2>
+      <p class="message-text" id="messageText"></p>
+      <div class="input-actions">
+        <button class="btn" type="button" id="messageCancelBtn">Cancel</button>
+        <button class="btn primary" type="button" id="messageOkBtn">OK</button>
+      </div>
+    </section>
+  </div>
+
+<script>
+(() => {
+  const WEB_STORAGE_KEY = 'attaq-focus-map-web-v1';
+  const canvas = document.getElementById('mapCanvas');
+  const ctx = canvas.getContext('2d');
+  const isDesktopApp = Boolean(window.attaqMaps);
+  document.body.classList.add(isDesktopApp ? 'desktop-mode' : 'web-mode');
+
+  const els = {
+    addRootBtn: document.getElementById('addRootBtn'),
+    backBtn: document.getElementById('backBtn'),
+    allMapBtn: document.getElementById('allMapBtn'),
+    toggleClosedBtn: document.getElementById('toggleClosedBtn'),
+    selectedContent: document.getElementById('selectedContent'),
+    totalNodes: document.getElementById('totalNodes'),
+    openNodes: document.getElementById('openNodes'),
+    closedNodes: document.getElementById('closedNodes'),
+    modeName: document.getElementById('modeName'),
+    breadcrumb: document.getElementById('breadcrumb'),
+    currentMapName: document.getElementById('currentMapName'),
+    saveIndicator: document.getElementById('saveIndicator'),
+    mapPicker: document.getElementById('mapPicker'),
+    mapPickerButton: document.getElementById('mapPickerButton'),
+    mapPickerMenu: document.getElementById('mapPickerMenu'),
+    newMapBtn: document.getElementById('newMapBtn'),
+    renameMapBtn: document.getElementById('renameMapBtn'),
+    deleteMapBtn: document.getElementById('deleteMapBtn'),
+    openMapsFolderBtn: document.getElementById('openMapsFolderBtn'),
+    exportJsonBtn: document.getElementById('exportJsonBtn'),
+    importJsonBtn: document.getElementById('importJsonBtn'),
+    importJsonFile: document.getElementById('importJsonFile'),
+    resetBtn: document.getElementById('resetBtn'),
+    contextMenu: document.getElementById('contextMenu'),
+    colorPopover: document.getElementById('colorPopover'),
+    helpBtn: document.getElementById('helpBtn'),
+    helpModal: document.getElementById('helpModal'),
+    startTutorialHelpBtn: document.getElementById('startTutorialHelpBtn'),
+    tutorialPanel: document.getElementById('tutorialPanel'),
+    tutorialProgress: document.getElementById('tutorialProgress'),
+    tutorialTitle: document.getElementById('tutorialTitle'),
+    tutorialText: document.getElementById('tutorialText'),
+    tutorialTask: document.getElementById('tutorialTask'),
+    tutorialSteps: document.getElementById('tutorialSteps'),
+    tutorialPrevBtn: document.getElementById('tutorialPrevBtn'),
+    tutorialNextBtn: document.getElementById('tutorialNextBtn'),
+    tutorialCloseBtn: document.getElementById('tutorialCloseBtn'),
+    themeBtn: document.getElementById('themeBtn'),
+    soundBtn: document.getElementById('soundBtn'),
+    inputModal: document.getElementById('inputModal'),
+    inputTitle: document.getElementById('inputTitle'),
+    inputField: document.getElementById('inputField'),
+    inputOkBtn: document.getElementById('inputOkBtn'),
+    messageModal: document.getElementById('messageModal'),
+    messageTitle: document.getElementById('messageTitle'),
+    messageText: document.getElementById('messageText'),
+    messageOkBtn: document.getElementById('messageOkBtn'),
+    messageCancelBtn: document.getElementById('messageCancelBtn'),
+  };
+
+  const colors = ['#61d394', '#9ddcff', '#ffb86b', '#ff6b9a', '#b990ff', '#ffe66d', '#7fffd4', '#f28cff'];
+  const LOCKED_COLOR = '#050505';
+  const TUTORIAL_SEEN_KEY = 'attaq-focus-map-live-tutorial-seen-v1';
+
+  let state = starterMapState();
+  let currentMap = { fileName: '', filePath: '', mapsPath: '' };
+  let selectedId = state.selectedId || null;
+  let selectedIds = new Set(Array.isArray(state.selectedIds) ? state.selectedIds : []);
+  let view = state.view || { x: 0, y: 0, scale: 1 };
+  let width = 0;
+  let height = 0;
+  let pointer = { down: false, button: null, draggingNode: null, draggingSelection: false, selecting: false, selectionStart: null, selectionEnd: null, selectionAdditive: false, selectionBaseIds: null, panning: false, lastX: 0, lastY: 0, moved: false };
+  let moveMode = { sourceId: null };
+  let connectMode = { sourceId: null };
+  let colorMode = { nodeId: null, target: null };
+  let tutorialState = { active: false, index: 0, completed: new Set(), baselines: {}, events: {} };
+  let suppressNextContextMenu = false;
+  let lastEmptyRightClickTime = 0;
+  let emptyContextWorld = null;
+  let raf = 0;
+  let lastSaveTimer = null;
+  let lastDrawTime = performance.now();
+  let elasticVelocities = new Map();
+  let elasticMotionDirty = false;
+  let inputDialogResolve = null;
+  let messageDialogResolve = null;
+  const undoStack = [];
+  const redoStack = [];
+  const HISTORY_LIMIT = 80;
+  let historyBaseline = null;
+  const HISTORY_REASONS = new Set([
+    'add-root', 'add-child', 'delete-selection', 'color-selection', 'close-selection', 'reopen-selection',
+    'defer-selection', 'return-selection', 'drag-selection', 'drag-node', 'delete', 'move-branch',
+    'connect-nodes', 'disconnect-nodes', 'remove-node-links',
+    'reset', 'rename', 'toggle-node-closed', 'defer-branch', 'return-branch', 'color', 'reset-node-color',
+    'save-color-preset', 'remove-color-preset'
+  ]);
+
+  function uid() {
+    return 'n_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  }
+
+  function linkUid() {
+    return 'l_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  }
+
+  function makeNode(title, x, y, parentId = null, color = '#9ddcff') {
+    return {
+      id: uid(),
+      title: title || 'New node',
+      x, y,
+      parentId,
+      color,
+      closed: false,
+      blocked: false,
+      postponed: false,
+      colorBeforeBlocked: null,
+      createdAt: Date.now(),
+    };
+  }
+
+  function starterMapState() {
+    const launch = makeNode('Game Launch', -260, -80, null, '#61d394');
+    const demo = makeNode('Steam Demo', -30, -170, launch.id, '#61d394');
+    const playtest = makeNode('Playtest', -45, 20, launch.id, '#61d394');
+    const marketing = makeNode('Marketing', -440, -60, launch.id, '#61d394');
+    const build = makeNode('Build Upload', 175, -245, demo.id, '#61d394');
+    const capsules = makeNode('Store Assets', 185, -115, demo.id, '#61d394');
+    const feedback = makeNode('Feedback Form', 155, 45, playtest.id, '#61d394');
+    const bugfix = makeNode('Bug Fixes', -65, 205, playtest.id, '#61d394');
+    const trailer = makeNode('Trailer Cut', -600, -130, marketing.id, '#61d394');
+
+    const trip = makeNode('Trip to Paris', 350, 60, null, '#9ddcff');
+    const booking = makeNode('Booking', 555, -75, trip.id, '#9ddcff');
+    const packing = makeNode('Packing', 565, 75, trip.id, '#9ddcff');
+    const itinerary = makeNode('Itinerary', 535, 220, trip.id, '#9ddcff');
+    const flights = makeNode('Flights', 750, -145, booking.id, '#9ddcff');
+    const hotel = makeNode('Hotel', 765, -20, booking.id, '#9ddcff');
+    const documents = makeNode('Documents', 755, 75, packing.id, '#9ddcff');
+    const clothes = makeNode('Clothes', 760, 175, packing.id, '#9ddcff');
+    const museum = makeNode('Museum Day', 735, 275, itinerary.id, '#9ddcff');
+
+    return {
+      nodes: [launch, demo, playtest, marketing, build, capsules, feedback, bugfix, trailer, trip, booking, packing, itinerary, flights, hotel, documents, clothes, museum],
+      currentFocusId: null,
+      focusStack: [],
+      multiFocusIds: [],
+      multiFocusReturn: null,
+      showClosed: true,
+      elasticLinks: true,
+      theme: 'attaq',
+      soundEnabled: true,
+      links: [],
+      selectedId: launch.id,
+      selectedIds: [],
+      view: { x: 0, y: 0, scale: 1 },
+      colorPresets: [...colors],
+      savedAt: Date.now(),
+    };
+  }
+
+  function normalizePresetList(list) {
+    const result = [];
+    for (const item of Array.isArray(list) ? list : []) {
+      const safe = normalizeHex(item);
+      if (safe && !result.includes(safe)) result.push(safe);
+    }
+    return result;
+  }
+
+  function blankState() {
+    return {
+      nodes: [],
+      currentFocusId: null,
+      focusStack: [],
+      multiFocusIds: [],
+      multiFocusReturn: null,
+      showClosed: true,
+      elasticLinks: true,
+      theme: state?.theme || 'attaq',
+      soundEnabled: state?.soundEnabled !== false,
+      links: [],
+      selectedId: null,
+      selectedIds: [],
+      view: { x: 0, y: 0, scale: 1 },
+      colorPresets: [...colors],
+      savedAt: Date.now(),
+    };
+  }
+
+  function normalizeMapState(input, fallback = blankState()) {
+    try {
+      const parsed = input && typeof input === 'object' ? input : fallback;
+      if (!Array.isArray(parsed.nodes)) return fallback;
+      parsed.focusStack ||= [];
+      parsed.multiFocusIds = Array.isArray(parsed.multiFocusIds) ? parsed.multiFocusIds : [];
+      parsed.multiFocusReturn = parsed.multiFocusReturn || null;
+      parsed.selectedIds = Array.isArray(parsed.selectedIds) ? parsed.selectedIds : [];
+      parsed.showClosed = parsed.showClosed !== false;
+      parsed.elasticLinks = parsed.elasticLinks !== false;
+      parsed.view ||= { x: 0, y: 0, scale: 1 };
+      parsed.colorPresets = normalizePresetList(parsed.colorPresets || colors);
+      parsed.theme = parsed.theme === 'vhs' ? 'attaq' : parsed.theme;
+      parsed.theme = ['attaq', 'dark', 'light'].includes(parsed.theme) ? parsed.theme : 'attaq';
+      parsed.soundEnabled = parsed.soundEnabled !== false;
+      const nodeIds = new Set(parsed.nodes.map(n => n.id));
+      parsed.links = Array.isArray(parsed.links) ? parsed.links
+        .filter(link => link && nodeIds.has(link.fromId) && nodeIds.has(link.toId) && link.fromId !== link.toId)
+        .map(link => ({
+          id: link.id || linkUid(),
+          fromId: link.fromId,
+          toId: link.toId,
+          type: link.type || 'connect',
+          createdAt: link.createdAt || Date.now()
+        })) : [];
+      parsed.nodes.forEach(n => {
+        n.blocked = n.blocked === true;
+        n.postponed = n.postponed === true;
+        n.note = typeof n.note === 'string' ? n.note : '';
+        if (n.blocked && !n.colorBeforeBlocked && n.color !== LOCKED_COLOR) n.colorBeforeBlocked = n.color;
+      });
+      return parsed;
+    } catch (e) {
+      console.warn('Could not normalize map state:', e);
+      return fallback;
+    }
+  }
+
+  function cloneStateSnapshot(source = state) {
+    return JSON.parse(JSON.stringify(source));
+  }
+
+  function captureHistory(reason) {
+    if (!HISTORY_REASONS.has(reason) || !historyBaseline) return;
+    undoStack.push(cloneStateSnapshot(historyBaseline));
+    if (undoStack.length > HISTORY_LIMIT) undoStack.shift();
+    redoStack.length = 0;
+  }
+
+  function restoreSnapshot(snapshot, reason) {
+    state = normalizeMapState(cloneStateSnapshot(snapshot), blankState());
+    selectedId = state.selectedId || state.nodes[0]?.id || null;
+    selectedIds = new Set(Array.isArray(state.selectedIds) ? state.selectedIds : []);
+    view = state.view || { x: 0, y: 0, scale: 1 };
+    applyTheme(state.theme || 'attaq', false);
+    updateSoundButton();
+    saveState(reason, { history: false });
+  }
+
+  function undoAction() {
+    if (!undoStack.length) return;
+    redoStack.push(cloneStateSnapshot());
+    restoreSnapshot(undoStack.pop(), 'undo');
+    playSound('select');
+  }
+
+  function redoAction() {
+    if (!redoStack.length) return;
+    undoStack.push(cloneStateSnapshot());
+    restoreSnapshot(redoStack.pop(), 'redo');
+    playSound('select');
+  }
+
+  function updateCurrentMap(meta = {}) {
+    currentMap = {
+      fileName: meta.fileName || currentMap.fileName || 'Untitled Map.json',
+      filePath: meta.filePath || currentMap.filePath || '',
+      mapsPath: meta.mapsPath || currentMap.mapsPath || ''
+    };
+    if (els.currentMapName) els.currentMapName.textContent = displayMapName(currentMap.fileName);
+    if (els.mapPickerButton) els.mapPickerButton.textContent = displayMapName(currentMap.fileName);
+  }
+
+  function displayMapName(fileName) {
+    return String(fileName || 'Untitled Map').replace(/\.json$/i, '');
+  }
+
+  async function refreshMapList() {
+    if (!window.attaqMaps?.listMaps || !els.mapPickerMenu) return;
+    try {
+      const payload = await window.attaqMaps.listMaps();
+      const maps = Array.isArray(payload?.maps) ? payload.maps : [];
+      els.mapPickerMenu.innerHTML = maps
+        .map((map) => `<button class="map-picker-option ${map.fileName === currentMap.fileName ? 'active' : ''}" type="button" role="option" data-file-name="${escapeAttr(map.fileName)}" aria-selected="${map.fileName === currentMap.fileName}">${escapeHtml(displayMapName(map.fileName))}</button>`)
+        .join('');
+      els.deleteMapBtn.disabled = maps.length === 0;
+    } catch (error) {
+      console.warn('Could not list maps:', error);
+    }
+  }
+
+  function loadWebState() {
+    try {
+      const raw = localStorage.getItem(WEB_STORAGE_KEY);
+      if (!raw) return starterMapState();
+      return normalizeMapState(JSON.parse(raw), starterMapState());
+    } catch (error) {
+      console.warn('Could not load web state:', error);
+      return starterMapState();
+    }
+  }
+
+  function saveWebState() {
+    try {
+      localStorage.setItem(WEB_STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      console.warn('Could not save web state:', error);
+      showStatus('Could not autosave');
+    }
+  }
+
+  function saveState(reason = 'action', options = {}) {
+    if (options.history !== false) captureHistory(reason);
+    state.selectedId = selectedId;
+    state.selectedIds = Array.from(selectedIds).filter(id => state.nodes.some(n => n.id === id));
+    state.view = view;
+    state.savedAt = Date.now();
+    historyBaseline = cloneStateSnapshot();
+    if (isDesktopApp) {
+      window.attaqMaps?.saveCurrentMap(state).catch((error) => {
+        console.warn('Could not save map:', error);
+        showStatus('Could not autosave map');
+      });
+    } else {
+      saveWebState();
+    }
+    showSaved(reason);
+    if (options.render !== false) updateUI();
+    checkTutorialProgress();
+  }
+
+  function saveStateSoft(reason = 'view') {
+    clearTimeout(lastSaveTimer);
+    lastSaveTimer = setTimeout(() => saveState(reason), 160);
+  }
+
+  function saveStateSoftQuiet(reason = 'note') {
+    clearTimeout(lastSaveTimer);
+    lastSaveTimer = setTimeout(() => saveState(reason, { history: false, render: false }), 260);
+  }
+
+  function showSaved(reason) {
+    const d = new Date();
+    els.saveIndicator.textContent = `Autosaved ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    els.saveIndicator.classList.add('saved');
+  }
+
+  function showStatus(message) {
+    els.saveIndicator.textContent = message;
+    els.saveIndicator.classList.add('saved');
+  }
+
+
+
+  function cssVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim();
+  }
+
+  function applyTheme(theme, save = false) {
+    theme = theme === 'vhs' ? 'attaq' : theme;
+    const safe = ['attaq', 'dark', 'light'].includes(theme) ? theme : 'attaq';
+    state.theme = safe;
+    document.body.dataset.theme = safe;
+    if (els.themeBtn) els.themeBtn.textContent = safe === 'attaq' ? 'ATTAQ Theme' : (safe === 'dark' ? 'Dark Theme' : 'Light Theme');
+    if (save) saveState('theme');
+  }
+
+  function cycleTheme() {
+    const order = ['attaq', 'dark', 'light'];
+    const current = state.theme === 'vhs' ? 'attaq' : (['attaq', 'dark', 'light'].includes(state.theme) ? state.theme : 'attaq');
+    const next = order[(order.indexOf(current) + 1) % order.length];
+    applyTheme(next, true);
+  }
+
+
+  let audioCtx = null;
+
+  function updateSoundButton() {
+    if (!els.soundBtn) return;
+    const muted = state.soundEnabled === false;
+    els.soundBtn.classList.toggle('muted', muted);
+    els.soundBtn.setAttribute('aria-label', muted ? 'Sound off' : 'Sound on');
+    els.soundBtn.title = muted ? 'Sound off' : 'Sound on';
+    els.soundBtn.innerHTML = muted
+      ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3Z" fill="currentColor"/><path d="m17 9 4 4m0-4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`
+      : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3Z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+  }
+
+  function ensureAudioContext() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+    return audioCtx;
+  }
+
+  function tone(ctx, start, freq, duration, gain = 0.035, type = 'sine') {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(gain, start + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    osc.connect(g);
+    g.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + duration + 0.02);
+  }
+
+  function playSound(kind = 'select') {
+    if (state.soundEnabled === false) return;
+    let ctx;
+    try { ctx = ensureAudioContext(); } catch (e) { return; }
+    const t = ctx.currentTime + 0.005;
+    if (kind === 'create') {
+      tone(ctx, t, 440, 0.07, 0.032, 'triangle');
+      tone(ctx, t + 0.055, 660, 0.085, 0.026, 'triangle');
+    } else if (kind === 'delete') {
+      tone(ctx, t, 220, 0.09, 0.04, 'sawtooth');
+      tone(ctx, t + 0.06, 120, 0.11, 0.025, 'sine');
+    } else if (kind === 'toggle') {
+      tone(ctx, t, 520, 0.06, 0.025, 'square');
+    } else {
+      tone(ctx, t, 720, 0.045, 0.022, 'triangle');
+    }
+  }
+
+  function toggleSounds() {
+    state.soundEnabled = state.soundEnabled === false;
+    updateSoundButton();
+    saveState('sound');
+    playSound('toggle');
+  }
+
+  function requestText(title, defaultValue, okLabel = 'OK') {
+    if (!els.inputModal || !els.inputField || !els.inputTitle || !els.inputOkBtn) {
+      const fallback = window.prompt(title, defaultValue);
+      return Promise.resolve(fallback ? fallback.trim() : '');
+    }
+
+    if (inputDialogResolve) inputDialogResolve('');
+    hideContextMenu();
+    els.inputTitle.textContent = title;
+    els.inputField.value = defaultValue || '';
+    els.inputOkBtn.textContent = okLabel;
+    els.inputModal.classList.add('open');
+    els.inputModal.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => {
+      els.inputField.focus();
+      els.inputField.select();
+    });
+
+    return new Promise((resolve) => {
+      inputDialogResolve = resolve;
+    });
+  }
+
+  function closeInputDialog(value = '') {
+    if (!inputDialogResolve) return;
+    const resolve = inputDialogResolve;
+    inputDialogResolve = null;
+    els.inputModal.classList.remove('open');
+    els.inputModal.setAttribute('aria-hidden', 'true');
+    resolve(value.trim());
+  }
+
+  function requestConfirm(message, options = {}) {
+    if (!els.messageModal || !els.messageText || !els.messageOkBtn || !els.messageCancelBtn) {
+      return Promise.resolve(window.confirm(message));
+    }
+
+    if (messageDialogResolve) messageDialogResolve(false);
+    hideContextMenu();
+    els.messageTitle.textContent = options.title || 'Confirm';
+    els.messageText.textContent = message;
+    els.messageOkBtn.textContent = options.okLabel || 'OK';
+    els.messageCancelBtn.textContent = options.cancelLabel || 'Cancel';
+    els.messageCancelBtn.style.display = options.cancel === false ? 'none' : '';
+    els.messageOkBtn.classList.toggle('danger', options.danger === true);
+    els.messageModal.classList.add('open');
+    els.messageModal.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => els.messageOkBtn.focus());
+
+    return new Promise((resolve) => {
+      messageDialogResolve = resolve;
+    });
+  }
+
+  function closeMessageDialog(value = false) {
+    if (!messageDialogResolve) return;
+    const resolve = messageDialogResolve;
+    messageDialogResolve = null;
+    els.messageModal.classList.remove('open');
+    els.messageModal.setAttribute('aria-hidden', 'true');
+    els.messageOkBtn.classList.remove('danger');
+    resolve(value);
+  }
+
+  function showMessage(message, title = 'Notice') {
+    return requestConfirm(message, { title, okLabel: 'OK', cancel: false });
+  }
+
+  function nodeById(id) {
+    return state.nodes.find(n => n.id === id) || null;
+  }
+
+  function childrenOf(id) {
+    return state.nodes.filter(n => n.parentId === id);
+  }
+
+  function descendantsOf(id) {
+    const result = [];
+    const walk = (parentId) => {
+      for (const child of childrenOf(parentId)) {
+        result.push(child);
+        walk(child.id);
+      }
+    };
+    walk(id);
+    return result;
+  }
+
+  function branchOf(id) {
+    const n = nodeById(id);
+    return n ? [n, ...descendantsOf(n.id)] : [];
+  }
+
+  function setBranchBlockedState(id, blocked) {
+    for (const target of branchOf(id)) {
+      if (blocked) {
+        if (!target.blocked) target.colorBeforeBlocked = target.color;
+        target.blocked = true;
+        target.color = LOCKED_COLOR;
+      } else {
+        if (target.blocked && target.colorBeforeBlocked) target.color = target.colorBeforeBlocked;
+        target.colorBeforeBlocked = null;
+        target.blocked = false;
+      }
+    }
+  }
+
+  function setBranchPostponedState(id, postponed) {
+    for (const target of branchOf(id)) {
+      target.postponed = postponed;
+    }
+  }
+
+  function setStoredNodeColor(target, color) {
+    if (!target) return;
+    if (target.blocked) {
+      target.colorBeforeBlocked = color;
+      target.color = LOCKED_COLOR;
+    } else {
+      target.color = color;
+    }
+  }
+
+  function ancestorsOf(id) {
+    const result = [];
+    let n = nodeById(id);
+    const guard = new Set();
+    while (n && n.parentId && !guard.has(n.parentId)) {
+      guard.add(n.parentId);
+      const p = nodeById(n.parentId);
+      if (!p) break;
+      result.unshift(p);
+      n = p;
+    }
+    return result;
+  }
+
+  function rootOf(id) {
+    let n = nodeById(id);
+    let last = n;
+    const guard = new Set();
+    while (n && n.parentId && !guard.has(n.parentId)) {
+      guard.add(n.parentId);
+      const p = nodeById(n.parentId);
+      if (!p) break;
+      last = p;
+      n = p;
+    }
+    return last || n;
+  }
+
+
+  function isDescendantOf(nodeId, possibleAncestorId) {
+    if (!nodeId || !possibleAncestorId) return false;
+    let n = nodeById(nodeId);
+    const guard = new Set();
+    while (n && n.parentId && !guard.has(n.parentId)) {
+      guard.add(n.parentId);
+      if (n.parentId === possibleAncestorId) return true;
+      n = nodeById(n.parentId);
+    }
+    return false;
+  }
+
+  function canMoveBranch(sourceId, targetId) {
+    const source = nodeById(sourceId);
+    const target = nodeById(targetId);
+    if (!source || !target) return { ok: false, reason: 'Node not found.' };
+    if (!source.parentId) return { ok: false, reason: 'Root projects cannot be moved inside another node yet.' };
+    if (source.id === target.id) return { ok: false, reason: 'You cannot move a branch into itself.' };
+    if (isDescendantOf(target.id, source.id)) return { ok: false, reason: 'You cannot move a branch into its own child node.' };
+    if (source.parentId === target.id) return { ok: false, reason: 'This branch is already attached to that node.' };
+    return { ok: true };
+  }
+
+  function visibleNodes() {
+    const includeClosed = state.showClosed;
+    let ids = null;
+
+    if (moveMode.sourceId) {
+      ids = null;
+    } else if (Array.isArray(state.multiFocusIds) && state.multiFocusIds.length) {
+      ids = new Set();
+      for (const id of state.multiFocusIds) {
+        const focus = nodeById(id);
+        if (!focus) continue;
+        ids.add(focus.id);
+        for (const descendant of descendantsOf(focus.id)) ids.add(descendant.id);
+      }
+    } else if (state.currentFocusId && nodeById(state.currentFocusId)) {
+      const focus = nodeById(state.currentFocusId);
+      ids = new Set([focus.id]);
+      for (const descendant of descendantsOf(focus.id)) {
+        ids.add(descendant.id);
+      }
+    }
+
+    return state.nodes.filter(n => {
+      if (ids && !ids.has(n.id)) return false;
+      const focusKeep = n.id === state.currentFocusId || (Array.isArray(state.multiFocusIds) && state.multiFocusIds.includes(n.id));
+      if (!includeClosed && n.closed && !focusKeep && n.id !== selectedId) return false;
+      if (!includeClosed && n.parentId) {
+        let p = nodeById(n.parentId);
+        const guard = new Set();
+        while (p && !guard.has(p.id)) {
+          guard.add(p.id);
+          const focusKeep = n.id === state.currentFocusId || (Array.isArray(state.multiFocusIds) && state.multiFocusIds.includes(n.id));
+          if (p.closed && n.id !== selectedId && !focusKeep) return false;
+          p = p.parentId ? nodeById(p.parentId) : null;
+        }
+      }
+      return true;
+    });
+  }
+
+  function visibleEdges(vNodes) {
+    const ids = new Set(vNodes.map(n => n.id));
+    return vNodes
+      .filter(n => n.parentId && ids.has(n.parentId))
+      .map(n => ({ from: nodeById(n.parentId), to: n }))
+      .filter(e => e.from && e.to);
+  }
+
+  function linkKey(a, b) {
+    return [a, b].sort().join('::');
+  }
+
+  function relatedLinksForNode(id) {
+    return (state.links || []).filter(link => link.fromId === id || link.toId === id);
+  }
+
+  function visibleRelatedLinks(vNodes) {
+    const ids = new Set(vNodes.map(n => n.id));
+    const seen = new Set();
+    return (state.links || [])
+      .filter(link => ids.has(link.fromId) && ids.has(link.toId))
+      .map(link => ({ ...link, from: nodeById(link.fromId), to: nodeById(link.toId), key: linkKey(link.fromId, link.toId) }))
+      .filter(link => {
+        if (!link.from || !link.to || seen.has(link.key)) return false;
+        seen.add(link.key);
+        return true;
+      });
+  }
+
+
+  function selectedNodeIds() {
+    return Array.from(selectedIds).filter(id => nodeById(id));
+  }
+
+  function hasMultiSelection() {
+    return selectedNodeIds().length > 1;
+  }
+
+  function isNodeSelected(id) {
+    return selectedIds.has(id) || selectedId === id;
+  }
+
+  function selectSingle(id) {
+    selectedId = id || null;
+    selectedIds.clear();
+  }
+
+  function setMultiSelection(ids) {
+    const visible = new Set(visibleNodes().map(n => n.id));
+    const safeIds = ids.filter(id => visible.has(id) && nodeById(id));
+    selectedIds = new Set(safeIds);
+    selectedId = safeIds[0] || null;
+    updateUI();
+  }
+
+  function toggleNodeInSelection(id) {
+    const n = nodeById(id);
+    if (!n) return;
+    const visible = new Set(visibleNodes().map(node => node.id));
+    if (!visible.has(id)) return;
+    if (selectedIds.has(id)) selectedIds.delete(id);
+    else selectedIds.add(id);
+    selectedId = selectedIds.has(id) ? id : (Array.from(selectedIds)[0] || null);
+    saveState('shift-select');
+    playSound('select');
+  }
+
+  function clearSelection(save = true) {
+    const hadSelection = selectedIds.size || selectedId;
+    selectedIds.clear();
+    selectedId = null;
+    hideContextMenu();
+    if (save) saveState('clear-selection');
+    else updateUI();
+    if (hadSelection) playSound('select');
+  }
+
+  function getSelectionRect() {
+    if (!pointer.selectionStart || !pointer.selectionEnd) return null;
+    const x1 = pointer.selectionStart.x;
+    const y1 = pointer.selectionStart.y;
+    const x2 = pointer.selectionEnd.x;
+    const y2 = pointer.selectionEnd.y;
+    return {
+      left: Math.min(x1, x2),
+      right: Math.max(x1, x2),
+      top: Math.min(y1, y2),
+      bottom: Math.max(y1, y2),
+      width: Math.abs(x2 - x1),
+      height: Math.abs(y2 - y1),
+    };
+  }
+
+  function nodeIntersectsRect(node, rect) {
+    const p = worldToScreen(node.x, node.y);
+    const r = getNodeRadius(node) * view.scale;
+    const closestX = Math.max(rect.left, Math.min(p.x, rect.right));
+    const closestY = Math.max(rect.top, Math.min(p.y, rect.bottom));
+    return Math.hypot(p.x - closestX, p.y - closestY) <= r;
+  }
+
+  function currentSelectionIds() {
+    const ids = new Set(selectedNodeIds());
+    if (selectedId && nodeById(selectedId)) ids.add(selectedId);
+    return ids;
+  }
+
+  function singleSelectedNodeId() {
+    const ids = Array.from(currentSelectionIds()).filter(id => nodeById(id));
+    return ids.length === 1 ? ids[0] : null;
+  }
+
+  function selectNodesInRect(rect, save = false, additive = false) {
+    const baseIds = additive ? new Set(pointer.selectionBaseIds || currentSelectionIds()) : new Set();
+    if (!rect || rect.width < 4 || rect.height < 4) {
+      setMultiSelection(Array.from(baseIds));
+      if (save) saveState('select-rectangle-empty');
+      return [];
+    }
+    const rectIds = visibleNodes().filter(n => nodeIntersectsRect(n, rect)).map(n => n.id);
+    const ids = additive ? Array.from(new Set([...baseIds, ...rectIds])) : rectIds;
+    setMultiSelection(ids);
+    if (save) saveState('select-rectangle');
+    if (save && ids.length) playSound('select');
+    return ids;
+  }
+
+  function isNodeBeingDragged(id) {
+    if (pointer.draggingNode === id) return true;
+    if (pointer.draggingSelection && selectedIds.has(id)) return true;
+    return false;
+  }
+
+  function setSelectedNodesColor(color) {
+    const safeColor = normalizeHex(color);
+    const ids = selectedNodeIds();
+    if (!safeColor || !ids.length) return;
+    for (const id of ids) {
+      const n = nodeById(id);
+      if (n) setStoredNodeColor(n, safeColor);
+    }
+    saveState('color-selection');
+  }
+
+  function setSelectedNodesClosed(closed) {
+    const ids = selectedNodeIds();
+    if (!ids.length) return;
+    for (const id of ids) {
+      const n = nodeById(id);
+      if (n) n.closed = closed;
+    }
+    saveState(closed ? 'close-selection' : 'reopen-selection');
+  }
+
+  function setSelectedBranchesDeferred(deferred) {
+    const ids = selectedNodeIds();
+    if (!ids.length) return;
+    for (const id of ids) setBranchBlockedState(id, deferred);
+    saveState(deferred ? 'defer-selection' : 'return-selection');
+  }
+
+  async function deleteSelectedBranches() {
+    const ids = selectedNodeIds();
+    if (!ids.length) return;
+    const toDelete = new Set();
+    for (const id of ids) {
+      const n = nodeById(id);
+      if (!n) continue;
+      toDelete.add(n.id);
+      for (const d of descendantsOf(n.id)) toDelete.add(d.id);
+    }
+    const count = toDelete.size;
+    const confirmed = await requestConfirm(`Delete selected nodes and their child branches (${count})?`, {
+      title: 'Delete selected nodes',
+      okLabel: 'Delete',
+      danger: true
+    });
+    if (!confirmed) return;
+    state.nodes = state.nodes.filter(node => !toDelete.has(node.id));
+    if (toDelete.has(selectedId)) selectedId = null;
+    selectedIds.clear();
+    if (toDelete.has(state.currentFocusId)) state.currentFocusId = null;
+    state.focusStack = state.focusStack.filter(id => !toDelete.has(id));
+    state.multiFocusIds = (state.multiFocusIds || []).filter(id => !toDelete.has(id));
+    if (state.multiFocusIds.length === 0) state.multiFocusReturn = null;
+    saveState('delete-selection');
+    playSound('delete');
+  }
+
+  function resize() {
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = canvas.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!state.hasCentered) {
+      centerView();
+      state.hasCentered = true;
+      saveStateSoft('center');
+    }
+  }
+
+  function centerView() {
+    const rect = canvas.getBoundingClientRect();
+    view.x = rect.width / 2;
+    view.y = rect.height / 2;
+    view.scale = 1;
+  }
+
+  function worldToScreen(x, y) {
+    return { x: x * view.scale + view.x, y: y * view.scale + view.y };
+  }
+
+  function screenToWorld(x, y) {
+    return { x: (x - view.x) / view.scale, y: (y - view.y) / view.scale };
+  }
+
+  function clientToCanvas(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  function getNodeRadius(node) {
+    const base = node.parentId ? 43 : 68;
+    return node.closed ? base * 0.88 : base;
+  }
+
+  function hitTest(clientX, clientY) {
+    const point = clientToCanvas(clientX, clientY);
+    const nodes = visibleNodes();
+    for (let i = nodes.length - 1; i >= 0; i--) {
+      const n = nodes[i];
+      const p = worldToScreen(n.x, n.y);
+      const r = getNodeRadius(n) * view.scale;
+      const dx = point.x - p.x;
+      const dy = point.y - p.y;
+      if (Math.hypot(dx, dy) <= r + 6) return n;
+    }
+    return null;
+  }
+
+  function wrapText(text, maxChars = 14) {
+    const words = String(text).split(' ');
+    const lines = [];
+    let current = '';
+    for (const word of words) {
+      if ((current + ' ' + word).trim().length > maxChars && current) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = (current + ' ' + word).trim();
+      }
+    }
+    if (current) lines.push(current);
+    return lines.slice(0, 3);
+  }
+
+  function drawGrid(t) {
+    ctx.save();
+    ctx.fillStyle = cssVar('--grid-dot') || 'rgba(255,255,255,0.018)';
+    const spacing = 80 * view.scale;
+    if (spacing > 12) {
+      const offsetX = view.x % spacing;
+      const offsetY = view.y % spacing;
+      for (let x = offsetX; x < width; x += spacing) {
+        for (let y = offsetY; y < height; y += spacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+    ctx.restore();
+  }
+
+  function draw() {
+    const now = performance.now();
+    const dt = Math.min(32, now - lastDrawTime);
+    lastDrawTime = now;
+    applyElasticVelocities(dt);
+    applyGentlePhysics(dt);
+
+    ctx.clearRect(0, 0, width, height);
+    drawGrid(now);
+
+    const nodes = visibleNodes();
+    const edges = visibleEdges(nodes);
+    const relatedLinks = visibleRelatedLinks(nodes);
+
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    for (const edge of edges) {
+      drawEdge(edge.from, edge.to, now);
+    }
+
+    for (const link of relatedLinks) {
+      drawRelatedLink(link.from, link.to, now);
+    }
+
+    for (const node of nodes) {
+      drawNode(node, now);
+    }
+
+    drawSelectionRect();
+    drawMovePreview(now);
+    drawConnectPreview(now);
+    drawEmptyHint(nodes);
+    ctx.restore();
+    raf = requestAnimationFrame(draw);
+  }
+
+  function drawEdge(a, b, t) {
+    const pa = worldToScreen(a.x, a.y);
+    const pb = worldToScreen(b.x, b.y);
+    const isClosed = a.closed || b.closed;
+    const isDeferred = a.blocked || b.blocked;
+    const isPostponed = a.postponed || b.postponed;
+    const alpha = isClosed ? 0.16 : (isDeferred ? 0.12 : (isPostponed ? 0.18 : 0.42));
+    const dx = pb.x - pa.x;
+    const dy = pb.y - pa.y;
+    const mx = (pa.x + pb.x) / 2;
+    const my = (pa.y + pb.y) / 2;
+    const wobble = Math.sin(t * 0.0015 + a.x + b.y) * 8;
+    const nx = -dy / Math.max(1, Math.hypot(dx, dy));
+    const ny = dx / Math.max(1, Math.hypot(dx, dy));
+
+    const grad = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
+    grad.addColorStop(0, hexToRgba(visualColor(a), alpha));
+    grad.addColorStop(1, hexToRgba(visualColor(b), alpha));
+
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = Math.max(1, 2.4 * view.scale);
+    ctx.beginPath();
+    ctx.moveTo(pa.x, pa.y);
+    ctx.quadraticCurveTo(mx + nx * wobble, my + ny * wobble, pb.x, pb.y);
+    ctx.stroke();
+  }
+
+  function drawRelatedLink(a, b, t) {
+    const pa = worldToScreen(a.x, a.y);
+    const pb = worldToScreen(b.x, b.y);
+    const isSoft = a.closed || b.closed || a.blocked || b.blocked;
+    const alpha = isSoft ? 0.24 : 0.58;
+    const dx = pb.x - pa.x;
+    const dy = pb.y - pa.y;
+    const distance = Math.max(1, Math.hypot(dx, dy));
+    const steps = Math.max(4, Math.floor(distance / Math.max(9, 12 * view.scale)));
+    const pulse = (Math.sin(t * 0.003 + a.x + b.y) + 1) * 0.5;
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(157,220,255,0.35)';
+    ctx.shadowBlur = 8;
+    for (let i = 1; i < steps; i++) {
+      const p = i / steps;
+      const x = pa.x + dx * p;
+      const y = pa.y + dy * p;
+      const dot = Math.max(1.1, 2.1 * view.scale) + (i % 3 === 0 ? pulse * 0.45 : 0);
+      ctx.fillStyle = i % 2 === 0 ? hexToRgba(visualColor(a), alpha) : hexToRgba(visualColor(b), alpha);
+      ctx.beginPath();
+      ctx.arc(x, y, dot, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawNode(node, t) {
+    const p = worldToScreen(node.x, node.y);
+    const r = getNodeRadius(node) * view.scale;
+    const isSelected = isNodeSelected(node.id);
+    const isFocus = node.id === state.currentFocusId;
+    const closed = node.closed;
+    const deferred = node.blocked;
+    const postponed = node.postponed;
+    const nodeColor = deferred ? LOCKED_COLOR : visualColor(node);
+    const floatX = Math.sin(t * 0.0012 + node.x * 0.02) * (closed ? 0.8 : 1.6);
+    const floatY = Math.cos(t * 0.0010 + node.y * 0.02) * (closed ? 0.8 : 1.6);
+    const x = p.x + floatX;
+    const y = p.y + floatY;
+
+    ctx.save();
+    ctx.globalAlpha = closed ? 0.52 : (deferred ? 0.3 : (postponed ? 0.56 : 1));
+
+    ctx.shadowColor = hexToRgba(nodeColor, isSelected || isFocus ? 0.65 : 0.32);
+    ctx.shadowBlur = isSelected || isFocus ? 28 : 16;
+
+    const fill = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.2, x, y, r * 1.1);
+    fill.addColorStop(0, hexToRgba('#ffffff', deferred ? 0.05 : (closed ? 0.10 : 0.22)));
+    fill.addColorStop(0.3, hexToRgba(nodeColor, deferred ? 0.62 : (closed ? 0.18 : (postponed ? 0.28 : 0.38))));
+    fill.addColorStop(1, hexToRgba(cssVar('--node-core') || '#05060a', 0.92));
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = isSelected ? '#ffffff' : hexToRgba(nodeColor, deferred ? 0.72 : (closed ? 0.36 : (postponed ? 0.52 : 0.8)));
+    ctx.lineWidth = isSelected ? 2.6 : 1.7;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    if (isFocus) {
+      ctx.strokeStyle = hexToRgba('#ffffff', 0.52);
+      ctx.setLineDash([5, 8]);
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(x, y, r + 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    if (deferred) ctx.globalAlpha = isSelected ? 0.88 : 0.72;
+
+    const lines = wrapText(node.title, node.parentId ? 13 : 17);
+    ctx.fillStyle = closed ? hexToRgba(cssVar('--node-text') || '#edf1ff', 0.58) : (deferred ? hexToRgba(cssVar('--node-text') || '#edf1ff', 0.82) : (postponed ? (cssVar('--node-text-soft') || 'rgba(237,241,255,0.66)') : (cssVar('--node-text') || '#edf1ff')));
+    ctx.font = `${Math.max(10, (node.parentId ? 12 : 15) * view.scale)}px Segoe UI, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const lineH = Math.max(12, 15 * view.scale);
+    const startY = y - ((lines.length - 1) * lineH) / 2;
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], x, startY + i * lineH);
+    }
+
+    if (closed) {
+      ctx.strokeStyle = 'rgba(237,241,255,0.45)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x - r * 0.45, y);
+      ctx.lineTo(x + r * 0.45, y);
+      ctx.stroke();
+      ctx.fillStyle = '#91ffbd';
+      ctx.font = `${Math.max(13, 17 * view.scale)}px Segoe UI, sans-serif`;
+      ctx.fillText('✓', x, y + r * 0.55);
+    }
+
+    ctx.restore();
+  }
+
+  function drawSelectionRect() {
+    if (!pointer.selecting) return;
+    const rect = getSelectionRect();
+    if (!rect || rect.width < 2 || rect.height < 2) return;
+    ctx.save();
+    ctx.fillStyle = cssVar('--selection-fill') || 'rgba(157,220,255,0.08)';
+    ctx.strokeStyle = cssVar('--selection-line') || 'rgba(157,220,255,0.72)';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([6, 5]);
+    ctx.fillRect(rect.left, rect.top, rect.width, rect.height);
+    ctx.strokeRect(rect.left + 0.5, rect.top + 0.5, rect.width, rect.height);
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  function drawMovePreview(t) {
+    if (!moveMode.sourceId) return;
+    const source = nodeById(moveMode.sourceId);
+    if (!source) return;
+    const p = worldToScreen(source.x, source.y);
+    const r = getNodeRadius(source) * view.scale;
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,184,107,0.92)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([7, 7]);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r + 16 + Math.sin(t * 0.004) * 2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,184,107,0.9)';
+    ctx.font = `${Math.max(10, 12 * view.scale)}px Segoe UI, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('moving branch', p.x, p.y - r - 24);
+    ctx.restore();
+  }
+
+  function drawConnectPreview(t) {
+    if (!connectMode.sourceId) return;
+    const source = nodeById(connectMode.sourceId);
+    if (!source) return;
+    const p = worldToScreen(source.x, source.y);
+    const r = getNodeRadius(source) * view.scale;
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(157,220,255,0.9)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([1, 8]);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r + 17 + Math.sin(t * 0.004) * 2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(157,220,255,0.9)';
+    ctx.font = `${Math.max(10, 12 * view.scale)}px Segoe UI, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('connect', p.x, p.y - r - 24);
+    ctx.restore();
+  }
+
+  function drawEmptyHint(nodes) {
+    if (nodes.length) return;
+    ctx.save();
+    ctx.fillStyle = cssVar('--canvas-empty') || 'rgba(237,241,255,0.5)';
+    ctx.font = '16px Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Empty. Create your first project with the “+ Project” button.', width / 2, height / 2);
+    ctx.restore();
+  }
+
+  function applyGentlePhysics(dt) {
+    const nodes = visibleNodes().filter(n => !n.closed && !isNodeBeingDragged(n.id));
+    if (nodes.length < 2) return;
+
+    const byId = new Map(nodes.map(n => [n.id, n]));
+    const edges = visibleEdges(nodes).filter(e => byId.has(e.from.id) && byId.has(e.to.id));
+
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.max(40, Math.hypot(dx, dy));
+        const min = 135;
+        if (dist < min) {
+          const force = (min - dist) * 0.0024 * dt;
+          const nx = dx / dist;
+          const ny = dy / dist;
+          a.x -= nx * force;
+          a.y -= ny * force;
+          b.x += nx * force;
+          b.y += ny * force;
+        }
+      }
+    }
+
+    for (const e of edges) {
+      const a = e.from;
+      const b = e.to;
+      if (isNodeBeingDragged(a.id) || isNodeBeingDragged(b.id)) continue;
+      const target = b.parentId === null ? 180 : 175;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.max(1, Math.hypot(dx, dy));
+      const diff = dist - target;
+      const force = diff * 0.0009 * dt;
+      const nx = dx / dist;
+      const ny = dy / dist;
+      a.x += nx * force;
+      a.y += ny * force;
+      b.x -= nx * force;
+      b.y -= ny * force;
+    }
+  }
+
+
+  function linkedNodeIds(id) {
+    const links = new Set();
+    const node = nodeById(id);
+    if (!node) return links;
+    if (node.parentId) links.add(node.parentId);
+    for (const child of childrenOf(id)) links.add(child.id);
+    return links;
+  }
+
+  function getElasticVelocity(id) {
+    let v = elasticVelocities.get(id);
+    if (!v) {
+      v = { x: 0, y: 0 };
+      elasticVelocities.set(id, v);
+    }
+    return v;
+  }
+
+  function addElasticImpulse(id, dx, dy, strength) {
+    const node = nodeById(id);
+    if (!node || isNodeBeingDragged(id)) return;
+    const v = getElasticVelocity(id);
+    v.x += dx * strength;
+    v.y += dy * strength;
+    const max = 4.6;
+    const speed = Math.hypot(v.x, v.y);
+    if (speed > max) {
+      v.x = (v.x / speed) * max;
+      v.y = (v.y / speed) * max;
+    }
+    elasticMotionDirty = true;
+  }
+
+  function applyElasticPull(sourceId, dx, dy) {
+    if (state.elasticLinks === false || !sourceId || (!dx && !dy)) return;
+    const visible = new Set(visibleNodes().map(n => n.id));
+    const direct = Array.from(linkedNodeIds(sourceId)).filter(id => visible.has(id));
+    const touched = new Set([sourceId]);
+
+    for (const id of direct) {
+      touched.add(id);
+      addElasticImpulse(id, dx, dy, 0.045);
+    }
+
+    for (const id of direct) {
+      for (const secondId of linkedNodeIds(id)) {
+        if (touched.has(secondId) || !visible.has(secondId)) continue;
+        touched.add(secondId);
+        addElasticImpulse(secondId, dx, dy, 0.008);
+      }
+    }
+  }
+
+  function applyElasticVelocities(dt) {
+    if (!elasticVelocities.size) return;
+    const step = Math.max(0.25, Math.min(2.2, dt / 16.67));
+    const damping = Math.pow(0.86, step);
+    const toDelete = [];
+
+    for (const [id, v] of elasticVelocities.entries()) {
+      const node = nodeById(id);
+      if (!node || isNodeBeingDragged(id) || state.elasticLinks === false) {
+        toDelete.push(id);
+        continue;
+      }
+      node.x += v.x * step * 0.42;
+      node.y += v.y * step * 0.42;
+      v.x *= damping;
+      v.y *= damping;
+      if (Math.hypot(v.x, v.y) < 0.025) toDelete.push(id);
+    }
+
+    for (const id of toDelete) elasticVelocities.delete(id);
+    if (!elasticVelocities.size && elasticMotionDirty) {
+      elasticMotionDirty = false;
+      saveStateSoft('elastic-settle');
+    }
+  }
+
+  function hexToRgba(hex, alpha = 1) {
+    if (!hex || !hex.startsWith('#')) return `rgba(255,255,255,${alpha})`;
+    const v = hex.replace('#', '');
+    const bigint = parseInt(v.length === 3 ? v.split('').map(c => c + c).join('') : v, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  function hexToRgb(hex) {
+    const safe = normalizeHex(hex);
+    if (!safe) return { r: 255, g: 255, b: 255 };
+    const v = safe.replace('#', '');
+    const bigint = parseInt(v, 16);
+    return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+  }
+
+  function rgbToHex(r, g, b) {
+    return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+  }
+
+  function mixHex(a, b, amount = 0.5) {
+    const ca = hexToRgb(a);
+    const cb = hexToRgb(b);
+    return rgbToHex(
+      ca.r + (cb.r - ca.r) * amount,
+      ca.g + (cb.g - ca.g) * amount,
+      ca.b + (cb.b - ca.b) * amount
+    );
+  }
+
+  function visualColor(node) {
+    const base = node?.color || '#9ddcff';
+    return node?.postponed ? mixHex(base, '#dfe5f5', 0.42) : base;
+  }
+
+  function addRoot() {
+    const point = findNewRootPlacement();
+    addRootAt(point.x, point.y);
+  }
+
+  function findNewRootPlacement() {
+    const center = screenToWorld(width / 2, height / 2);
+    if (!state.nodes.length) return center;
+
+    const margin = 260;
+    const visibleNodes = state.nodes.filter(n => {
+      const s = worldToScreen(n.x, n.y);
+      return s.x >= -margin && s.x <= width + margin && s.y >= -margin && s.y <= height + margin;
+    });
+    const baseNodes = visibleNodes.length ? visibleNodes : state.nodes;
+
+    const bounds = baseNodes.reduce((b, n) => ({
+      minX: Math.min(b.minX, n.x),
+      maxX: Math.max(b.maxX, n.x),
+      minY: Math.min(b.minY, n.y),
+      maxY: Math.max(b.maxY, n.y)
+    }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+
+    const anchor = {
+      // Left panel + Project should create a separate project away from the current cluster.
+      // Right-click + New Project still creates exactly at the clicked map position.
+      x: bounds.maxX + 520,
+      y: (bounds.minY + bounds.maxY) / 2
+    };
+
+    const allNodes = state.nodes;
+    const isFree = (x, y) => allNodes.every(n => Math.hypot(n.x - x, n.y - y) > 260);
+    if (isFree(anchor.x, anchor.y)) return anchor;
+
+    const spacing = 240;
+    for (let ring = 1; ring <= 8; ring++) {
+      const candidates = [
+        { x: anchor.x, y: anchor.y + ring * spacing },
+        { x: anchor.x, y: anchor.y - ring * spacing },
+        { x: anchor.x + ring * spacing, y: anchor.y },
+        { x: anchor.x - ring * spacing, y: anchor.y },
+        { x: anchor.x + ring * spacing, y: anchor.y + ring * spacing },
+        { x: anchor.x + ring * spacing, y: anchor.y - ring * spacing }
+      ];
+      const free = candidates.find(c => isFree(c.x, c.y));
+      if (free) return free;
+    }
+
+    return { x: anchor.x + Math.random() * 80 - 40, y: anchor.y + Math.random() * 80 - 40 };
+  }
+
+  async function addRootAt(x, y) {
+    const title = await requestText('Project name', 'New project', 'Create');
+    if (!title) return;
+    const color = colors[state.nodes.filter(n => !n.parentId).length % colors.length];
+    const n = makeNode(title, x, y, null, color);
+    state.nodes.push(n);
+    selectedIds.clear();
+    selectedId = n.id;
+    state.multiFocusIds = [];
+    saveState('add-root');
+    playSound('create');
+  }
+
+  async function addChild(parentId = selectedId) {
+    const parent = nodeById(parentId);
+    if (!parent) return;
+    const title = await requestText('Node name', 'New node', 'Create');
+    if (!title) return;
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 170 + Math.random() * 45;
+    const inheritedColor = parent.blocked ? (parent.colorBeforeBlocked || LOCKED_COLOR) : parent.color;
+    const child = makeNode(title, parent.x + Math.cos(angle) * distance, parent.y + Math.sin(angle) * distance, parent.id, inheritedColor);
+    if (parent.blocked) {
+      child.blocked = true;
+      child.colorBeforeBlocked = inheritedColor;
+      child.color = LOCKED_COLOR;
+    }
+    if (parent.postponed) child.postponed = true;
+    state.nodes.push(child);
+    selectedIds.clear();
+    selectedId = child.id;
+    saveState('add-child');
+    playSound('create');
+  }
+
+  function focusNode(id = selectedId) {
+    const n = nodeById(id);
+    if (!n) return;
+    state.multiFocusIds = [];
+    state.multiFocusReturn = null;
+    if (state.currentFocusId !== n.id) {
+      if (state.currentFocusId) state.focusStack.push(state.currentFocusId);
+      state.currentFocusId = n.id;
+    }
+    selectedIds.clear();
+    selectedId = n.id;
+    saveState('focus');
+  }
+
+  function focusSelectedNodes() {
+    const ids = selectedNodeIds();
+    if (ids.length < 2) return;
+    state.multiFocusReturn = {
+      currentFocusId: state.currentFocusId || null,
+      focusStack: Array.isArray(state.focusStack) ? [...state.focusStack] : [],
+    };
+    state.multiFocusIds = ids;
+    saveState('multi-focus');
+  }
+
+  function exitMultiFocus() {
+    if (!Array.isArray(state.multiFocusIds) || !state.multiFocusIds.length) return false;
+    const ret = state.multiFocusReturn || {};
+    state.currentFocusId = ret.currentFocusId || null;
+    state.focusStack = Array.isArray(ret.focusStack) ? ret.focusStack : [];
+    state.multiFocusIds = [];
+    state.multiFocusReturn = null;
+    if (tutorialState.active) tutorialState.events.exitedFocus = true;
+    saveState('exit-multi-focus');
+    return true;
+  }
+
+  function goBack() {
+    if (exitMultiFocus()) return;
+    const hadFocus = Boolean(state.currentFocusId || state.focusStack.length);
+    if (state.focusStack.length) {
+      state.currentFocusId = state.focusStack.pop();
+      selectedId = state.currentFocusId;
+    } else if (state.currentFocusId) {
+      const cur = nodeById(state.currentFocusId);
+      if (cur && cur.parentId) {
+        state.currentFocusId = cur.parentId;
+        selectedId = cur.parentId;
+      } else {
+        state.currentFocusId = null;
+      }
+    }
+    selectedIds.clear();
+    if (hadFocus && tutorialState.active && !state.currentFocusId && !state.focusStack.length) tutorialState.events.exitedFocus = true;
+    saveState('back');
+  }
+
+  function showAllMap() {
+    const hadFocus = Boolean(state.currentFocusId || state.focusStack.length || (Array.isArray(state.multiFocusIds) && state.multiFocusIds.length));
+    state.currentFocusId = null;
+    state.focusStack = [];
+    state.multiFocusIds = [];
+    state.multiFocusReturn = null;
+    selectedIds.clear();
+    if (hadFocus && tutorialState.active) tutorialState.events.exitedFocus = true;
+    saveState('all-map');
+  }
+
+  function toggleClosed() {
+    state.showClosed = !state.showClosed;
+    saveState('toggle-closed');
+  }
+
+  function toggleElasticLinks() {
+    state.elasticLinks = state.elasticLinks === false;
+    saveState('toggle-elastic-links');
+  }
+
+  async function renameNode(id = selectedId) {
+    const n = nodeById(id);
+    if (!n) return;
+    const title = await requestText('New name', n.title, 'Rename');
+    if (!title) return;
+    n.title = title;
+    saveState('rename');
+  }
+
+  function toggleNodeClosed(id = selectedId) {
+    const n = nodeById(id);
+    if (!n) return;
+    n.closed = !n.closed;
+    saveState('toggle-node-closed');
+  }
+
+  function toggleBranchBlocked(id = selectedId) {
+    const n = nodeById(id);
+    if (!n) return;
+    const shouldBlock = !n.blocked;
+    setBranchBlockedState(n.id, shouldBlock);
+    saveState(shouldBlock ? 'defer-branch' : 'return-branch');
+  }
+
+  function selectedShortcutIds() {
+    return Array.from(currentSelectionIds()).filter(id => nodeById(id));
+  }
+
+  function renameSelectedShortcut() {
+    const ids = selectedShortcutIds();
+    if (ids.length !== 1) return false;
+    renameNode(ids[0]);
+    return true;
+  }
+
+  function toggleSelectedClosedShortcut() {
+    const ids = selectedShortcutIds();
+    if (!ids.length) return false;
+    if (ids.length === 1) {
+      toggleNodeClosed(ids[0]);
+      return true;
+    }
+    const shouldClose = ids.some(id => !nodeById(id)?.closed);
+    setSelectedNodesClosed(shouldClose);
+    return true;
+  }
+
+  function toggleSelectedDeferredShortcut() {
+    const ids = selectedShortcutIds();
+    if (!ids.length) return false;
+    if (ids.length === 1) {
+      toggleBranchBlocked(ids[0]);
+      return true;
+    }
+    const shouldDefer = ids.some(id => !nodeById(id)?.blocked);
+    setSelectedBranchesDeferred(shouldDefer);
+    return true;
+  }
+
+  function moveSelectedBranchShortcut() {
+    const ids = selectedShortcutIds();
+    if (ids.length !== 1) return false;
+    startMoveBranch(ids[0]);
+    return true;
+  }
+
+  function openSelectedColorShortcut(target = 'node') {
+    const ids = selectedShortcutIds();
+    if (!ids.length) return false;
+    if (ids.length > 1) {
+      if (target === 'branch') return false;
+      const first = nodeById(selectedId) || nodeById(ids[0]);
+      if (!first) return false;
+      showColorPopover('selection', first);
+      hideContextMenu();
+      return true;
+    }
+    const node = nodeById(ids[0]);
+    if (!node) return false;
+    showColorPopover(target, node);
+    hideContextMenu();
+    return true;
+  }
+
+  function toggleBranchPostponed(id = selectedId) {
+    const n = nodeById(id);
+    if (!n) return;
+    const shouldPostpone = !n.postponed;
+    setBranchPostponedState(n.id, shouldPostpone);
+    saveState(shouldPostpone ? 'postpone-branch' : 'return-branch');
+  }
+
+  function setNodeColor(id, color, subtree = false) {
+    const n = nodeById(id);
+    if (!n) return;
+    const targets = subtree ? [n, ...descendantsOf(n.id)] : [n];
+    for (const target of targets) setStoredNodeColor(target, color);
+    saveState('color');
+  }
+
+  async function resetNodeColor(id = selectedId) {
+    const n = nodeById(id);
+    if (!n) return;
+    const parent = n.parentId ? nodeById(n.parentId) : null;
+    if (!parent) {
+      await showMessage('Root projects do not have a parent color. Set their color manually.');
+      return;
+    }
+    const parentColor = parent.blocked ? (parent.colorBeforeBlocked || LOCKED_COLOR) : parent.color;
+    setStoredNodeColor(n, parentColor);
+    saveState('reset-node-color');
+  }
+
+  async function deleteBranch(id = selectedId) {
+    const n = nodeById(id);
+    if (!n) return;
+    const toDelete = new Set([n.id, ...descendantsOf(n.id).map(d => d.id)]);
+    const count = toDelete.size;
+    const confirmed = await requestConfirm(
+      count > 1 ? `Delete branch "${n.title}" and all child nodes (${count})?` : `Delete "${n.title}"?`,
+      {
+        title: 'Delete node',
+        okLabel: 'Delete',
+        danger: true
+      }
+    );
+    if (!confirmed) return;
+    state.nodes = state.nodes.filter(node => !toDelete.has(node.id));
+    if (toDelete.has(selectedId)) selectedId = null;
+    for (const id of Array.from(selectedIds)) if (toDelete.has(id)) selectedIds.delete(id);
+    if (toDelete.has(state.currentFocusId)) state.currentFocusId = null;
+    state.focusStack = state.focusStack.filter(id => !toDelete.has(id));
+    state.multiFocusIds = (state.multiFocusIds || []).filter(id => !toDelete.has(id));
+    if (state.multiFocusIds.length === 0) state.multiFocusReturn = null;
+    state.links = (state.links || []).filter(link => !toDelete.has(link.fromId) && !toDelete.has(link.toId));
+    saveState('delete');
+    playSound('delete');
+  }
+
+
+  async function startMoveBranch(id = selectedId) {
+    const n = nodeById(id);
+    if (!n) return;
+    if (!n.parentId) {
+      await showMessage('Root projects cannot be moved inside another node yet. Move branch works for internal branches.');
+      return;
+    }
+    moveMode.sourceId = n.id;
+    selectedIds.clear();
+    selectedId = n.id;
+    hideContextMenu();
+    saveState('start-move-branch');
+  }
+
+  function startConnectNodes(id = selectedId) {
+    const n = nodeById(id);
+    if (!n) return false;
+    connectMode.sourceId = n.id;
+    moveMode.sourceId = null;
+    selectedIds.clear();
+    selectedId = n.id;
+    hideContextMenu();
+    updateUI();
+    return true;
+  }
+
+  function cancelConnectNodes() {
+    if (!connectMode.sourceId) return false;
+    connectMode.sourceId = null;
+    updateUI();
+    return true;
+  }
+
+  function toggleNodeConnection(sourceId, targetId) {
+    const source = nodeById(sourceId);
+    const target = nodeById(targetId);
+    if (!source || !target || source.id === target.id) return false;
+    state.links ||= [];
+    const key = linkKey(source.id, target.id);
+    const existingIndex = state.links.findIndex(link => linkKey(link.fromId, link.toId) === key);
+    if (existingIndex >= 0) {
+      state.links.splice(existingIndex, 1);
+      selectedId = source.id;
+      saveState('disconnect-nodes');
+      return true;
+    }
+    state.links.push({
+      id: linkUid(),
+      fromId: source.id,
+      toId: target.id,
+      type: 'connect',
+      createdAt: Date.now()
+    });
+    selectedId = source.id;
+    saveState('connect-nodes');
+    playSound('select');
+    return true;
+  }
+
+  function completeConnectNodes(targetId) {
+    if (!connectMode.sourceId) return false;
+    const sourceId = connectMode.sourceId;
+    connectMode.sourceId = null;
+    return toggleNodeConnection(sourceId, targetId);
+  }
+
+  function removeNodeConnections(id = selectedId) {
+    const n = nodeById(id);
+    if (!n || !Array.isArray(state.links)) return false;
+    const before = state.links.length;
+    state.links = state.links.filter(link => link.fromId !== n.id && link.toId !== n.id);
+    if (state.links.length === before) return false;
+    selectedId = n.id;
+    saveState('remove-node-links');
+    return true;
+  }
+
+  async function quickMoveSelectedBranch(targetId) {
+    const sourceId = singleSelectedNodeId();
+    if (!sourceId || sourceId === targetId) return false;
+    const check = canMoveBranch(sourceId, targetId);
+    if (!check.ok) {
+      await showMessage(check.reason);
+      return false;
+    }
+    moveMode.sourceId = sourceId;
+    await completeMoveBranch(targetId);
+    return true;
+  }
+
+  function cancelMoveBranch() {
+    if (!moveMode.sourceId) return false;
+    moveMode.sourceId = null;
+    saveState('cancel-move-branch');
+    return true;
+  }
+
+  async function completeMoveBranch(targetId) {
+    const source = nodeById(moveMode.sourceId);
+    const target = nodeById(targetId);
+    if (!source || !target) return cancelMoveBranch();
+    const check = canMoveBranch(source.id, target.id);
+    if (!check.ok) {
+      await showMessage(check.reason);
+      return;
+    }
+
+    source.parentId = target.id;
+
+    const angle = Math.atan2(source.y - target.y, source.x - target.x) || Math.random() * Math.PI * 2;
+    const distance = 175;
+    source.x = target.x + Math.cos(angle) * distance;
+    source.y = target.y + Math.sin(angle) * distance;
+
+    if (target.blocked) setBranchBlockedState(source.id, true);
+    if (target.postponed) setBranchPostponedState(source.id, true);
+
+    selectedIds.clear();
+    selectedId = source.id;
+    moveMode.sourceId = null;
+    if (tutorialState.active) tutorialState.events.movedBranch = true;
+    saveState('move-branch');
+  }
+
+  function applyLoadedMap(payload, reason = 'load') {
+    if (!payload?.ok) return false;
+    updateCurrentMap(payload);
+    const shouldUseStarter = payload.createdNew && (!payload.state?.nodes || payload.state.nodes.length === 0);
+    state = normalizeMapState(shouldUseStarter ? starterMapState() : (payload.state || blankState()), blankState());
+    selectedId = state.selectedId || state.nodes[0]?.id || null;
+    selectedIds = new Set(Array.isArray(state.selectedIds) ? state.selectedIds : []);
+    view = state.view;
+    undoStack.length = 0;
+    redoStack.length = 0;
+    historyBaseline = cloneStateSnapshot();
+    applyTheme(state.theme || 'attaq', false);
+    updateSoundButton();
+    resize();
+    updateUI();
+    showStatus(`${reason === 'create' ? 'Created' : 'Loaded'} map: ${displayMapName(currentMap.fileName)}`);
+    refreshMapList();
+    return true;
+  }
+
+  async function createNewMap() {
+    const name = await requestText('New map name', 'Untitled Map', 'Create');
+    if (!name) return;
+    try {
+      const payload = await window.attaqMaps?.createNewMap(name, blankState());
+      if (applyLoadedMap(payload, 'create')) saveState('new-map');
+    } catch (error) {
+      console.warn('Could not create map:', error);
+      await showMessage('Could not create a new map file.');
+    }
+  }
+
+  async function createNewWebMap() {
+    const confirmed = await requestConfirm('Start a new local browser map? Export map first if you want a backup.', {
+      title: 'New map',
+      okLabel: 'New map',
+      danger: true
+    });
+    if (!confirmed) return;
+    state = starterMapState();
+    selectedId = state.selectedId;
+    selectedIds = new Set(Array.isArray(state.selectedIds) ? state.selectedIds : []);
+    view = state.view;
+    undoStack.length = 0;
+    redoStack.length = 0;
+    historyBaseline = cloneStateSnapshot();
+    updateCurrentMap({ fileName: 'Local Browser Map.json' });
+    saveState('reset', { history: false });
+    showStatus('New local map created');
+  }
+
+  function exportJson() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10);
+    const baseName = displayMapName(currentMap.fileName || `focus-map-${date}`).replace(/\s+/g, '-').toLowerCase();
+    a.href = url;
+    a.download = `${baseName || `focus-map-${date}`}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function importJsonFile(file) {
+    if (!file) return;
+    if (isDesktopApp) return;
+    showStatus(`Importing ${displayMapName(file.name)}...`);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const imported = JSON.parse(reader.result);
+        if (!imported || !Array.isArray(imported.nodes)) throw new Error('Wrong format');
+        state = normalizeMapState(imported, blankState());
+        selectedId = state.selectedId || state.nodes[0]?.id || null;
+        selectedIds = new Set(Array.isArray(state.selectedIds) ? state.selectedIds : []);
+        view = state.view;
+        undoStack.length = 0;
+        redoStack.length = 0;
+        historyBaseline = cloneStateSnapshot();
+        if (!isDesktopApp) updateCurrentMap({ fileName: file.name || 'Imported Map.json' });
+        saveState('import-json', { history: false });
+        showStatus(`Imported ${displayMapName(file.name)}`);
+      } catch (error) {
+        console.warn('Could not import map:', error);
+        showStatus('Could not import map');
+        showMessage('Could not import map. The file format does not look right.');
+      }
+    };
+    reader.onerror = () => {
+      showStatus('Could not read JSON');
+      showMessage('Could not read JSON file.');
+    };
+    reader.readAsText(file);
+  }
+
+  async function importJson() {
+    if (isDesktopApp) {
+      if (!window.attaqMaps?.loadMapFromDialog) {
+        await showMessage('Import map is available in the desktop app.');
+        return;
+      }
+      showStatus('Importing JSON...');
+      try {
+        const payload = await window.attaqMaps.loadMapFromDialog();
+        if (payload?.canceled) {
+          showSaved('import-cancelled');
+          return;
+        }
+        applyLoadedMap(payload, 'load');
+        showStatus(`Imported map: ${displayMapName(payload.fileName)}`);
+      } catch (error) {
+        console.warn('Could not import map:', error);
+        showStatus('Could not import map');
+        await showMessage('Could not import map. The file format does not look right.');
+      }
+      return;
+    }
+
+    els.importJsonFile.click();
+  }
+
+  async function loadSelectedMap(fileName) {
+    if (!fileName || fileName === currentMap.fileName) return;
+    if (!window.attaqMaps?.loadMapByName) {
+      await showMessage('Map switching is available in the desktop app.');
+      return;
+    }
+    showStatus('Loading map file...');
+    try {
+      const payload = await window.attaqMaps.loadMapByName(fileName);
+      applyLoadedMap(payload, 'load');
+    } catch (error) {
+      console.warn('Could not load map:', error);
+      showStatus('Could not load map file');
+      await showMessage('Could not load map. The file format does not look right.');
+      refreshMapList();
+    }
+  }
+
+  async function renameCurrentMap() {
+    if (!window.attaqMaps?.renameCurrentMap) {
+      await showMessage('Rename map is available in the desktop app.');
+      return;
+    }
+    const currentName = (currentMap.fileName || 'Untitled Map.json').replace(/\.json$/i, '');
+    const name = await requestText('Rename map', currentName, 'Rename');
+    if (!name) return;
+    try {
+      const payload = await window.attaqMaps.renameCurrentMap(name);
+      if (payload?.ok) {
+        updateCurrentMap(payload);
+        showStatus(`Renamed map: ${displayMapName(currentMap.fileName)}`);
+        refreshMapList();
+      }
+    } catch (error) {
+      console.warn('Could not rename map:', error);
+      await showMessage('Could not rename the current map file.');
+    }
+  }
+
+  async function deleteCurrentMap() {
+    const fileName = currentMap.fileName;
+    if (!fileName) return;
+    const confirmed = await requestConfirm(`Delete map "${displayMapName(fileName)}"?`, {
+      title: 'Delete map',
+      okLabel: 'Delete',
+      danger: true
+    });
+    if (!confirmed) return;
+
+    try {
+      const payload = await window.attaqMaps?.deleteMap(fileName);
+      if (applyLoadedMap(payload, payload?.createdNew ? 'create' : 'load')) {
+        if (payload?.createdNew) saveState('initialize-map-after-delete');
+        showStatus(`Deleted map: ${displayMapName(payload.deletedFileName)}`);
+      }
+    } catch (error) {
+      console.warn('Could not delete map:', error);
+      await showMessage('Could not delete the selected map file.');
+    }
+  }
+
+  async function openMapsFolder() {
+    if (!window.attaqMaps?.openMapsFolder) {
+      await showMessage('The MAPS folder is available in the desktop app.');
+      return;
+    }
+    try {
+      await window.attaqMaps.openMapsFolder();
+    } catch (error) {
+      console.warn('Could not open MAPS folder:', error);
+      await showMessage('Could not open the MAPS folder.');
+    }
+  }
+
+  async function resetMap() {
+    const confirmed = await requestConfirm('Reset the map to the demo structure? Your current map is safe only if you saved it as a map file first.', {
+      title: 'Reset map',
+      okLabel: 'Reset',
+      danger: true
+    });
+    if (!confirmed) return;
+    state = starterMapState();
+    selectedId = state.selectedId;
+    selectedIds = new Set(Array.isArray(state.selectedIds) ? state.selectedIds : []);
+    view = state.view;
+    centerView();
+    saveState('reset');
+  }
+
+  function updateUI() {
+    const selected = nodeById(selectedId);
+    els.backBtn.disabled = !(state.currentFocusId || state.focusStack.length || (Array.isArray(state.multiFocusIds) && state.multiFocusIds.length));
+    setButtonContent(els.toggleClosedBtn, state.showClosed ? 'Hide closed' : 'Show closed', state.showClosed ? 'eyeOff' : 'eye');
+
+    const total = state.nodes.length;
+    const closed = state.nodes.filter(n => n.closed).length;
+    els.totalNodes.textContent = total;
+    els.openNodes.textContent = total - closed;
+    els.closedNodes.textContent = closed;
+    els.modeName.textContent = moveMode.sourceId ? 'Moving branch' : (connectMode.sourceId ? 'Connecting' : ((Array.isArray(state.multiFocusIds) && state.multiFocusIds.length) ? 'Group focus' : (state.currentFocusId ? 'Focus' : 'Full map')));
+
+    const moving = nodeById(moveMode.sourceId);
+    if (moving) {
+      els.breadcrumb.innerHTML = `<span class="pill move-banner"><strong>Move:</strong> choose a new parent node for “${escapeHtml(moving.title)}” · Esc – cancel</span>`;
+    } else if (nodeById(connectMode.sourceId)) {
+      const connecting = nodeById(connectMode.sourceId);
+      els.breadcrumb.innerHTML = `<span class="pill move-banner"><strong>Connect:</strong> choose another node for “${escapeHtml(connecting.title)}” · Esc – cancel</span>`;
+    } else if (Array.isArray(state.multiFocusIds) && state.multiFocusIds.length) {
+      const names = state.multiFocusIds.map(id => nodeById(id)?.title).filter(Boolean).join(' + ');
+      els.breadcrumb.innerHTML = `<strong>Group focus:</strong> ${escapeHtml(names)}`;
+    } else {
+      const focus = nodeById(state.currentFocusId);
+      if (focus) {
+      const crumbs = [...ancestorsOf(focus.id), focus].map(n => n.title).join(' / ');
+      els.breadcrumb.innerHTML = `<strong>Path:</strong> ${escapeHtml(crumbs)}`;
+      } else {
+        els.breadcrumb.textContent = 'Full map';
+      }
+    }
+
+    const multiIds = selectedNodeIds();
+    if (multiIds.length > 1) {
+      els.selectedContent.className = '';
+      els.selectedContent.innerHTML = `
+        <div class="selected-title">Selected nodes: ${multiIds.length}</div>
+        <div class="divider"></div>
+        <p class="hint">Group actions are available with right-click on any selected node: focus selection, change color, or delete selected nodes. To drag the group, hold left mouse button on any selected node.</p>
+      `;
+      return;
+    }
+
+    if (!selected) {
+      els.selectedContent.className = 'empty-state';
+      els.selectedContent.innerHTML = 'Click any node on the map. Node actions are available with right-click.';
+      return;
+    }
+
+    const parent = selected.parentId ? nodeById(selected.parentId) : null;
+    const childCount = childrenOf(selected.id).length;
+    const branchCount = descendantsOf(selected.id).length;
+    const root = rootOf(selected.id);
+
+    const statusBadges = [
+      `<span class="badge"><span class="dot" style="color:${visualColor(selected)}"></span>${selected.closed ? 'closed' : 'open'}</span>`,
+      selected.blocked ? '<span class="badge">branch deferred</span>' : '',
+      selected.postponed ? '<span class="badge">branch postponed</span>' : '',
+      `<span class="badge">children: ${childCount}</span>`,
+      `<span class="badge">branch: ${branchCount + 1}</span>`,
+    ].filter(Boolean).join('');
+
+    els.selectedContent.className = '';
+    els.selectedContent.innerHTML = `
+      <div class="selected-title">${escapeHtml(selected.title)}</div>
+      <div class="row wrap" style="margin-top:10px;">${statusBadges}</div>
+      <div class="divider"></div>
+      <div class="stat"><span>Project</span><strong>${escapeHtml(root?.title || selected.title)}</strong></div>
+      <div class="stat"><span>Parent</span><strong>${escapeHtml(parent?.title || 'none')}</strong></div>
+      <div class="node-note-block">
+        <label class="node-note-label" for="nodeNoteField">Note</label>
+        <textarea class="node-note-field" id="nodeNoteField" data-node-note="${escapeAttr(selected.id)}" spellcheck="true" placeholder="Write anything...">${escapeHtml(selected.note || '')}</textarea>
+      </div>
+      <div class="divider"></div>
+      <p class="hint">${moveMode.sourceId === selected.id ? 'This branch is being moved. Click a new parent node or press Esc to cancel.' : (connectMode.sourceId === selected.id ? 'This node is waiting for a connection target. Click another node or press Esc to cancel.' : 'Right-click this node on the map to open its actions.')}</p>
+    `;
+    checkTutorialProgress();
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  }
+
+  function escapeAttr(str) {
+    return escapeHtml(str).replace(/'/g, '&#39;');
+  }
+
+  const iconPaths = {
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+    trash: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 15h10l1-15"/><path d="M10 11v6M14 11v6"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    eye: '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/>',
+    eyeOff: '<path d="m3 3 18 18"/><path d="M10.6 10.6a3 3 0 0 0 3.8 3.8"/><path d="M9.9 5.2A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-3.1 4.2"/><path d="M6.1 6.7C3.5 8.6 2 12 2 12s3.5 7 10 7a10.8 10.8 0 0 0 4.1-.8"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    move: '<path d="M12 2v20M2 12h20"/><path d="m8 6 4-4 4 4M8 18l4 4 4-4M6 8l-4 4 4 4M18 8l4 4-4 4"/>',
+    connect: '<path d="M7 8a5 5 0 0 0 0 8l1 1a5 5 0 0 0 7-7l-.5-.5"/><path d="M17 16a5 5 0 0 0 0-8l-1-1a5 5 0 0 0-7 7l.5.5"/><path d="M8 12h8"/>',
+    palette: '<path d="M12 22a10 10 0 1 1 9.8-8.2c-.2 1.1-1.2 1.8-2.3 1.8h-1.6a2 2 0 0 0-1.8 2.8c.6 1.4-.4 3-1.9 3.3-.7.2-1.4.3-2.2.3Z"/><circle cx="7.5" cy="10" r="1"/><circle cx="10.5" cy="6.8" r="1"/><circle cx="15" cy="7.5" r="1"/><circle cx="17" cy="11.2" r="1"/>',
+    download: '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',
+    upload: '<path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/>',
+    folder: '<path d="M3 6.5h7l2 2h9v9.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M3 10h18"/>',
+    arrowLeft: '<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>',
+    layers: '<path d="m12 2 9 5-9 5-9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/>',
+    branch: '<path d="M6 3v7a4 4 0 0 0 4 4h8"/><path d="M18 8v12"/><circle cx="6" cy="3" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="18" cy="20" r="2"/>'
+  };
+
+  function iconMarkup(name) {
+    const path = iconPaths[name];
+    return path ? `<span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${path}</svg></span>` : '';
+  }
+
+  function setButtonContent(button, label, iconName) {
+    if (!button) return;
+    button.dataset.label = label;
+    if (iconName) button.dataset.icon = iconName;
+    button.innerHTML = `${iconMarkup(button.dataset.icon)}<span>${escapeHtml(label)}</span>`;
+  }
+
+  function decorateIconButtons(root = document) {
+    root.querySelectorAll('button[data-icon]').forEach(button => {
+      const label = button.dataset.label || button.textContent.trim();
+      setButtonContent(button, label, button.dataset.icon);
+    });
+  }
+
+  function updateShortcutCursor(e = null) {
+    if (!canvas) return;
+    const hasOneSelected = Boolean(singleSelectedNodeId());
+    const altActive = hasOneSelected && Boolean(e?.altKey) && !moveMode.sourceId && !connectMode.sourceId;
+    const connectActive = hasOneSelected && Boolean(e?.ctrlKey) && !moveMode.sourceId && !connectMode.sourceId;
+    canvas.classList.toggle('move-hotkey', altActive);
+    canvas.classList.toggle('connect-hotkey', connectActive && !altActive);
+  }
+
+  function tutorialCounts() {
+    return {
+      nodes: state.nodes.length,
+      closed: state.nodes.filter(n => n.closed).length,
+      blocked: state.nodes.filter(n => n.blocked).length,
+      noteChars: state.nodes.reduce((sum, n) => sum + String(n.note || '').trim().length, 0),
+      links: Array.isArray(state.links) ? state.links.length : 0,
+      focusId: state.currentFocusId || '',
+      groupFocus: Array.isArray(state.multiFocusIds) ? state.multiFocusIds.length : 0
+    };
+  }
+
+  const tutorialSteps = [
+    {
+      title: 'Create a project',
+      text: 'Root nodes are projects. They are the biggest containers on the map.',
+      task: 'Right-click empty space and choose + New Project.',
+      prepare: tutorialCounts,
+      check: (base) => state.nodes.length > (base.nodes || 0)
+    },
+    {
+      title: 'Create a child node',
+      text: 'Child nodes break a bigger task into smaller pieces.',
+      task: 'Right-click a node and choose + Child node, or use the context menu on any selected node.',
+      prepare: tutorialCounts,
+      check: (base) => state.nodes.length > (base.nodes || 0)
+    },
+    {
+      title: 'Select a node',
+      text: 'Selection controls the left panel, hotkeys, and most node actions.',
+      task: 'Click any node on the map.',
+      check: () => tutorialState.events.selected === true
+    },
+    {
+      title: 'Close a task',
+      text: 'Closed nodes stay visible, so progress remains part of the map.',
+      task: 'Select a node and press Enter, or right-click it and choose Close node.',
+      prepare: tutorialCounts,
+      check: (base) => state.nodes.filter(n => n.closed).length > (base.closed || 0)
+    },
+    {
+      title: 'Defer a branch',
+      text: 'Deferred branches are visually pushed back without deleting anything.',
+      task: 'Select a node and press D, or right-click it and choose Defer branch.',
+      prepare: tutorialCounts,
+      check: (base) => state.nodes.filter(n => n.blocked).length > (base.blocked || 0)
+    },
+    {
+      title: 'Write a note',
+      text: 'A node can hold free-form notes for details that do not belong in the title.',
+      task: 'Select one node and type anything in the NOTE field in the left panel.',
+      prepare: tutorialCounts,
+      check: (base) => tutorialCounts().noteChars > (base.noteChars || 0)
+    },
+    {
+      title: 'Connect related nodes',
+      text: 'Connect creates a dotted relationship between any two nodes without changing the tree.',
+      task: 'Select one node, hold Ctrl, and click another node. You can also use Connect in the context menu.',
+      prepare: tutorialCounts,
+      check: (base) => (Array.isArray(state.links) ? state.links.length : 0) > (base.links || 0)
+    },
+    {
+      title: 'Move a branch',
+      text: 'Move branch changes where a piece of work belongs in the tree.',
+      task: 'Select a child node, hold Alt, and click another node to attach it there.',
+      check: () => tutorialState.events.movedBranch === true
+    },
+    {
+      title: 'Focus your view',
+      text: 'Focus hides everything before a node and lets you work on one part of the map.',
+      task: 'Double-click a node, press F on a selected node, or choose Focus from the context menu.',
+      prepare: tutorialCounts,
+      check: (base) => Boolean((state.currentFocusId && state.currentFocusId !== base.focusId) || ((Array.isArray(state.multiFocusIds) ? state.multiFocusIds.length : 0) > (base.groupFocus || 0)))
+    },
+    {
+      title: 'Leave focus',
+      text: 'When you are done looking at one branch, return to the full map.',
+      task: 'Use Back, Full map, or Esc until the map returns to the full view.',
+      check: () => tutorialState.events.exitedFocus === true
+    }
+  ];
+
+  function tutorialSeen() {
+    try { return localStorage.getItem(TUTORIAL_SEEN_KEY) === '1'; }
+    catch (error) { return false; }
+  }
+
+  function markTutorialSeen() {
+    try { localStorage.setItem(TUTORIAL_SEEN_KEY, '1'); }
+    catch (error) {}
+  }
+
+  function startTutorial(index = 0, markSeen = true) {
+    if (!els.tutorialPanel) return;
+    tutorialState.active = true;
+    tutorialState.index = Math.max(0, Math.min(index, tutorialSteps.length - 1));
+    tutorialState.completed = new Set();
+    tutorialState.baselines = {};
+    tutorialState.events = {};
+    tutorialSteps.forEach((step, i) => {
+      if (step.prepare) tutorialState.baselines[i] = step.prepare();
+    });
+    if (markSeen) markTutorialSeen();
+    els.tutorialPanel.classList.add('open');
+    renderTutorial();
+    checkTutorialProgress();
+  }
+
+  function closeTutorial() {
+    tutorialState.active = false;
+    els.tutorialPanel?.classList.remove('open');
+    markTutorialSeen();
+  }
+
+  function goTutorialStep(index) {
+    if (!tutorialState.active) startTutorial(index);
+    tutorialState.index = Math.max(0, Math.min(index, tutorialSteps.length - 1));
+    const step = tutorialSteps[tutorialState.index];
+    if (step?.prepare && !tutorialState.completed.has(tutorialState.index)) {
+      tutorialState.baselines[tutorialState.index] = step.prepare();
+    }
+    renderTutorial();
+    checkTutorialProgress();
+  }
+
+  function renderTutorial() {
+    if (!tutorialState.active || !els.tutorialPanel) return;
+    const step = tutorialSteps[tutorialState.index];
+    els.tutorialProgress.textContent = `Step ${tutorialState.index + 1} / ${tutorialSteps.length}`;
+    els.tutorialTitle.textContent = step.title;
+    els.tutorialText.textContent = step.text;
+    els.tutorialTask.textContent = step.task;
+    els.tutorialPrevBtn.disabled = tutorialState.index === 0;
+    els.tutorialNextBtn.textContent = tutorialState.index === tutorialSteps.length - 1 ? 'Done' : 'Next';
+    els.tutorialSteps.innerHTML = tutorialSteps.map((item, i) => (
+      `<button class="tutorial-step-dot ${i === tutorialState.index ? 'active' : ''} ${tutorialState.completed.has(i) ? 'done' : ''}" type="button" data-tutorial-step="${i}" title="${escapeAttr(item.title)}">${tutorialState.completed.has(i) ? '✓' : i + 1}</button>`
+    )).join('');
+  }
+
+  function checkTutorialProgress() {
+    if (!tutorialState.active) return;
+    let changed = false;
+    const currentStep = tutorialSteps[tutorialState.index];
+    if (!tutorialState.completed.has(tutorialState.index) && currentStep?.check?.(tutorialState.baselines[tutorialState.index] || {})) {
+      tutorialState.completed.add(tutorialState.index);
+      changed = true;
+    }
+    const currentDone = tutorialState.completed.has(tutorialState.index);
+    if (currentDone && tutorialState.index < tutorialSteps.length - 1) {
+      tutorialState.index += 1;
+      const nextStep = tutorialSteps[tutorialState.index];
+      if (nextStep?.prepare && !tutorialState.completed.has(tutorialState.index)) {
+        tutorialState.baselines[tutorialState.index] = nextStep.prepare();
+      }
+      changed = true;
+    }
+    if (changed) renderTutorial();
+  }
+
+  function openHelpModal() {
+    if (!els.helpModal) return;
+    els.helpModal.classList.add('open');
+    els.helpModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeHelpModal() {
+    if (!els.helpModal) return;
+    els.helpModal.classList.remove('open');
+    els.helpModal.setAttribute('aria-hidden', 'true');
+  }
+
+
+
+  function showContextMenu(screenX, screenY, node) {
+    if (!node) return hideContextMenu();
+    if (selectedIds.size > 1 && selectedIds.has(node.id)) {
+      return showSelectionContextMenu(screenX, screenY, node);
+    }
+    selectSingle(node.id);
+    colorMode = { nodeId: null, target: null };
+    updateUI();
+    const connectionCount = relatedLinksForNode(node.id).length;
+
+    els.contextMenu.innerHTML = `
+      <div class="context-title">${escapeHtml(node.title)}</div>
+      <button class="add-child-main" data-action="add-child" data-icon="plus">+ Child node</button>
+      <div class="context-main-action">
+        <button class="main-toggle ${node.closed ? 'closed' : ''}" data-action="toggle-closed" data-icon="${node.closed ? 'eye' : 'check'}">${node.closed ? 'Reopen node' : 'Close node'}</button>
+      </div>
+      <button class="lock" data-action="toggle-branch-blocked" data-icon="${node.blocked ? 'eye' : 'eyeOff'}">${node.blocked ? 'Return branch' : 'Defer branch'}</button>
+      <div class="context-divider"></div>
+      <button data-action="focus" data-icon="search">Focus</button>
+      <button data-action="rename" data-icon="edit">Rename</button>
+      <button data-action="move-branch" data-icon="move">Move branch</button>
+      <button data-action="connect-nodes" data-icon="connect">Connect</button>
+      <div class="context-divider"></div>
+      <button data-action="open-color-node" data-icon="palette">Node color</button>
+      <button data-action="open-color-branch" data-icon="palette">Branch color</button>
+      <button data-action="reset-color" data-icon="palette" ${node.parentId ? '' : 'disabled title="Root projects do not have a parent"'}>Reset node color</button>
+      <div class="context-divider"></div>
+      <button data-action="remove-node-links" data-icon="connect" ${connectionCount ? '' : 'disabled title="No connections yet"'}>Remove connections</button>
+      <button class="danger" data-action="delete" data-icon="trash">Delete branch</button>
+    `;
+    decorateIconButtons(els.contextMenu);
+
+    const pad = 10;
+    els.contextMenu.classList.add('open');
+    els.colorPopover.classList.remove('open');
+
+    const menuRect = els.contextMenu.getBoundingClientRect();
+    let menuX = Math.min(screenX, window.innerWidth - menuRect.width - pad);
+    let menuY = Math.min(screenY, window.innerHeight - menuRect.height - pad);
+    menuX = Math.max(pad, menuX);
+    menuY = Math.max(pad, menuY);
+
+    els.contextMenu.style.left = `${menuX}px`;
+    els.contextMenu.style.top = `${menuY}px`;
+    saveState('context-select');
+  }
+
+  function showEmptyContextMenu(screenX, screenY) {
+    colorMode = { nodeId: null, target: null };
+    const canvasPoint = clientToCanvas(screenX, screenY);
+    emptyContextWorld = screenToWorld(canvasPoint.x, canvasPoint.y);
+    updateUI();
+
+    els.contextMenu.innerHTML = `
+      <div class="context-title">Map space</div>
+      <button class="add-child-main" data-action="new-project-here">+ New Project</button>
+    `;
+
+    const pad = 10;
+    els.contextMenu.classList.add('open');
+    els.colorPopover.classList.remove('open');
+
+    const menuRect = els.contextMenu.getBoundingClientRect();
+    let menuX = Math.min(screenX, window.innerWidth - menuRect.width - pad);
+    let menuY = Math.min(screenY, window.innerHeight - menuRect.height - pad);
+    menuX = Math.max(pad, menuX);
+    menuY = Math.max(pad, menuY);
+
+    els.contextMenu.style.left = `${menuX}px`;
+    els.contextMenu.style.top = `${menuY}px`;
+  }
+
+  function showSelectionContextMenu(screenX, screenY, node) {
+    selectedId = node?.id || selectedId;
+    colorMode = { nodeId: null, target: null };
+    updateUI();
+    const count = selectedNodeIds().length;
+    els.contextMenu.innerHTML = `
+      <div class="context-title">Selected nodes: ${count}</div>
+      <button data-action="focus-selection" data-icon="search">Focus selection</button>
+      <button data-action="open-color-selection" data-icon="palette">Selected nodes color</button>
+      <button data-action="close-selection" data-icon="check">Close selected nodes</button>
+      <button data-action="reopen-selection" data-icon="eye">Reopen selected nodes</button>
+      <button class="lock" data-action="defer-selection" data-icon="eyeOff">Defer selected branches</button>
+      <button class="lock" data-action="return-selection" data-icon="eye">Return selected branches</button>
+      <div class="context-divider"></div>
+      <button class="danger" data-action="delete-selection" data-icon="trash">Delete selected nodes</button>
+    `;
+    decorateIconButtons(els.contextMenu);
+
+    const pad = 10;
+    els.contextMenu.classList.add('open');
+    els.colorPopover.classList.remove('open');
+
+    const menuRect = els.contextMenu.getBoundingClientRect();
+    let menuX = Math.min(screenX, window.innerWidth - menuRect.width - pad);
+    let menuY = Math.min(screenY, window.innerHeight - menuRect.height - pad);
+    menuX = Math.max(pad, menuX);
+    menuY = Math.max(pad, menuY);
+
+    els.contextMenu.style.left = `${menuX}px`;
+    els.contextMenu.style.top = `${menuY}px`;
+    saveState('context-select-multiple');
+  }
+
+  function showColorPopover(target, node) {
+    if (!node) return;
+    colorMode = { nodeId: node.id, target };
+    const current = node.color || '#9ddcff';
+    const title = target === 'selection' ? 'Selected color' : (target === 'branch' ? 'Branch color' : 'Node color');
+    const safeColor = normalizeHex(current) || '#9ddcff';
+    const presets = normalizePresetList(state.colorPresets || colors);
+    state.colorPresets = presets;
+
+    els.colorPopover.innerHTML = `
+      <div class="color-title">${title}</div>
+      <div class="color-full-row">
+        <input type="color" id="contextColorPicker" value="${safeColor}" title="Open full color picker">
+      </div>
+      <div class="color-hex-row">
+        <input type="text" id="contextHexInput" value="${safeColor}" maxlength="7" spellcheck="false">
+        <button data-action="apply-custom-color">Apply</button>
+      </div>
+      <div class="color-actions-row">
+        <button data-action="save-color-preset">+ Preset</button>
+        <button data-action="apply-custom-color">OK</button>
+      </div>
+      <div class="preset-title">Presets</div>
+      <div class="color-swatch-grid">
+        ${presets.map(c => `<button class="color-swatch ${c === safeColor ? 'active' : ''}" data-color="${c}" style="--swatch:${c};background:${c}" title="${c} • right-click to remove"></button>`).join('')}
+      </div>
+      <p class="hint">Click the color field to open the full color picker. + Preset saves the current color as a small swatch.</p>
+    `;
+
+    els.colorPopover.classList.add('open');
+    positionColorPopover();
+
+  }
+
+  function positionColorPopover() {
+    if (!els.contextMenu.classList.contains('open') || !els.colorPopover.classList.contains('open')) return;
+    const pad = 10;
+    const gap = 10;
+    const menuRect = els.contextMenu.getBoundingClientRect();
+    const colorRect = els.colorPopover.getBoundingClientRect();
+
+    let colorX = menuRect.right + gap;
+    if (colorX + colorRect.width > window.innerWidth - pad) {
+      colorX = menuRect.left - colorRect.width - gap;
+    }
+    colorX = Math.max(pad, Math.min(colorX, window.innerWidth - colorRect.width - pad));
+
+    let colorY = Math.max(pad, Math.min(menuRect.top, window.innerHeight - colorRect.height - pad));
+
+    els.colorPopover.style.left = `${colorX}px`;
+    els.colorPopover.style.top = `${colorY}px`;
+  }
+
+  function normalizeHex(value) {
+    if (!value) return null;
+    let v = String(value).trim();
+    if (!v.startsWith('#')) v = '#' + v;
+    if (/^#[0-9a-fA-F]{3}$/.test(v)) {
+      v = '#' + v.slice(1).split('').map(ch => ch + ch).join('');
+    }
+    if (!/^#[0-9a-fA-F]{6}$/.test(v)) return null;
+    return v.toLowerCase();
+  }
+
+  function applyPopoverColor(color, close = true) {
+    const node = nodeById(colorMode.nodeId || selectedId);
+    const safeColor = normalizeHex(color);
+    if (!safeColor || !colorMode.target) return;
+    if (colorMode.target === 'selection') {
+      setSelectedNodesColor(safeColor);
+      syncColorInputs(safeColor);
+      if (close) hideContextMenu();
+      return;
+    }
+    if (!node) return;
+    setNodeColor(node.id, safeColor, colorMode.target === 'branch');
+    syncColorInputs(safeColor);
+    if (close) hideContextMenu();
+  }
+
+  function syncColorInputs(color) {
+    const safeColor = normalizeHex(color);
+    if (!safeColor) return;
+    const picker = document.getElementById('contextColorPicker');
+    const input = document.getElementById('contextHexInput');
+    if (picker) picker.value = safeColor;
+    if (input) input.value = safeColor;
+    els.colorPopover.querySelectorAll('button[data-color]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.color?.toLowerCase() === safeColor);
+    });
+  }
+
+  function currentPopoverColor() {
+    const picker = document.getElementById('contextColorPicker');
+    const input = document.getElementById('contextHexInput');
+    return normalizeHex(input?.value) || normalizeHex(picker?.value) || '#9ddcff';
+  }
+
+  function saveColorPreset(color) {
+    const safeColor = normalizeHex(color);
+    if (!safeColor) return;
+    state.colorPresets = normalizePresetList(state.colorPresets || colors);
+    if (!state.colorPresets.includes(safeColor)) state.colorPresets.push(safeColor);
+    saveState('save-color-preset');
+    const node = nodeById(colorMode.nodeId || selectedId);
+    if (node && colorMode.target) showColorPopover(colorMode.target, node);
+  }
+
+  function removeColorPreset(color) {
+    const safeColor = normalizeHex(color);
+    if (!safeColor) return;
+    state.colorPresets = normalizePresetList(state.colorPresets || colors).filter(c => c !== safeColor);
+    saveState('remove-color-preset');
+    const node = nodeById(colorMode.nodeId || selectedId);
+    if (node && colorMode.target) showColorPopover(colorMode.target, node);
+  }
+
+  function hideContextMenu() {
+    els.contextMenu.classList.remove('open');
+    els.colorPopover.classList.remove('open');
+    colorMode = { nodeId: null, target: null };
+  }
+
+  function handleContextAction(action) {
+    if (action === 'new-project-here') {
+      const point = emptyContextWorld || screenToWorld(width / 2, height / 2);
+      hideContextMenu();
+      addRootAt(point.x, point.y);
+      emptyContextWorld = null;
+      return;
+    }
+
+    if (action === 'focus-selection') {
+      focusSelectedNodes();
+      hideContextMenu();
+      return;
+    }
+    if (action === 'open-color-selection') {
+      const first = nodeById(selectedId) || nodeById(selectedNodeIds()[0]);
+      if (first) showColorPopover('selection', first);
+      els.contextMenu.querySelectorAll('button').forEach(b => b.classList.toggle('color-active', b.dataset.action === action));
+      return;
+    }
+    if (action === 'delete-selection') {
+      deleteSelectedBranches();
+      hideContextMenu();
+      return;
+    }
+    if (action === 'close-selection') {
+      setSelectedNodesClosed(true);
+      hideContextMenu();
+      return;
+    }
+    if (action === 'reopen-selection') {
+      setSelectedNodesClosed(false);
+      hideContextMenu();
+      return;
+    }
+    if (action === 'defer-selection') {
+      setSelectedBranchesDeferred(true);
+      hideContextMenu();
+      return;
+    }
+    if (action === 'return-selection') {
+      setSelectedBranchesDeferred(false);
+      hideContextMenu();
+      return;
+    }
+
+    const node = nodeById(selectedId);
+    if (!node) return hideContextMenu();
+
+    if (action === 'open-color-node') {
+      showColorPopover('node', node);
+      els.contextMenu.querySelectorAll('button').forEach(b => b.classList.toggle('color-active', b.dataset.action === action));
+      return;
+    }
+    if (action === 'open-color-branch') {
+      showColorPopover('branch', node);
+      els.contextMenu.querySelectorAll('button').forEach(b => b.classList.toggle('color-active', b.dataset.action === action));
+      return;
+    }
+
+    if (action === 'add-child') addChild(node.id);
+    if (action === 'focus') focusNode(node.id);
+    if (action === 'rename') renameNode(node.id);
+    if (action === 'toggle-closed') toggleNodeClosed(node.id);
+    if (action === 'toggle-branch-blocked') toggleBranchBlocked(node.id);
+    if (action === 'toggle-branch-postponed') toggleBranchPostponed(node.id);
+    if (action === 'move-branch') startMoveBranch(node.id);
+    if (action === 'connect-nodes') startConnectNodes(node.id);
+    if (action === 'reset-color') resetNodeColor(node.id);
+    if (action === 'remove-node-links') removeNodeConnections(node.id);
+    if (action === 'delete') deleteBranch(node.id);
+
+    hideContextMenu();
+  }
+
+  function handleColorPopoverClick(e) {
+    const swatch = e.target.closest('button[data-color]');
+    if (swatch) {
+      applyPopoverColor(swatch.dataset.color);
+      return;
+    }
+
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+
+    if (btn.dataset.action === 'apply-custom-color') {
+      applyPopoverColor(currentPopoverColor());
+    }
+
+    if (btn.dataset.action === 'save-color-preset') {
+      saveColorPreset(currentPopoverColor());
+    }
+  }
+
+  function handleColorPopoverInput(e) {
+    const picker = e.target.closest('#contextColorPicker');
+    const hex = e.target.closest('#contextHexInput');
+    if (picker) {
+      syncColorInputs(picker.value);
+      applyPopoverColor(picker.value, false);
+    }
+    if (hex) {
+      const safeColor = normalizeHex(hex.value);
+      if (safeColor) syncColorInputs(safeColor);
+    }
+  }
+
+  function bindEvents() {
+    decorateIconButtons(document);
+    window.addEventListener('resize', () => { resize(); positionColorPopover(); });
+
+    els.addRootBtn?.addEventListener('click', (e) => {
+      if (e.button !== 0) return;
+      addRoot();
+    });
+    els.backBtn.onclick = goBack;
+    els.allMapBtn.onclick = showAllMap;
+    els.toggleClosedBtn.onclick = toggleClosed;
+    els.newMapBtn.onclick = createNewMap;
+    els.renameMapBtn.onclick = renameCurrentMap;
+    els.deleteMapBtn.onclick = deleteCurrentMap;
+    if (els.openMapsFolderBtn) els.openMapsFolderBtn.onclick = openMapsFolder;
+    els.exportJsonBtn.onclick = exportJson;
+    els.importJsonBtn.onclick = importJson;
+    els.importJsonFile.onchange = (e) => {
+      importJsonFile(e.target.files[0]);
+      e.target.value = '';
+    };
+    els.mapPickerButton.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const open = !els.mapPicker.classList.contains('open');
+      els.mapPicker.classList.toggle('open', open);
+      els.mapPickerButton.setAttribute('aria-expanded', String(open));
+    };
+    els.mapPickerMenu.addEventListener('click', (e) => {
+      const option = e.target.closest('button[data-file-name]');
+      if (!option) return;
+      e.preventDefault();
+      e.stopPropagation();
+      els.mapPicker.classList.remove('open');
+      els.mapPickerButton.setAttribute('aria-expanded', 'false');
+      loadSelectedMap(option.dataset.fileName);
+    });
+    els.resetBtn.onclick = resetMap;
+    els.themeBtn.onclick = cycleTheme;
+    if (els.soundBtn) els.soundBtn.onclick = toggleSounds;
+
+    canvas.addEventListener('pointerdown', (e) => {
+      hideContextMenu();
+      if (moveMode.sourceId) {
+        if (e.button === 2) {
+          e.preventDefault();
+          cancelMoveBranch();
+          return;
+        }
+        const target = hitTest(e.clientX, e.clientY);
+        if (target && e.button === 0) completeMoveBranch(target.id);
+        return;
+      }
+
+      if (connectMode.sourceId) {
+        if (e.button === 2) {
+          e.preventDefault();
+          cancelConnectNodes();
+          return;
+        }
+        const target = hitTest(e.clientX, e.clientY);
+        if (target && e.button === 0) {
+          e.preventDefault();
+          completeConnectNodes(target.id);
+        }
+        return;
+      }
+
+      const n = hitTest(e.clientX, e.clientY);
+      pointer.down = true;
+      pointer.button = e.button;
+      pointer.lastX = e.clientX;
+      pointer.lastY = e.clientY;
+      pointer.moved = false;
+      pointer.draggingNode = null;
+      pointer.draggingSelection = false;
+      pointer.selecting = false;
+      pointer.selectionAdditive = false;
+      pointer.selectionBaseIds = null;
+      pointer.panning = false;
+      pointer.selectionStart = null;
+      pointer.selectionEnd = null;
+
+      if (e.button === 2) {
+        e.preventDefault();
+        if (!n) {
+          lastEmptyRightClickTime = Date.now();
+          canvas.setPointerCapture(e.pointerId);
+          pointer.panning = true;
+          canvas.classList.add('dragging');
+        } else {
+          pointer.down = false;
+        }
+        return;
+      }
+
+      if (e.button !== 0) {
+        pointer.down = false;
+        return;
+      }
+
+      canvas.setPointerCapture(e.pointerId);
+
+      if (n) {
+        if (tutorialState.active) tutorialState.events.selected = true;
+        const shortcutSource = singleSelectedNodeId();
+        if (e.altKey && shortcutSource && shortcutSource !== n.id) {
+          e.preventDefault();
+          pointer.down = false;
+          try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+          quickMoveSelectedBranch(n.id);
+          return;
+        }
+        if (e.ctrlKey && shortcutSource && shortcutSource !== n.id) {
+          e.preventDefault();
+          pointer.down = false;
+          try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+          toggleNodeConnection(shortcutSource, n.id);
+          return;
+        }
+        if (e.shiftKey) {
+          toggleNodeInSelection(n.id);
+          pointer.down = false;
+          try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+          return;
+        }
+        if (selectedIds.size > 1 && selectedIds.has(n.id)) {
+          selectedId = n.id;
+          pointer.draggingSelection = true;
+        } else {
+          selectSingle(n.id);
+          pointer.draggingNode = n.id;
+        }
+        updateUI();
+      } else {
+        const point = clientToCanvas(e.clientX, e.clientY);
+        pointer.selecting = true;
+        pointer.selectionAdditive = e.shiftKey;
+        pointer.selectionBaseIds = e.shiftKey ? currentSelectionIds() : new Set();
+        pointer.selectionStart = point;
+        pointer.selectionEnd = point;
+        canvas.classList.add('selecting');
+      }
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!pointer.down) return;
+      const dx = e.clientX - pointer.lastX;
+      const dy = e.clientY - pointer.lastY;
+      if (Math.abs(dx) + Math.abs(dy) > 2) pointer.moved = true;
+      pointer.lastX = e.clientX;
+      pointer.lastY = e.clientY;
+
+      if (pointer.draggingSelection) {
+        for (const id of selectedNodeIds()) {
+          const n = nodeById(id);
+          if (n) {
+            n.x += dx / view.scale;
+            n.y += dy / view.scale;
+          }
+        }
+      } else if (pointer.draggingNode) {
+        const n = nodeById(pointer.draggingNode);
+        if (n) {
+          const worldDx = dx / view.scale;
+          const worldDy = dy / view.scale;
+          n.x += worldDx;
+          n.y += worldDy;
+          applyElasticPull(n.id, worldDx, worldDy);
+        }
+      } else if (pointer.selecting) {
+        pointer.selectionEnd = clientToCanvas(e.clientX, e.clientY);
+        selectNodesInRect(getSelectionRect(), false, pointer.selectionAdditive);
+      } else if (pointer.panning) {
+        view.x += dx;
+        view.y += dy;
+        saveStateSoft('pan');
+      }
+    });
+
+    canvas.addEventListener('pointerup', (e) => {
+      try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+      if (!pointer.moved) {
+        if (pointer.selecting) {
+          clearSelection(false);
+          saveState('clear-selection');
+        } else if (pointer.draggingNode) {
+          const n = hitTest(e.clientX, e.clientY);
+          selectSingle(n ? n.id : pointer.draggingNode);
+          saveState('select');
+          playSound('select');
+        } else if (pointer.panning && pointer.button === 2) {
+          suppressNextContextMenu = false;
+        }
+      } else if (pointer.selecting) {
+        pointer.selectionEnd = clientToCanvas(e.clientX, e.clientY);
+        selectNodesInRect(getSelectionRect(), true, pointer.selectionAdditive);
+      } else if (pointer.draggingSelection) {
+        saveState('drag-selection');
+      } else if (pointer.draggingNode) {
+        saveState('drag-node');
+      } else if (pointer.panning) {
+        if (pointer.button === 2) suppressNextContextMenu = true;
+        saveState('pan-end');
+      }
+      pointer.down = false;
+      pointer.button = null;
+      pointer.draggingNode = null;
+      pointer.draggingSelection = false;
+      pointer.selecting = false;
+      pointer.selectionStart = null;
+      pointer.selectionEnd = null;
+      pointer.selectionAdditive = false;
+      pointer.selectionBaseIds = null;
+      pointer.panning = false;
+      canvas.classList.remove('dragging', 'selecting');
+    });
+
+    canvas.addEventListener('pointercancel', () => {
+      pointer.down = false;
+      pointer.button = null;
+      pointer.draggingNode = null;
+      pointer.draggingSelection = false;
+      pointer.selecting = false;
+      pointer.selectionStart = null;
+      pointer.selectionEnd = null;
+      pointer.selectionAdditive = false;
+      pointer.selectionBaseIds = null;
+      pointer.panning = false;
+      canvas.classList.remove('dragging', 'selecting');
+    });
+
+    canvas.addEventListener('dblclick', (e) => {
+      const n = hitTest(e.clientX, e.clientY);
+      if (n) {
+        selectSingle(n.id);
+        focusNode(n.id);
+      }
+    });
+
+    canvas.addEventListener('auxclick', (e) => {
+      if (e.button !== 0) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+
+    canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (suppressNextContextMenu) {
+        suppressNextContextMenu = false;
+        hideContextMenu();
+        return;
+      }
+      if (moveMode.sourceId) {
+        cancelMoveBranch();
+        hideContextMenu();
+        return;
+      }
+      const n = hitTest(e.clientX, e.clientY);
+      if (n) showContextMenu(e.clientX, e.clientY, n);
+      else showEmptyContextMenu(e.clientX, e.clientY);
+    });
+
+    els.contextMenu.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      handleContextAction(btn.dataset.action);
+    });
+
+    els.colorPopover.addEventListener('click', handleColorPopoverClick);
+    els.colorPopover.addEventListener('input', handleColorPopoverInput);
+    els.colorPopover.addEventListener('change', handleColorPopoverInput);
+    els.selectedContent.addEventListener('input', (e) => {
+      const field = e.target.closest('textarea[data-node-note]');
+      if (!field) return;
+      const node = nodeById(field.dataset.nodeNote);
+      if (!node) return;
+      node.note = field.value;
+      saveStateSoftQuiet('note');
+    });
+    els.colorPopover.addEventListener('contextmenu', (e) => {
+      const swatch = e.target.closest('button[data-color]');
+      if (!swatch) return;
+      e.preventDefault();
+      removeColorPreset(swatch.dataset.color);
+    });
+
+    els.colorPopover.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        applyPopoverColor(currentPopoverColor());
+      }
+      if (e.key === 'Escape') hideContextMenu();
+    });
+
+    if (els.helpBtn && els.helpModal) {
+      els.helpBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        hideContextMenu();
+        openHelpModal();
+      });
+      if (els.startTutorialHelpBtn) {
+        els.startTutorialHelpBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeHelpModal();
+          startTutorial(0);
+        });
+      }
+      els.helpModal.querySelectorAll('[data-help-close]').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeHelpModal();
+        });
+      });
+      els.helpModal.addEventListener('click', (e) => {
+        if (e.target === els.helpModal) closeHelpModal();
+      });
+    }
+
+    if (els.tutorialCloseBtn) els.tutorialCloseBtn.addEventListener('click', closeTutorial);
+    if (els.tutorialPrevBtn) els.tutorialPrevBtn.addEventListener('click', () => goTutorialStep(tutorialState.index - 1));
+    if (els.tutorialNextBtn) {
+      els.tutorialNextBtn.addEventListener('click', () => {
+        if (tutorialState.index >= tutorialSteps.length - 1) closeTutorial();
+        else goTutorialStep(tutorialState.index + 1);
+      });
+    }
+    if (els.tutorialSteps) {
+      els.tutorialSteps.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-tutorial-step]');
+        if (!btn) return;
+        goTutorialStep(Number(btn.dataset.tutorialStep || 0));
+      });
+    }
+
+    if (els.inputModal) {
+      els.inputModal.querySelectorAll('[data-input-cancel]').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeInputDialog('');
+        });
+      });
+      els.inputModal.addEventListener('click', (e) => {
+        if (e.target === els.inputModal) closeInputDialog('');
+      });
+      els.inputModal.querySelector('.input-window')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    }
+
+    if (els.inputOkBtn) {
+      els.inputOkBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeInputDialog(els.inputField.value);
+      });
+    }
+
+    if (els.inputField) {
+      els.inputField.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          closeInputDialog(els.inputField.value);
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeInputDialog('');
+        }
+      });
+    }
+
+    if (els.messageModal) {
+      els.messageModal.querySelectorAll('[data-message-cancel]').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeMessageDialog(false);
+        });
+      });
+      els.messageModal.addEventListener('click', (e) => {
+        if (e.target === els.messageModal) closeMessageDialog(false);
+      });
+      els.messageModal.querySelector('.message-window')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    }
+
+    if (els.messageOkBtn) {
+      els.messageOkBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeMessageDialog(true);
+      });
+      els.messageOkBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          closeMessageDialog(true);
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeMessageDialog(false);
+        }
+      });
+    }
+
+    if (els.messageCancelBtn) {
+      els.messageCancelBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeMessageDialog(false);
+      });
+    }
+
+    window.addEventListener('click', (e) => {
+      if (els.mapPicker && !els.mapPicker.contains(e.target)) {
+        els.mapPicker.classList.remove('open');
+        els.mapPickerButton?.setAttribute('aria-expanded', 'false');
+      }
+      if (!els.contextMenu.contains(e.target) && !els.colorPopover.contains(e.target)) hideContextMenu();
+    });
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const point = clientToCanvas(e.clientX, e.clientY);
+      const before = screenToWorld(point.x, point.y);
+      const factor = e.deltaY < 0 ? 1.08 : 0.92;
+      view.scale = Math.min(2.4, Math.max(0.175, view.scale * factor));
+      const after = worldToScreen(before.x, before.y);
+      view.x += point.x - after.x;
+      view.y += point.y - after.y;
+      saveStateSoft('zoom');
+    }, { passive: false });
+
+    window.addEventListener('keydown', (e) => {
+      updateShortcutCursor(e);
+      if (e.key === 'Escape' && els.messageModal?.classList.contains('open')) {
+        e.preventDefault();
+        closeMessageDialog(false);
+        return;
+      }
+      if (e.key === 'Escape' && els.inputModal?.classList.contains('open')) {
+        e.preventDefault();
+        closeInputDialog('');
+        return;
+      }
+      if (e.key === 'Escape' && els.helpModal?.classList.contains('open')) {
+        e.preventDefault();
+        closeHelpModal();
+        return;
+      }
+      if (e.key === 'Escape' && els.tutorialPanel?.classList.contains('open')) {
+        e.preventDefault();
+        closeTutorial();
+        return;
+      }
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+      const shortcutKey = e.key.toLowerCase();
+      const shortcutCode = e.code;
+      if ((e.ctrlKey || e.metaKey) && shortcutKey === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) redoAction();
+        else undoAction();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && shortcutKey === 'y') {
+        e.preventDefault();
+        redoAction();
+        return;
+      }
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !moveMode.sourceId) {
+        if (e.key === 'F2') {
+          if (renameSelectedShortcut()) e.preventDefault();
+          return;
+        }
+        if (e.key === 'Enter') {
+          if (toggleSelectedClosedShortcut()) e.preventDefault();
+          return;
+        }
+        if (shortcutCode === 'KeyD') {
+          if (toggleSelectedDeferredShortcut()) e.preventDefault();
+          return;
+        }
+        if (shortcutCode === 'KeyM' && !e.shiftKey) {
+          if (moveSelectedBranchShortcut()) e.preventDefault();
+          return;
+        }
+        if (shortcutCode === 'KeyC') {
+          if (openSelectedColorShortcut(e.shiftKey ? 'branch' : 'node')) e.preventDefault();
+          return;
+        }
+      }
+      if (moveMode.sourceId && (e.key === 'Delete' || e.key === 'Backspace')) return;
+      if ((e.key === 'Delete' || e.key === 'Backspace')) {
+        if (selectedIds.size > 1) {
+          e.preventDefault();
+          deleteSelectedBranches();
+          return;
+        }
+        if (selectedId) {
+          e.preventDefault();
+          deleteBranch(selectedId);
+          return;
+        }
+      }
+      if (e.key.toLowerCase() === 'f') {
+        if (selectedIds.size > 1) focusSelectedNodes();
+        else if (selectedId) focusNode(selectedId);
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (selectedIds.size || selectedId) {
+          clearSelection(true);
+          return;
+        }
+        hideContextMenu();
+        if (cancelMoveBranch()) return;
+        if (cancelConnectNodes()) return;
+        if (exitMultiFocus()) return;
+        if (state.currentFocusId || state.focusStack.length) goBack();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      updateShortcutCursor(e);
+    });
+
+    window.addEventListener('blur', () => {
+      canvas.classList.remove('move-hotkey', 'connect-hotkey');
+    });
+  }
+
+  async function initApp() {
+    bindEvents();
+    if (isDesktopApp && window.attaqMaps?.loadInitialMap) {
+      try {
+        const payload = await window.attaqMaps.loadInitialMap();
+        applyLoadedMap(payload, 'load');
+        if (payload?.createdNew || !payload?.state || !Array.isArray(payload.state.nodes)) saveState('initialize-map');
+        await refreshMapList();
+      } catch (error) {
+        console.warn('Could not initialize map file:', error);
+        state = blankState();
+        updateCurrentMap({ fileName: 'Untitled Map.json' });
+        historyBaseline = cloneStateSnapshot();
+      }
+    } else {
+      state = loadWebState();
+      selectedId = state.selectedId || state.nodes[0]?.id || null;
+      selectedIds = new Set(Array.isArray(state.selectedIds) ? state.selectedIds : []);
+      view = state.view || { x: 0, y: 0, scale: 1 };
+      updateCurrentMap({ fileName: 'Local Browser Map.json' });
+      historyBaseline = cloneStateSnapshot();
+    }
+
+    applyTheme(state.theme || 'attaq', false);
+    updateSoundButton();
+    resize();
+    updateUI();
+    if (!tutorialSeen()) {
+      setTimeout(() => startTutorial(0, true), 450);
+    }
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(draw);
+  }
+
+  initApp();
+})();
+</script>
+</body>
+</html>

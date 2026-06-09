@@ -181,6 +181,30 @@
       color: #0a66c2;
     }
 
+    .nav a.social-icon-link,
+    .footer-links .social-icon-link {
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
+      min-height: 40px;
+      padding: 0;
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .nav a.social-icon-link svg,
+    .footer-links .social-icon-link svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .nav a.social-icon-link:hover,
+    .footer-links .social-icon-link:hover {
+      transform: translateY(-2px);
+      border-color: var(--line-hot);
+      background: rgba(83, 233, 255, 0.075);
+    }
+
     .hero {
       min-height: auto;
       display: flex;
@@ -1066,7 +1090,7 @@
 
     .manifesto {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       border: 1px solid var(--line);
       background:
         linear-gradient(180deg, rgba(255,255,255,0.035), transparent 58%),
@@ -1095,6 +1119,72 @@
     }
 
     .manifesto p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .partnership {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(300px, 0.72fr);
+      gap: 26px;
+      align-items: stretch;
+    }
+
+    .partnership-copy {
+      min-width: 0;
+      padding: 6px 0;
+    }
+
+    .partnership-copy h2 {
+      max-width: 760px;
+    }
+
+    .partnership-copy .section-note {
+      max-width: 690px;
+      margin-top: 18px;
+    }
+
+    .partnership-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 26px;
+    }
+
+    .partnership-panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(83,233,255,0.06), transparent 46%),
+        linear-gradient(180deg, rgba(255,255,255,0.04), transparent 56%),
+        rgba(3, 5, 8, 0.74);
+      box-shadow:
+        0 22px 70px rgba(0,0,0,0.32),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .partnership-row {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr);
+      gap: 18px;
+      padding: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .partnership-row:last-child {
+      border-bottom: 0;
+    }
+
+    .partnership-row b {
+      color: var(--acid);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .partnership-row p {
       margin: 0;
       color: var(--muted);
       line-height: 1.45;
@@ -1153,6 +1243,7 @@
 
       .launch-grid,
       .audio-grid,
+      .partnership,
       .manifesto {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1243,6 +1334,7 @@
       .launch-grid,
       .audio-grid,
       .lab-feed,
+      .partnership,
       .manifesto {
         grid-template-columns: 1fr;
       }
@@ -1329,6 +1421,7 @@
       <nav class="nav" aria-label="Main navigation">
         <a href="#focus-map">Focus Map</a>
         <a href="#audio-tools">Audio Tools</a>
+        <a href="#partnership">Partnership</a>
         <a href="#manifesto">Manifesto</a>
         <a class="social-icon-link discord" href="https://discord.gg/W7pUZDcqs7" aria-label="Discord" title="Discord">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1350,7 +1443,7 @@
         <div class="hero-copy">
           <h1>ATTAQ LAB</h1>
           <p class="lead">
-            We build <strong>useful digital tools</strong> for creators across sound, focus, media and whatever comes next.
+            ATTAQ LAB builds compact, focused software for real creative needs and ideas that deserve their own interface.
           </p>
           <div class="hero-product-shelf" aria-label="Product shelf">
             <p class="shelf-label">Product shelf</p>
@@ -1391,8 +1484,9 @@
               </p>
             </div>
             <div class="featured-actions">
-              <a class="button primary" href="https://artemyzen.github.io/attaq-focus-map/" target="_blank" rel="noreferrer">Open Focus Map</a>
-              <a class="button" href="productiontools/focusmap/about-focus-map.html">About Focus Map</a>
+              <a class="button primary" href="prod/focusmap/attaq-focus-map.html">Launch Web</a>
+              <a class="button" href="https://artemyzen.itch.io/attaq-focus-map" target="_blank" rel="noreferrer">Buy Standalone</a>
+              <a class="button" href="prod/focusmap/about-focus-map.html">About Focus Map</a>
             </div>
           </div>
           <div class="featured-cover cover-frame">
@@ -1415,7 +1509,7 @@
         </div>
 
         <div class="audio-grid">
-          <a class="audio-card" href="audiotools/tape-chewer.html">
+          <a class="audio-card" href="audio/tape-chewer.html">
             <div class="audio-cover cover-frame">
               <img src="images/tape-chewer-cover.jpg" alt="ATTAQ Tape Chewer cover" />
             </div>
@@ -1429,7 +1523,7 @@
             </div>
           </a>
 
-          <a class="audio-card" href="audiotools/old-radio.html">
+          <a class="audio-card" href="audio/old-radio.html">
             <div class="audio-cover cover-frame">
               <img src="images/old-radio-cover.jpg" alt="ATTAQ Old Radio cover" />
             </div>
@@ -1443,7 +1537,7 @@
             </div>
           </a>
 
-          <a class="audio-card" href="audiotools/vinyl-wrecker.html">
+          <a class="audio-card" href="audio/vinyl-wrecker.html">
             <div class="audio-cover cover-frame">
               <img src="images/vinyl-wrecker-cover.jpg" alt="ATTAQ Vinyl Wrecker cover" />
             </div>
@@ -1457,7 +1551,7 @@
             </div>
           </a>
 
-          <a class="audio-card converter" href="audiotools/audio-converter.html">
+          <a class="audio-card converter" href="audio/audio-converter.html">
             <div class="audio-cover cover-frame">
               <img src="images/audio-converter-cover.jpg" alt="ATTAQ Audio Converter cover" />
             </div>
@@ -1473,37 +1567,76 @@
         </div>
       </section>
 
+      <section id="partnership" aria-label="ATTAQ LAB partnership">
+        <div class="partnership">
+          <div class="partnership-copy">
+            <p class="section-label">Partnership</p>
+            <h2>Bring the workflow that deserves its own instrument.</h2>
+            <p class="section-note">
+              Most ATTAQ LAB tools begin with real needs: our own, our partners', or a workflow that clearly deserves its own instrument.
+            </p>
+            <p class="section-note">
+              We are not a general software agency. We are interested in collaborations where the idea fits the lab: compact tools, strange workflows, media experiments and software with a clear job.
+            </p>
+            <p class="section-note">
+              Some collaborations stay private. Some become fast prototypes. Some grow into shared products. Some adapt existing ATTAQ LAB tools for a specific team, workflow or brand.
+            </p>
+            <p class="section-note">
+              Bring the rough edge. If the idea has a real pulse, we can help shape it into something focused, usable and alive enough to put in front of people.
+            </p>
+            <div class="partnership-actions">
+              <a class="button primary" href="https://discord.gg/W7pUZDcqs7" target="_blank" rel="noreferrer">Start on Discord</a>
+              <a class="button" href="https://www.linkedin.com/company/attaq-lab" target="_blank" rel="noreferrer">LinkedIn</a>
+            </div>
+          </div>
+          <div class="partnership-panel" aria-label="Partnership directions">
+            <div class="partnership-row">
+              <b>Private tools</b>
+              <p>Focused tools for real workflows, made for artists, sound people, studios and small teams.</p>
+            </div>
+            <div class="partnership-row">
+              <b>Prototypes</b>
+              <p>Touchable versions of unusual ideas: audio systems, media experiments, focus interfaces and strange workflows.</p>
+            </div>
+            <div class="partnership-row">
+              <b>Products</b>
+              <p>Collaborations that can grow beyond a private utility into a public tool, shared release or ATTAQ LAB product.</p>
+            </div>
+            <div class="partnership-row">
+              <b>Licensing</b>
+              <p>Custom versions, offline builds, team editions or white-label adaptations of existing ATTAQ LAB tools.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="manifesto" aria-label="ATTAQ LAB manifesto">
         <div class="section-head">
           <div>
             <p class="section-label">Manifesto</p>
-            <h2>Tools with signal, speed and character.</h2>
+            <h2>We build tools with a reason to exist.</h2>
           </div>
           <p class="section-note">
-            ATTAQ LAB is a place for practical creative software: small enough to open fast, opinionated enough to feel authored, and useful enough to become part of real work.
+            ATTAQ LAB builds compact software that removes friction, gives ideas a form and helps people express what only they can make.
           </p>
         </div>
 
         <div class="manifesto">
           <div>
-            <b>01 / Signal</b>
-            <p>Every tool should help a creator find the next useful move.</p>
+            <b>01 / It must do something</b>
+            <p>A tool should solve a real problem, speed up a real process or unlock a real idea.</p>
           </div>
           <div>
-            <b>02 / Character</b>
-            <p>Interfaces can have texture, attitude and a point of view.</p>
+            <b>02 / Touch it fast</b>
+            <p>No long setup. No heavy ritual. Open it and get somewhere.</p>
           </div>
           <div>
-            <b>03 / Momentum</b>
-            <p>Good tools keep people making instead of managing the tool itself.</p>
+            <b>03 / Keep the edge</b>
+            <p>Useful does not have to mean sterile. Software can be practical and still feel strange, tactile and alive.</p>
           </div>
           <div>
-            <b>04 / Range</b>
-            <p>Sound, focus, visuals, motion, games and odd utilities can live in one lab.</p>
-          </div>
-          <div>
-            <b>05 / Craft</b>
-            <p>Release things when they feel considered, usable and worth returning to.</p>
+            <b>04 / Make it focused</b>
+            <p>One sharp instrument is better than a giant system nobody wants to open.</p>
           </div>
         </div>
       </section>
@@ -1512,7 +1645,7 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <span>ATTAQ LAB / Digital tools for sound and media</span>
+      <span>ATTAQ LAB / Useful digital tools for creators</span>
       <div class="footer-links">
         <a class="social-icon-link discord" href="https://discord.gg/W7pUZDcqs7" aria-label="Discord" title="Discord">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1524,7 +1657,6 @@
             <path fill="currentColor" d="M6.94 8.5A1.56 1.56 0 1 1 6.94 5.38a1.56 1.56 0 0 1 0 3.12ZM5.6 9.78h2.68V18H5.6V9.78Zm4.36 0h2.57v1.12h.04c.36-.68 1.23-1.39 2.53-1.39 2.71 0 3.21 1.78 3.21 4.1V18h-2.68v-3.92c0-.94-.02-2.15-1.31-2.15-1.31 0-1.51 1.03-1.51 2.08V18H9.96V9.78Z" />
           </svg>
         </a>
-        <a href="https://artemyzen.github.io/artemyzen/">Artemy Zen</a>
       </div>
     </div>
   </footer>
