@@ -193,6 +193,7 @@
       border-right: 1px solid var(--line);
       box-shadow: var(--shadow);
       overflow-y: auto;
+      scrollbar-gutter: stable;
     }
 
     .panel {
@@ -359,6 +360,7 @@
       max-height: 260px;
       resize: vertical;
       overflow: auto;
+      scrollbar-gutter: stable;
       border: 1px solid var(--line);
       border-radius: 10px;
       padding: 10px;
@@ -467,6 +469,7 @@
       top: calc(100% + 5px);
       max-height: 180px;
       overflow: auto;
+      scrollbar-gutter: stable;
       padding: 5px;
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -1884,6 +1887,7 @@
       blocked: false,
       postponed: false,
       colorBeforeBlocked: null,
+      pinned: false,
       createdAt: Date.now(),
     };
   }
@@ -1908,6 +1912,10 @@
     const documents = makeNode('Documents', 755, 75, packing.id, '#9ddcff');
     const clothes = makeNode('Clothes', 760, 175, packing.id, '#9ddcff');
     const museum = makeNode('Museum Day', 735, 275, itinerary.id, '#9ddcff');
+    [
+      launch, demo, playtest, marketing, build, capsules, feedback, bugfix, trailer,
+      trip, booking, packing, itinerary, flights, hotel, documents, clothes, museum
+    ].forEach(node => { node.pinned = true; });
 
     return {
       nodes: [launch, demo, playtest, marketing, build, capsules, feedback, bugfix, trailer, trip, booking, packing, itinerary, flights, hotel, documents, clothes, museum],
@@ -1985,6 +1993,7 @@
       parsed.nodes.forEach(n => {
         n.blocked = n.blocked === true;
         n.postponed = n.postponed === true;
+        n.pinned = n.pinned !== false;
         n.note = typeof n.note === 'string' ? n.note : '';
         if (n.blocked && !n.colorBeforeBlocked && n.color !== LOCKED_COLOR) n.colorBeforeBlocked = n.color;
       });
@@ -2548,6 +2557,15 @@
     return false;
   }
 
+  function pinNode(id) {
+    const node = nodeById(id);
+    if (node) node.pinned = true;
+  }
+
+  function pinNodes(ids) {
+    for (const id of ids) pinNode(id);
+  }
+
   function setSelectedNodesColor(color) {
     const safeColor = normalizeHex(color);
     const ids = selectedNodeIds();
@@ -2928,7 +2946,10 @@
   }
 
   function applyGentlePhysics(dt) {
-    const nodes = visibleNodes().filter(n => !n.closed && !isNodeBeingDragged(n.id));
+    const allNodes = visibleNodes().filter(n => !isNodeBeingDragged(n.id));
+    resolveNodeOverlaps(allNodes, dt);
+
+    const nodes = allNodes.filter(n => !n.closed && n.pinned !== true);
     if (nodes.length < 2) return;
 
     const byId = new Map(nodes.map(n => [n.id, n]));
@@ -2970,6 +2991,37 @@
       a.y += ny * force;
       b.x -= nx * force;
       b.y -= ny * force;
+    }
+  }
+
+  function moveNodeByPhysics(node, dx, dy, weight = 1) {
+    if (!node || isNodeBeingDragged(node.id)) return;
+    node.x += dx * weight;
+    node.y += dy * weight;
+  }
+
+  function resolveNodeOverlaps(nodes, dt) {
+    if (nodes.length < 2) return;
+    const maxStep = Math.max(0.45, Math.min(5.5, dt * 0.12));
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.max(1, Math.hypot(dx, dy));
+        const min = getNodeRadius(a) + getNodeRadius(b) + 10;
+        if (dist >= min) continue;
+
+        const overlap = min - dist;
+        const step = Math.min(maxStep, overlap * 0.22);
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const aWeight = a.pinned && !b.pinned ? 0.2 : 0.5;
+        const bWeight = b.pinned && !a.pinned ? 0.2 : 0.5;
+        moveNodeByPhysics(a, -nx * step, -ny * step, aWeight);
+        moveNodeByPhysics(b, nx * step, ny * step, bWeight);
+      }
     }
   }
 
@@ -4528,6 +4580,7 @@
         for (const id of selectedNodeIds()) {
           const n = nodeById(id);
           if (n) {
+            n.pinned = true;
             n.x += dx / view.scale;
             n.y += dy / view.scale;
           }
@@ -4537,6 +4590,7 @@
         if (n) {
           const worldDx = dx / view.scale;
           const worldDy = dy / view.scale;
+          n.pinned = true;
           n.x += worldDx;
           n.y += worldDy;
           applyElasticPull(n.id, worldDx, worldDy);
@@ -4569,8 +4623,10 @@
         pointer.selectionEnd = clientToCanvas(e.clientX, e.clientY);
         selectNodesInRect(getSelectionRect(), true, pointer.selectionAdditive);
       } else if (pointer.draggingSelection) {
+        pinNodes(selectedNodeIds());
         saveState('drag-selection');
       } else if (pointer.draggingNode) {
+        pinNode(pointer.draggingNode);
         saveState('drag-node');
       } else if (pointer.panning) {
         if (pointer.button === 2) suppressNextContextMenu = true;
@@ -4826,15 +4882,14 @@
       }
       const tag = document.activeElement?.tagName?.toLowerCase();
       if (tag === 'input' || tag === 'textarea') return;
-      const shortcutKey = e.key.toLowerCase();
       const shortcutCode = e.code;
-      if ((e.ctrlKey || e.metaKey) && shortcutKey === 'z') {
+      if ((e.ctrlKey || e.metaKey) && shortcutCode === 'KeyZ') {
         e.preventDefault();
         if (e.shiftKey) redoAction();
         else undoAction();
         return;
       }
-      if ((e.ctrlKey || e.metaKey) && shortcutKey === 'y') {
+      if ((e.ctrlKey || e.metaKey) && shortcutCode === 'KeyY') {
         e.preventDefault();
         redoAction();
         return;
@@ -4874,7 +4929,7 @@
           return;
         }
       }
-      if (e.key.toLowerCase() === 'f') {
+      if (shortcutCode === 'KeyF') {
         if (selectedIds.size > 1) focusSelectedNodes();
         else if (selectedId) focusNode(selectedId);
       }
