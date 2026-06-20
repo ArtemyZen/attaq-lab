@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -470,7 +470,15 @@
     }
 
     .meter .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
-    .meter .value { font-size: 20px; font-weight: 800; letter-spacing: -.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .meter .value {
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     .live-record-panel,
     .created-track {
@@ -606,7 +614,7 @@
     }
 
     .live-record-panel.recording .live-record-title::after {
-      content: " В· REC";
+      content: " - REC";
       color: #ff6b5d;
     }
 
@@ -1119,7 +1127,7 @@
     .devlog-entry { margin: 2px 0; }
     .devlog-entry strong { color: var(--text); font-weight: 800; }
 
-    /* v 0.1.7 вЂ” darker dotted sharp UI pass */
+    /* v 0.1.7 - darker dotted sharp UI pass */
     :root {
       --bg: #020302;
       --panel: #070907;
@@ -1287,7 +1295,7 @@
       .scope-wrap canvas { height: 56px; }
     }
 
-    /* HARD SQUARE CORNERS OVERRIDE вЂ” final layer */
+    /* HARD SQUARE CORNERS OVERRIDE - final layer */
     html,
     body,
     body *,
@@ -1340,7 +1348,7 @@
         <h1>ATTAQ VINYL WRECKER</h1>
         <div class="subtitle">A damaged vinyl record emulator for reverse playback, warped discs, dusty crackle, needle slips, locked grooves and old speaker decay.</div>
       </div>
-      <a class="attaq-lab-link" href="../index.html">ATTAQ LAB</a>
+      <a class="attaq-lab-link" href="../">ATTAQ LAB</a>
     </header>
 
     <main class="main">
@@ -1350,7 +1358,7 @@
           <label class="dropzone" id="dropzone">
             <input id="file" type="file" accept="audio/*" />
             <strong>Drop audio here or click</strong>
-            <span>mp3, wav, ogg, m4a вЂ“ browser support may vary</span>
+            <span>mp3, wav, ogg, m4a - browser support may vary</span>
           </label>
 
           <div class="buttons">
@@ -1411,9 +1419,9 @@
           </div>
 
           <div class="meters">
-            <div class="meter"><div class="label">File</div><div class="value" id="fileName">вЂ”</div></div>
-            <div class="meter"><div class="label">Length</div><div class="value" id="duration">вЂ”</div></div>
-            <div class="meter"><div class="label">Sample Rate</div><div class="value" id="sampleRate">вЂ”</div></div>
+            <div class="meter"><div class="label">File</div><div class="value" id="fileName">-</div></div>
+            <div class="meter"><div class="label">Length</div><div class="value" id="duration">-</div></div>
+            <div class="meter"><div class="label">Sample Rate</div><div class="value" id="sampleRate">-</div></div>
             <div class="meter"><div class="label">Mode</div><div class="value" id="modeText">Stopped</div></div>
           </div>
 
@@ -1452,7 +1460,7 @@
     </main>
 
     <div class="footer">
-      <div>By Artemy Zen В· v 0.1.3</div>
+      <div>By Artemy Zen - v 0.1.3</div>
       <div class="beta-note">Beta version. Render may not perfectly match preview yet. Development is in progress.</div>
       <div class="support-block">
         <div class="support-buttons">
@@ -1469,7 +1477,7 @@
             </a>
           </div>
 
-          <a class="support-button hub" href="../index.html">
+          <a class="support-button hub" href="../">
             <span class="hub-name">ATTAQ LAB</span>
           </a>
 
@@ -1491,9 +1499,9 @@
       </div>
       <div class="devlog">
         <div class="devlog-title">Devlog</div>
-        <div class="devlog-entry"><strong>v 0.1.3</strong> вЂ“ Added local user presets with save, load and delete actions. Visual UI uses sharp corners and a darker dotted background.</div>
-        <div class="devlog-entry"><strong>v 0.1.2</strong> вЂ“ Added Created Track player with seek bar, time display, download and delete buttons.</div>
-        <div class="devlog-entry"><strong>v 0.1.1</strong> вЂ“ First public beta version.</div>
+        <div class="devlog-entry"><strong>v 0.1.3</strong> - Added local user presets with save, load and delete actions. Visual UI uses sharp corners and a darker dotted background.</div>
+        <div class="devlog-entry"><strong>v 0.1.2</strong> - Added Created Track player with seek bar, time display, download and delete buttons.</div>
+        <div class="devlog-entry"><strong>v 0.1.1</strong> - First public beta version.</div>
       </div>
     </div>
   </div>
@@ -1763,7 +1771,7 @@
     }
 
     function shorten(str, n) {
-      return str.length > n ? str.slice(0, n - 1) + 'вЂ¦' : str;
+      return str.length > n ? str.slice(0, n - 1) + '...' : str;
     }
 
     function isCleanValues(values = getCurrentValues()) {

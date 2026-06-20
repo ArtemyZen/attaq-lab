@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -257,6 +257,7 @@
     }
 
     .mini-value {
+      font-family: Arial, Helvetica, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-size: 20px;
       font-weight: 900;
       line-height: 1;
@@ -311,6 +312,7 @@
     }
 
     .file-name {
+      font-family: Arial, Helvetica, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       font-weight: 800;
       font-size: 13px;
@@ -320,6 +322,7 @@
     }
 
     .file-meta {
+      font-family: Arial, Helvetica, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--muted);
       font-size: 11px;
       overflow: hidden;
@@ -544,6 +547,7 @@
     }
 
     .status {
+      font-family: Arial, Helvetica, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       min-height: 42px;
       margin-top: 14px;
       padding: 12px;
@@ -624,6 +628,7 @@
     }
 
     .download-name {
+      font-family: Arial, Helvetica, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -706,7 +711,7 @@
         <h1>ATTAQ Audio Converter</h1>
         <div class="subtitle">Free, fast and convenient audio converter with batch conversion support.</div>
       </div>
-      <a class="attaq-lab-link" href="../index.html">ATTAQ LAB</a>
+      <a class="attaq-lab-link" href="../">ATTAQ LAB</a>
     </header>
 
     <main class="grid">
@@ -714,9 +719,9 @@
         <div class="card-inner">
           <h2 class="section-title">Audio Queue</h2>
           <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Choose audio files">
-            <div class="drop-icon">в—€</div>
+            <div class="drop-icon">*</div>
             <div class="drop-main">Drop audio files here or click</div>
-            <div class="drop-sub">mp3, wav, ogg, m4a вЂ“ browser support may vary. Up to 50 files per batch.</div>
+            <div class="drop-sub">mp3, wav, ogg, m4a - browser support may vary. Up to 50 files per batch.</div>
             <input id="fileInput" type="file" accept="audio/*" multiple />
           </div>
 
@@ -843,8 +848,8 @@
     </section>
 
     <footer>
-      <div>By Artemy Zen В· <a href="https://t.me/archichtotodelajet" target="_blank" rel="noopener">Telegram</a></div>
-      <a class="attaq-lab-link" href="../index.html">ATTAQ LAB</a>
+      <div>By Artemy Zen - <a href="https://t.me/archichtotodelajet" target="_blank" rel="noopener">Telegram</a></div>
+      <a class="attaq-lab-link" href="../">ATTAQ LAB</a>
       <div class="version">v 0.1.0</div>
     </footer>
   </div>
@@ -1022,13 +1027,13 @@
         const row = document.createElement('div');
         row.className = 'file-item';
         row.innerHTML = `
-          <div class="drag-dots">в‹®в‹®</div>
+          <div class="drag-dots">::</div>
           <div class="file-main">
             <div class="file-name" title="${escapeHtml(item.file.name)}">${index + 1}. ${escapeHtml(item.file.name)}</div>
-            <div class="file-meta">${prettyBytes(item.file.size)} В· ${escapeHtml(item.file.type || 'unknown format')} В· <span data-status-for="${item.id}" class="file-status">${escapeHtml(item.state || 'Ready')}</span></div>
+            <div class="file-meta">${prettyBytes(item.file.size)} - ${escapeHtml(item.file.type || 'unknown format')} - <span data-status-for="${item.id}" class="file-status">${escapeHtml(item.state || 'Ready')}</span></div>
           </div>
           <audio controls src="${item.previewUrl}"></audio>
-          <button class="remove-file" type="button" title="Remove file" aria-label="Remove file">Г—</button>
+          <button class="remove-file" type="button" title="Remove file" aria-label="Remove file">X</button>
         `;
         row.querySelector('.remove-file').addEventListener('click', () => removeFile(item.id));
         fileList.appendChild(row);
@@ -1234,7 +1239,7 @@
       a.href = url;
       a.download = filename;
       a.className = 'download-link';
-      a.innerHTML = `<span class="download-name">${escapeHtml(filename)}</span><span class="download-ready">вњ“ Ready</span><span class="download-size">${prettyBytes(blob.size)}</span>`;
+      a.innerHTML = `<span class="download-name">${escapeHtml(filename)}</span><span class="download-ready">Ready</span><span class="download-size">${prettyBytes(blob.size)}</span>`;
       downloads.appendChild(a);
       updateDownloadAllButton();
     }
