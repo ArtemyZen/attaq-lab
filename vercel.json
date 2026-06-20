@@ -1,4 +1,30 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/audio/audio-tools", "destination": "/audio-tools", "permanent": true },
+    { "source": "/audio/audio-tools.html", "destination": "/audio-tools", "permanent": true },
+    { "source": "/audio/tape-chewer", "destination": "/attaq-tape-chewer", "permanent": true },
+    { "source": "/audio/tape-chewer.html", "destination": "/attaq-tape-chewer", "permanent": true },
+    { "source": "/audio/old-radio", "destination": "/attaq-old-radio", "permanent": true },
+    { "source": "/audio/old-radio.html", "destination": "/attaq-old-radio", "permanent": true },
+    { "source": "/audio/vinyl-wrecker", "destination": "/attaq-vinyl-wrecker", "permanent": true },
+    { "source": "/audio/vinyl-wrecker.html", "destination": "/attaq-vinyl-wrecker", "permanent": true },
+    { "source": "/audio/audio-converter", "destination": "/attaq-audio-converter", "permanent": true },
+    { "source": "/audio/audio-converter.html", "destination": "/attaq-audio-converter", "permanent": true },
+    { "source": "/prod/focusmap/attaq-focus-map", "destination": "/attaq-focus-map", "permanent": true },
+    { "source": "/prod/focusmap/attaq-focus-map.html", "destination": "/attaq-focus-map", "permanent": true },
+    { "source": "/prod/focusmap/about-focus-map", "destination": "/about-focus-map", "permanent": true },
+    { "source": "/prod/focusmap/about-focus-map.html", "destination": "/about-focus-map", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/audio-tools", "destination": "/audio/audio-tools.html" },
+    { "source": "/attaq-tape-chewer", "destination": "/audio/tape-chewer.html" },
+    { "source": "/attaq-old-radio", "destination": "/audio/old-radio.html" },
+    { "source": "/attaq-vinyl-wrecker", "destination": "/audio/vinyl-wrecker.html" },
+    { "source": "/attaq-audio-converter", "destination": "/audio/audio-converter.html" },
+    { "source": "/attaq-focus-map", "destination": "/prod/focusmap/attaq-focus-map.html" },
+    { "source": "/about-focus-map", "destination": "/prod/focusmap/about-focus-map.html" }
+  ]
 }

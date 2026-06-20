@@ -1,8 +1,22 @@
 DirectoryIndex index.html
 RewriteEngine On
 
-RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
 RewriteRule ^index\.html$ / [R=301,L]
+RewriteRule ^audio/audio-tools(?:\.html)?/?$ /audio-tools [R=301,L]
+RewriteRule ^audio/tape-chewer(?:\.html)?/?$ /attaq-tape-chewer [R=301,L]
+RewriteRule ^audio/old-radio(?:\.html)?/?$ /attaq-old-radio [R=301,L]
+RewriteRule ^audio/vinyl-wrecker(?:\.html)?/?$ /attaq-vinyl-wrecker [R=301,L]
+RewriteRule ^audio/audio-converter(?:\.html)?/?$ /attaq-audio-converter [R=301,L]
+RewriteRule ^prod/focusmap/attaq-focus-map(?:\.html)?/?$ /attaq-focus-map [R=301,L]
+RewriteRule ^prod/focusmap/about-focus-map(?:\.html)?/?$ /about-focus-map [R=301,L]
+
+RewriteRule ^audio-tools/?$ audio/audio-tools.html [L]
+RewriteRule ^attaq-tape-chewer/?$ audio/tape-chewer.html [L]
+RewriteRule ^attaq-old-radio/?$ audio/old-radio.html [L]
+RewriteRule ^attaq-vinyl-wrecker/?$ audio/vinyl-wrecker.html [L]
+RewriteRule ^attaq-audio-converter/?$ audio/audio-converter.html [L]
+RewriteRule ^attaq-focus-map/?$ prod/focusmap/attaq-focus-map.html [L]
+RewriteRule ^about-focus-map/?$ prod/focusmap/about-focus-map.html [L]
 
 RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
 RewriteRule ^ %1 [R=301,L]
