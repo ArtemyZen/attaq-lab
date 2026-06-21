@@ -254,6 +254,25 @@
       flex: 0 0 auto;
     }
 
+    .hero-card.video-card {
+      min-height: auto;
+    }
+
+    .focus-video-embed {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #05070a;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .focus-video-embed iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 0;
+    }
     .video-placeholder {
       position: relative;
       flex: 1;
@@ -558,8 +577,9 @@
     @media (max-width: 680px) {
       .nav-inner { align-items: flex-start; flex-direction: column; }
       .nav-links { justify-content: flex-start; }
-      .hero-card { min-height: 390px; transform: scale(.92); transform-origin: top left; width: 108%; }
-      .video-placeholder { min-height: 332px; padding: 22px; }
+      .hero-card { min-height: auto; transform: none; width: 100%; }
+
+    .video-placeholder { min-height: 332px; padding: 22px; }
       .video-placeholder::before { inset: 20px; }
       .cards, .steps, .contrast, .version-grid, .feature-list { grid-template-columns: 1fr; }
       .node.project { width: 116px; height: 116px; }
@@ -646,12 +666,12 @@
 
       .hero-card {
         width: 100%;
-        min-height: 320px;
+        min-height: auto;
         transform: none;
         border-radius: 18px;
       }
 
-      .video-placeholder {
+    .video-placeholder {
         min-height: 280px;
         padding: 18px;
       }
@@ -762,18 +782,19 @@
           <p class="micro">Free in the browser. Paid downloadable offline version on itch.</p>
         </div>
 
-        <div class="hero-card" aria-label="ATTAQ Focus Map video placeholder">
+        <div class="hero-card video-card" aria-label="ATTAQ Focus Map demo video">
           <div class="mock-toolbar">
             <span>Demo video</span>
-            <span>Coming soon</span>
+            <span>Live demo</span>
           </div>
-          <div class="video-placeholder">
-            <div class="video-placeholder-content">
-              <div class="play-mark" aria-hidden="true"></div>
-              <h3>Demo video placeholder</h3>
-              <p>This section is reserved for the final product video: creating projects, adding nodes, showing the full overload, then switching into Focus Mode.</p>
-              <div class="video-note">Video will be added here</div>
-            </div>
+          <div class="focus-video-embed">
+            <iframe
+              src="https://www.youtube.com/embed/gWi_cNCcCGA?rel=0&modestbranding=1"
+              title="ATTAQ Focus Map demo video"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen></iframe>
           </div>
         </div>
       </header>
