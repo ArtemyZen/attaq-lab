@@ -1419,6 +1419,173 @@
       }
     }
 
+
+    @media (max-width: 520px) {
+      .site-shell,
+      .topbar-inner,
+      .footer-inner {
+        width: calc(100% - 32px);
+      }
+
+      .topbar {
+        position: sticky;
+      }
+
+      .brand {
+        min-height: 34px;
+      }
+
+      .nav {
+        gap: 6px;
+        padding-bottom: 4px;
+      }
+
+      .nav a {
+        min-height: 34px;
+        padding: 0 10px;
+        font-size: 10px;
+      }
+
+      .nav a.social-icon-link {
+        width: 34px;
+        min-width: 34px;
+        height: 34px;
+        min-height: 34px;
+      }
+
+      .hero {
+        padding: 30px 0 30px;
+      }
+
+      h1 {
+        font-size: clamp(38px, 13vw, 60px);
+        line-height: .9;
+        letter-spacing: .015em;
+      }
+
+      .lead {
+        margin-top: 18px;
+        font-size: 17px;
+        line-height: 1.45;
+      }
+
+      .hero-product-shelf {
+        margin-top: 22px;
+      }
+
+      .shelf-links a {
+        min-height: 68px;
+        grid-template-columns: 46px minmax(0, 1fr) 32px;
+        gap: 10px;
+        padding: 10px 12px;
+      }
+
+      .shelf-icon {
+        width: 46px;
+        height: 46px;
+      }
+
+      .shelf-icon::before {
+        font-size: 24px;
+      }
+
+      .shelf-arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
+      }
+
+      section {
+        margin: 16px 0;
+        padding: 18px;
+      }
+
+      .section-head {
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .section-label {
+        margin-bottom: 10px;
+        font-size: 10px;
+      }
+
+      h2,
+      #focus-map h2 {
+        font-size: clamp(30px, 10.8vw, 42px);
+        line-height: .98;
+      }
+
+      .section-note,
+      #focus-map .section-note {
+        max-width: 100%;
+        justify-self: start;
+        font-size: 15px;
+      }
+
+      .featured-product {
+        gap: 14px;
+      }
+
+      .featured-copy {
+        padding: 18px;
+      }
+
+      .featured-copy h3 {
+        font-size: clamp(28px, 9vw, 38px);
+      }
+
+      .featured-copy p,
+      .audio-body p,
+      .partnership-row p,
+      .manifesto p {
+        font-size: 15px;
+        line-height: 1.55;
+      }
+
+      .featured-actions,
+      .partnership-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .featured-actions .button,
+      .partnership-actions .button,
+      .button {
+        width: 100%;
+        min-height: 44px;
+      }
+
+      .audio-grid {
+        gap: 14px;
+      }
+
+      .audio-card {
+        min-height: auto;
+      }
+
+      .audio-body {
+        padding: 16px;
+      }
+
+      .partnership-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 18px;
+      }
+
+      .manifesto div {
+        padding: 18px;
+      }
+
+      .footer {
+        padding: 26px 0 36px;
+      }
+
+      .footer-links {
+        gap: 10px;
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       h1,
       h1::before,
