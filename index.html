@@ -1605,8 +1605,26 @@
       .footer-links {
         gap: 10px;
       }
+    /* MOBILE_FOCUS_HEAD_FIX */
+    @media (max-width: 640px) {
+      #focus-map .section-head {
+        grid-template-columns: 1fr;
+        align-items: start;
+        gap: 14px;
+      }
+
+      #focus-map h2 {
+        font-size: clamp(30px, 10.5vw, 42px);
+        line-height: 1;
+      }
+
+      #focus-map .section-note {
+        justify-self: start;
+        max-width: 100%;
+        margin-top: 0;
+      }
     }
-    @media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
       h1,
       h1::before,
       h1::after,
@@ -1614,7 +1632,7 @@
         animation: none;
       }
     }
-  </style>
+</style>
 </head>
 <body>
   <header class="topbar">
