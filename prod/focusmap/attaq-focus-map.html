@@ -1575,7 +1575,7 @@
         <div class="brand-row">
           <h1>ATTAQ Focus Map</h1>
         </div>
-        <p class="hint">Visual project breakdown into connected nodes. No long task descriptions – just structure, focus, and progress.</p>
+        <p class="hint">Visual project breakdown into connected nodes. No long task descriptions вЂ“ just structure, focus, and progress.</p>
       </div>
 
       <div class="panel">
@@ -1674,7 +1674,7 @@
   <div class="help-modal" id="helpModal" aria-hidden="true">
     <div class="help-backdrop" data-help-close></div>
     <section class="help-window" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-      <button class="help-close" data-help-close title="Close">×</button>
+      <button class="help-close" data-help-close title="Close">Г—</button>
       <div class="help-topline">
         <div>
           <div class="help-kicker">A visual workspace for noisy projects</div>
@@ -1733,7 +1733,7 @@
         <div class="tutorial-kicker">Live Tutorial</div>
         <div class="tutorial-progress" id="tutorialProgress">Step 1 / 1</div>
       </div>
-      <button class="tutorial-close" id="tutorialCloseBtn" type="button" aria-label="Close tutorial">×</button>
+      <button class="tutorial-close" id="tutorialCloseBtn" type="button" aria-label="Close tutorial">Г—</button>
     </div>
     <div class="tutorial-body">
       <h2 class="tutorial-title" id="tutorialTitle">Tutorial</h2>
@@ -2870,7 +2870,7 @@
       ctx.stroke();
       ctx.fillStyle = '#91ffbd';
       ctx.font = `${Math.max(13, 17 * view.scale)}px Segoe UI, sans-serif`;
-      ctx.fillText('✓', x, y + r * 0.55);
+      ctx.fillText('вњ“', x, y + r * 0.55);
     }
 
     ctx.restore();
@@ -2941,7 +2941,7 @@
     ctx.fillStyle = cssVar('--canvas-empty') || 'rgba(237,241,255,0.5)';
     ctx.font = '16px Segoe UI, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Empty. Create your first project with the “+ Project” button.', width / 2, height / 2);
+    ctx.fillText('Empty. Create your first project with the вЂњ+ ProjectвЂќ button.', width / 2, height / 2);
     ctx.restore();
   }
 
@@ -3796,10 +3796,10 @@
 
     const moving = nodeById(moveMode.sourceId);
     if (moving) {
-      els.breadcrumb.innerHTML = `<span class="pill move-banner"><strong>Move:</strong> choose a new parent node for “${escapeHtml(moving.title)}” · Esc – cancel</span>`;
+      els.breadcrumb.innerHTML = `<span class="pill move-banner"><strong>Move:</strong> choose a new parent node for вЂњ${escapeHtml(moving.title)}вЂќ В· Esc вЂ“ cancel</span>`;
     } else if (nodeById(connectMode.sourceId)) {
       const connecting = nodeById(connectMode.sourceId);
-      els.breadcrumb.innerHTML = `<span class="pill move-banner"><strong>Connect:</strong> choose another node for “${escapeHtml(connecting.title)}” · Esc – cancel</span>`;
+      els.breadcrumb.innerHTML = `<span class="pill move-banner"><strong>Connect:</strong> choose another node for вЂњ${escapeHtml(connecting.title)}вЂќ В· Esc вЂ“ cancel</span>`;
     } else if (Array.isArray(state.multiFocusIds) && state.multiFocusIds.length) {
       const names = state.multiFocusIds.map(id => nodeById(id)?.title).filter(Boolean).join(' + ');
       els.breadcrumb.innerHTML = `<strong>Group focus:</strong> ${escapeHtml(names)}`;
@@ -4050,7 +4050,7 @@
     els.tutorialPrevBtn.disabled = tutorialState.index === 0;
     els.tutorialNextBtn.textContent = tutorialState.index === tutorialSteps.length - 1 ? 'Done' : 'Next';
     els.tutorialSteps.innerHTML = tutorialSteps.map((item, i) => (
-      `<button class="tutorial-step-dot ${i === tutorialState.index ? 'active' : ''} ${tutorialState.completed.has(i) ? 'done' : ''}" type="button" data-tutorial-step="${i}" title="${escapeAttr(item.title)}">${tutorialState.completed.has(i) ? '✓' : i + 1}</button>`
+      `<button class="tutorial-step-dot ${i === tutorialState.index ? 'active' : ''} ${tutorialState.completed.has(i) ? 'done' : ''}" type="button" data-tutorial-step="${i}" title="${escapeAttr(item.title)}">${tutorialState.completed.has(i) ? 'вњ“' : i + 1}</button>`
     )).join('');
   }
 
@@ -4217,7 +4217,7 @@
       </div>
       <div class="preset-title">Presets</div>
       <div class="color-swatch-grid">
-        ${presets.map(c => `<button class="color-swatch ${c === safeColor ? 'active' : ''}" data-color="${c}" style="--swatch:${c};background:${c}" title="${c} • right-click to remove"></button>`).join('')}
+        ${presets.map(c => `<button class="color-swatch ${c === safeColor ? 'active' : ''}" data-color="${c}" style="--swatch:${c};background:${c}" title="${c} вЂў right-click to remove"></button>`).join('')}
       </div>
       <p class="hint">Click the color field to open the full color picker. + Preset saves the current color as a small swatch.</p>
     `;
@@ -5000,11 +5000,11 @@
 
       const routes = {
         '/': 'index.html',
-        '/audio-tools': 'audio/audio-tools.html',
-        '/attaq-tape-chewer': 'audio/tape-chewer.html',
-        '/attaq-old-radio': 'audio/old-radio.html',
-        '/attaq-vinyl-wrecker': 'audio/vinyl-wrecker.html',
-        '/attaq-audio-converter': 'audio/audio-converter.html',
+        '/audiotools': 'audio/audiotools.html',
+        '/audiotools/attaq-tape-chewer': 'audiotools/attaq-tape-chewer/index.html',
+        '/audiotools/attaq-old-radio': 'audiotools/attaq-old-radio/index.html',
+        '/audiotools/attaq-vinyl-wrecker': 'audiotools/attaq-vinyl-wrecker/index.html',
+        '/audiotools/attaq-audio-converter': 'audiotools/attaq-audio-converter/index.html',
         '/attaq-focus-map': 'prod/focusmap/attaq-focus-map.html',
         '/about-focus-map': 'prod/focusmap/about-focus-map.html'
       };

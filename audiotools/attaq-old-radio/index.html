@@ -1209,6 +1209,61 @@
       border-color: rgba(215,255,87,0.55);
       color: #d7ff57 !important;
     }
+    /* --- ATTAQ BLACK VHS FAMILY / RADIO PALETTE --- */
+    html, body {
+      background:
+        radial-gradient(circle at 18% -12%, rgba(197,145,50,.14), transparent 35%),
+        radial-gradient(circle at 90% 4%, rgba(139,53,43,.08), transparent 30%),
+        linear-gradient(180deg, #050402, var(--bg) 68%);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      letter-spacing: .02em;
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100;
+      background: repeating-linear-gradient(to bottom, rgba(215,184,105,.045) 0, rgba(215,184,105,.045) 1px, transparent 2px, transparent 5px);
+      mix-blend-mode: overlay; opacity: .28;
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 101;
+      background: radial-gradient(circle at center, transparent 52%, rgba(0,0,0,.66) 100%), repeating-linear-gradient(90deg, rgba(197,145,50,.018) 0 1px, transparent 3px 9px);
+      animation: radioVhsDrift 6s infinite steps(2,end);
+    }
+    @keyframes radioVhsDrift { 0%,100%{transform:translate(0);opacity:.92} 35%{transform:translate(1px,-1px);opacity:.78} 36%{transform:translate(-2px,1px);opacity:.86} 72%{transform:translate(0,1px);opacity:.82} }
+    @keyframes radioGlitch { 0%,88%,100%{transform:translate(0);filter:none} 90%{transform:translate(2px,-1px);filter:brightness(1.3)} 92%{transform:translate(-2px,1px);filter:contrast(1.25)} 94%{transform:translate(1px,0);filter:none} }
+    @keyframes radioSweep { 0%,72%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+    .app { width:min(1120px,calc(100vw - 28px)); gap:18px; position:relative; isolation:isolate; }
+    .app::before { content:"TUNE  РІвЂ”РЏ  AM / LO BAND  //  SIGNAL WAIT"; position:absolute; right:18px; top:10px; z-index:4; color:rgba(215,184,105,.58); font-size:10px; letter-spacing:.16em; text-shadow:0 0 12px rgba(197,145,50,.42); pointer-events:none; }
+    header, .card, .meter, .knob, .dropzone, .scope-wrap, .mini-widget, .preset-box, .user-presets, .live-record-panel, .created-track, .support-block, .devlog, .tools-link {
+      border:1px solid var(--line); border-radius:0; background:linear-gradient(135deg,rgba(197,145,50,.052),rgba(139,53,43,.014)),linear-gradient(180deg,rgba(255,255,255,.014),transparent),var(--panel); box-shadow:var(--shadow); position:relative;
+    }
+    header { padding:18px 20px; overflow:hidden; background:linear-gradient(180deg,rgba(197,145,50,.06),rgba(0,0,0,.7)),linear-gradient(90deg,rgba(197,145,50,.07),transparent 40%),var(--panel); }
+    header::after, .card::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.028),transparent); transform:translateX(-100%); animation:radioSweep 7s infinite; pointer-events:none; }
+    h1 { color:var(--accent); font-family:inherit; font-size:clamp(30px,5vw,54px); line-height:.92; letter-spacing:.04em; text-shadow:3px 0 rgba(139,53,43,.74),-3px 0 rgba(215,184,105,.28),0 0 28px rgba(197,145,50,.26); animation:radioGlitch 5.8s infinite steps(2,end); }
+    .subtitle { color:var(--muted); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+    .main { grid-template-columns:1.1fr .9fr; gap:18px; }
+    .card h2, .preset-title, .user-presets-title, .live-record-title, .created-track-title, .devlog-title, .support-title, .mini-widget-title { color:var(--accent); font-family:inherit; letter-spacing:.14em; text-transform:uppercase; text-shadow:0 0 14px rgba(197,145,50,.22); }
+    .card h2 { border-bottom:1px solid rgba(213,167,82,.16); }
+    .dropzone { background:repeating-linear-gradient(135deg,rgba(197,145,50,.038) 0 2px,transparent 2px 8px),#050402; border-style:dashed; }
+    .dropzone:hover,.dropzone.drag { border-color:var(--accent2); background-color:rgba(197,145,50,.055); transform:none; }
+    button,.created-track-actions a,.support-button,.footer-links a,.attaq-lab-link { border-radius:0; background:#080603; color:var(--accent); border:1px solid rgba(197,145,50,.42); font-family:inherit; letter-spacing:.09em; text-transform:uppercase; box-shadow:inset 0 0 0 1px rgba(0,0,0,.55); }
+    button:hover,.created-track-actions a:hover,.support-button:hover,.footer-links a:hover,.attaq-lab-link:hover { transform:none; color:var(--accent2)!important; background:rgba(197,145,50,.1); border-color:var(--accent2); box-shadow:0 0 20px rgba(197,145,50,.13),inset 0 0 0 1px rgba(0,0,0,.55); }
+    button.danger { color:#d86a59; border-color:rgba(139,53,43,.62); background:#0a0403; }
+    button.active,.preset.active { color:#090602; background:var(--accent2); border-color:var(--accent2); outline:0; box-shadow:0 0 20px rgba(215,184,105,.22); }
+    button:focus-visible,a:focus-visible,input:focus-visible { outline:2px solid var(--accent2); outline-offset:2px; }
+    .controls { gap:10px; }
+    .knob { background:rgba(0,0,0,.2); border-color:rgba(213,167,82,.2); }
+    .knob:hover { border-color:rgba(215,184,105,.48); box-shadow:0 0 18px rgba(197,145,50,.07); }
+    .knob label span:last-child { color:var(--accent); text-shadow:0 0 10px rgba(197,145,50,.34); }
+    input[type="range"] { accent-color:var(--accent); filter:drop-shadow(0 0 9px rgba(197,145,50,.16)); }
+    .scope-wrap canvas,canvas { border-radius:0; border-color:rgba(213,167,82,.28); filter:saturate(.86) sepia(.28) brightness(.92) contrast(1.14) drop-shadow(0 0 8px rgba(197,145,50,.12)); }
+    .radio-mini,.mini-panel { border-radius:0; border-color:rgba(213,167,82,.34); box-shadow:0 0 22px rgba(197,145,50,.08); }
+    .dial,.dial-scale,.mini-needle,.vu-needle { filter:drop-shadow(0 0 7px rgba(215,184,105,.3)); }
+    .meter .label,.status,.hint,.live-record-hint,.support-button-text,.devlog-item { color:var(--muted); }
+    .meter .value,.devlog-version,.support-button-main { color:var(--accent2); text-shadow:0 0 10px rgba(197,145,50,.18); }
+    .user-preset-input { border-radius:0; background:#050402; border-color:var(--line); color:var(--text); font-family:inherit; }
+    .user-preset-input:focus { border-color:var(--accent2); box-shadow:0 0 14px rgba(197,145,50,.12); }
+    @media(max-width:900px){.app{width:min(100%,calc(100vw - 16px));gap:10px}.app::before{display:none}.main{grid-template-columns:1fr;gap:10px}}
+    @media(prefers-reduced-motion:reduce){h1,header::after,.card::after,body::after{animation:none}}
   </style>
 </head>
 <body>
@@ -2527,11 +2582,11 @@
 
       const routes = {
         '/': 'index.html',
-        '/audio-tools': 'audio/audio-tools.html',
-        '/attaq-tape-chewer': 'audio/tape-chewer.html',
-        '/attaq-old-radio': 'audio/old-radio.html',
-        '/attaq-vinyl-wrecker': 'audio/vinyl-wrecker.html',
-        '/attaq-audio-converter': 'audio/audio-converter.html',
+        '/audiotools': 'audio/audiotools.html',
+        '/audiotools/attaq-tape-chewer': 'audiotools/attaq-tape-chewer/index.html',
+        '/audiotools/attaq-old-radio': 'audiotools/attaq-old-radio/index.html',
+        '/audiotools/attaq-vinyl-wrecker': 'audiotools/attaq-vinyl-wrecker/index.html',
+        '/audiotools/attaq-audio-converter': 'audiotools/attaq-audio-converter/index.html',
         '/attaq-focus-map': 'prod/focusmap/attaq-focus-map.html',
         '/about-focus-map': 'prod/focusmap/about-focus-map.html'
       };
