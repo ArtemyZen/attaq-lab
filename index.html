@@ -319,7 +319,7 @@
     }
 
     .hero-product-shelf {
-      width: min(100%, 620px);
+      width: min(100%, 420px);
       margin: 28px auto 0;
       border: 1px solid var(--line);
       background:
@@ -743,7 +743,7 @@
 
     .launch-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
     }
 
@@ -1642,7 +1642,6 @@
         <span>ATTAQ LAB</span>
       </a>
       <nav class="nav" aria-label="Main navigation">
-        <a href="#focus-map">Focus Map</a>
         <a href="#audio-tools">Audio Tools</a>
         <a href="#partnership">Partnership</a>
         <a href="#manifesto">Manifesto</a>
@@ -1671,55 +1670,12 @@
           <div class="hero-product-shelf" aria-label="Product shelf">
             <p class="shelf-label">Product shelf</p>
             <div class="shelf-links">
-              <a href="#focus-map">
-                <span class="shelf-icon" data-symbol="&#9671;" aria-hidden="true"></span>
-                <span class="shelf-copy"><b>Focus Map</b><small>Product page</small></span>
-                <span class="shelf-arrow">&darr;</span>
-              </a>
               <a href="#audio-tools">
                 <span class="shelf-icon" data-symbol="&#8779;" aria-hidden="true"></span>
                 <span class="shelf-copy"><b>Audio Tools</b><small>Tool stack</small></span>
                 <span class="shelf-arrow">&darr;</span>
               </a>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="focus-map" aria-label="ATTAQ Focus Map">
-        <div class="section-head">
-          <div>
-            <p class="section-label">Featured product</p>
-            <h2>Focus Map for overloaded creative minds.</h2>
-          </div>
-          <p class="section-note">
-            A visual workspace for people who think in branches, references and half-finished directions.
-          </p>
-        </div>
-
-        <div class="featured-product">
-          <div class="featured-copy">
-            <div>
-              <div class="card-meta"><span>Focus</span></div>
-              <h3>Focus on what matters right now.</h3>
-              <p>
-                ATTAQ Focus Map turns scattered projects, ideas and next actions into a visible map. It helps creators who keep too much in their head find the signal, group the work and move forward without opening a heavy project-management system.
-              </p>
-            </div>
-            <div class="featured-actions">
-              <a class="button primary" href="/attaq-focus-map/">Launch Web</a>
-              <a class="button" href="https://artemyzen.itch.io/attaq-focus-map" target="_blank" rel="noreferrer">Buy Standalone</a>
-              <a class="button" href="/about-focus-map/">About Focus Map</a>
-            </div>
-          </div>
-          <div class="featured-cover video-frame">
-            <iframe
-              src="https://www.youtube.com/embed/gWi_cNCcCGA?rel=0&modestbranding=1"
-              title="ATTAQ Focus Map demo video"
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allowfullscreen></iframe>
           </div>
         </div>
       </section>
@@ -1775,20 +1731,6 @@
                 <div class="card-meta"><span>Vinyl</span></div>
                 <h3>Vinyl Wrecker</h3>
                 <p>Destroy clean audio with warped discs, dust, wobble, reverse playback and wear.</p>
-              </div>
-              <div class="card-bottom"><span>Open tool</span><span>&rarr;</span></div>
-            </div>
-          </a>
-
-          <a class="audio-card converter" href="/audiotools/attaq-audio-converter/">
-            <div class="audio-cover cover-frame">
-              <img src="images/audio-converter-cover.jpg" alt="ATTAQ Audio Converter cover" />
-            </div>
-            <div class="audio-body">
-              <div>
-                <div class="card-meta"><span>Utility</span></div>
-                <h3>Audio Converter</h3>
-                <p>Convert audio files quickly in batches with useful output controls.</p>
               </div>
               <div class="card-bottom"><span>Open tool</span><span>&rarr;</span></div>
             </div>
@@ -1896,7 +1838,7 @@
 
       const routes = {
         '/': 'index.html',
-        '/audiotools': 'audio/audiotools.html',
+        '/audiotools': 'audiotools/index.html',
         '/audiotools/attaq-tape-chewer': 'audiotools/attaq-tape-chewer/index.html',
         '/audiotools/attaq-old-radio': 'audiotools/attaq-old-radio/index.html',
         '/audiotools/attaq-vinyl-wrecker': 'audiotools/attaq-vinyl-wrecker/index.html',
