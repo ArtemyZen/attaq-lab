@@ -921,6 +921,69 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
     }
+    .vst-feature {
+      display: grid;
+      grid-template-columns: minmax(0, 0.86fr) minmax(340px, 0.84fr);
+      gap: 30px;
+      align-items: center;
+    }
+
+    .vst-copy {
+      min-width: 0;
+    }
+
+    .vst-copy h2 {
+      max-width: 680px;
+      margin-bottom: 18px;
+    }
+
+    .vst-copy .section-note {
+      max-width: 620px;
+    }
+
+    .vst-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 22px 0 0;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .vst-badges span {
+      border: 1px solid rgba(83,233,255,0.28);
+      background: rgba(83,233,255,0.055);
+      color: var(--cyan);
+      padding: 8px 10px;
+    }
+
+    .vst-badges span:first-child {
+      border-color: rgba(209,255,58,0.42);
+      background: rgba(209,255,58,0.08);
+      color: var(--acid);
+    }
+
+    .vst-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .vst-cover {
+      min-width: 0;
+      position: relative;
+    }
+
+    .vst-cover img {
+      width: 100%;
+      display: block;
+      filter: saturate(1.06) contrast(1.04);
+    }
+
     #audio-tools {
       margin-top: 0;
     }
@@ -1300,6 +1363,10 @@
         grid-template-columns: 1fr;
       }
 
+      .vst-feature {
+        grid-template-columns: 1fr;
+      }
+
       .featured-cover {
         justify-self: start;
       }
@@ -1594,12 +1661,18 @@
       }
 
       .featured-actions,
+      .vst-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
       .partnership-actions {
         display: grid;
         grid-template-columns: 1fr;
       }
 
       .featured-actions .button,
+      .vst-actions .button,
       .partnership-actions .button,
       .button {
         width: 100%;
@@ -1671,6 +1744,7 @@
         <span>ATTAQ LAB</span>
       </a>
       <nav class="nav" aria-label="Main navigation">
+        <a href="#tape-chewer-vst">Tape Chewer VST</a>
         <a href="#audio-tools">Audio Tools</a>
         <a class="social-icon-link discord" href="https://discord.gg/W7pUZDcqs7" aria-label="Discord" title="Discord">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1694,6 +1768,30 @@
           <p class="lead">
             ATTAQ LAB builds compact, focused software for real creative needs and ideas that deserve their own interface.
           </p>
+        </div>
+      </section>
+
+      <section id="tape-chewer-vst" aria-label="ATTAQ Tape Chewer VST">
+        <div class="vst-feature">
+          <div class="vst-copy">
+            <p class="section-label">Featured VST instrument</p>
+            <h2>Tape Chewer VST for cassette damage inside your DAW.</h2>
+            <p class="section-note">
+              ATTAQ Tape Chewer VST is a compact VST3 effect for turning clean sound into unstable cassette texture: pitch wobble, dropouts, saturation and broken tape motion. Made for producers, sound designers and anyone who wants tape damage as a playable studio tool.
+            </p>
+            <div class="vst-badges" aria-label="Plugin details">
+              <span>Windows only</span>
+              <span>VST3 plugin</span>
+              <span>Version 0.1.17</span>
+            </div>
+            <div class="vst-actions">
+              <a class="button primary" href="audiotools/attaq-tape-chewer-vst/ATTAQ-Tape-Chewer-VST3-Setup-0.1.17.exe" download>Download Windows Installer</a>
+              <a class="button" href="/audiotools/attaq-tape-chewer/">Open browser version</a>
+            </div>
+          </div>
+          <div class="vst-cover cover-frame">
+            <img src="images/tape-chewer-cover.jpg" alt="ATTAQ Tape Chewer VST cover" />
+          </div>
         </div>
       </section>
 
