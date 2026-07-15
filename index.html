@@ -923,6 +923,8 @@
     }
 
     #tape-chewer-vst {
+      position: relative;
+      overflow: visible;
       padding: 28px 34px 30px;
     }
 
@@ -1034,9 +1036,9 @@
 
     .vst-sticker {
       position: absolute;
-      top: 0;
-      right: 0;
-      z-index: 4;
+      top: -18px;
+      right: 34px;
+      z-index: 5;
       display: inline-grid;
       place-items: center;
       min-width: 72px;
@@ -1051,7 +1053,7 @@
       font-weight: 900;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      transform: translate(8px, -10px) rotate(1.5deg);
+      transform: rotate(2deg);
       box-shadow:
         3px 3px 0 rgba(255,79,203,0.74),
         -2px -1px 0 rgba(83,233,255,0.55),
@@ -1854,6 +1856,7 @@
       </section>
 
       <section id="tape-chewer-vst" aria-label="ATTAQ Tape Chewer VST">
+        <span class="vst-sticker">VST FX</span>
         <div class="vst-feature">
           <div class="vst-copy">
             <p class="section-label">Featured VST instrument</p>
@@ -1871,7 +1874,6 @@
             </div>
           </div>
           <div class="vst-cover cover-frame">
-            <span class="vst-sticker">VST FX</span>
             <img src="images/tape-chewer-vst-plugin.png" alt="ATTAQ Tape Chewer VST plugin interface" />
           </div>
         </div>
