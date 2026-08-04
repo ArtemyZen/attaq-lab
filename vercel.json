@@ -25,6 +25,7 @@
     { "source": "/attaq-vinyl-wrecker", "destination": "/audio/vinyl-wrecker.html" },
     { "source": "/attaq-audio-converter", "destination": "/audio/audio-converter.html" },
     { "source": "/attaq-focus-map", "destination": "/prod/focusmap/attaq-focus-map.html" },
-    { "source": "/about-focus-map", "destination": "/prod/focusmap/about-focus-map.html" }
+    { "source": "/about-focus-map", "destination": "/prod/focusmap/about-focus-map.html" },
+    { "source": "/crowdscape", "destination": "/crowdscape/index.html" }
   ]
 }

@@ -26,7 +26,7 @@
       --line: rgba(236, 244, 255, 0.16);
       --display: "Quantify", Impact, Haettenschweiler, "Arial Black", sans-serif;
       --mono: "Quantify", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      --sans: "Quantify", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     * {
@@ -50,7 +50,7 @@
         radial-gradient(circle at 88% 22%, rgba(255, 79, 203, 0.12), transparent 30%),
         url("images/mainpage-background.png") center / cover fixed,
         linear-gradient(180deg, #050609 0%, #090d12 52%, #050609 100%);
-      font-family: var(--display);
+      font-family: var(--sans);
       overflow-x: hidden;
     }
 
@@ -84,32 +84,28 @@
 
     .page {
       width: min(100% - 48px, 1180px);
-      min-height: 100vh;
       margin: 0 auto;
-      display: grid;
-      grid-template-rows: 1fr auto;
-      gap: 34px;
       padding: 54px 0 34px;
     }
 
     main {
       min-width: 0;
-      display: grid;
-      place-items: center;
     }
 
     .hero {
       width: 100%;
       display: grid;
-      gap: clamp(28px, 5vw, 56px);
       place-items: center;
+      align-content: center;
       text-align: center;
+      padding: clamp(74px, 10vw, 128px) 0 clamp(54px, 7vw, 86px);
     }
 
     h1 {
       position: relative;
       margin: 0;
       color: var(--text);
+      font-family: var(--display);
       font-size: clamp(56px, 13vw, 178px);
       line-height: 0.86;
       letter-spacing: 0.03em;
@@ -156,65 +152,302 @@
       text-transform: uppercase;
     }
 
-    .video-placeholder {
-      width: min(100%, 760px);
-      aspect-ratio: 16 / 9;
-      position: relative;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      background:
-        linear-gradient(135deg, rgba(83,233,255,0.08), transparent 38%),
-        radial-gradient(circle at 82% 18%, rgba(255,79,203,0.11), transparent 30%),
-        rgba(3, 5, 8, 0.68);
-      box-shadow:
-        0 28px 80px rgba(0,0,0,0.42),
-        inset 0 0 36px rgba(255,255,255,0.018);
+    .product-shelf {
+      padding: 0 0 clamp(76px, 10vw, 126px);
     }
 
-    .video-placeholder::before {
+    .shelf-title {
+      max-width: 900px;
+      margin: 0 0 clamp(28px, 4vw, 46px);
+      font-family: var(--display);
+      font-size: clamp(40px, 6vw, 76px);
+      line-height: 0.96;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .product-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.8fr);
+      min-height: 440px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: rgba(4, 7, 10, 0.82);
+      transition: border-color 180ms ease, transform 180ms ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(83, 233, 255, 0.5);
+    }
+
+    .product-visual {
+      position: relative;
+      min-height: 440px;
+      overflow: hidden;
+    }
+
+    .product-visual img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .product-visual::after {
       content: "";
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(90deg, rgba(83,233,255,0.08), transparent 28%, transparent 72%, rgba(255,79,203,0.08)),
-        repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 7px);
+        linear-gradient(90deg, transparent 72%, rgba(4, 7, 10, 0.9) 100%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 6px);
+      pointer-events: none;
+    }
+
+    .product-copy {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: clamp(28px, 4vw, 52px);
+    }
+
+    .product-copy h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(32px, 3.6vw, 52px);
+      line-height: 0.94;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .product-copy p {
+      margin: 20px 0 30px;
+      color: var(--muted);
+      font-size: clamp(15px, 1.55vw, 19px);
+      line-height: 1.5;
+      letter-spacing: 0.02em;
+      text-transform: none;
+    }
+
+    .product-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--cyan);
+      font-family: var(--display);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .product-link::after {
+      content: "\2192";
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      transition: transform 180ms ease;
+    }
+
+    .product-card:hover .product-link::after {
+      transform: translateX(5px);
+    }
+
+    .in-development {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr);
+      gap: clamp(24px, 5vw, 70px);
+      align-items: center;
+      margin-top: 16px;
+      padding: clamp(24px, 3vw, 38px);
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,79,203,0.055), transparent 40%),
+        rgba(4, 7, 10, 0.72);
+    }
+
+    .development-label {
+      margin: 0;
+      color: var(--magenta);
+      font-family: var(--display);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .development-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(17px, 2vw, 24px);
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+      text-transform: none;
+    }
+
+    .team-section {
+      padding: clamp(76px, 10vw, 126px) 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .team-heading {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+      gap: clamp(28px, 5vw, 72px);
+      align-items: end;
+      margin-bottom: clamp(30px, 4vw, 50px);
+    }
+
+    .team-title {
+      max-width: 900px;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(40px, 6vw, 76px);
+      line-height: 0.96;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .team-location {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 1.5vw, 20px);
+      line-height: 1.5;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .team-member {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(160px, 210px) minmax(0, 1fr);
+      gap: clamp(22px, 3vw, 36px);
+      align-items: start;
+      padding: clamp(24px, 3vw, 38px);
+    }
+
+    .team-member + .team-member {
+      border-left: 1px solid var(--line);
+    }
+
+    .team-portrait {
+      position: relative;
+      isolation: isolate;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: #05070a;
+      box-shadow: 4px 0 0 rgba(83,233,255,0.16);
+    }
+
+    .team-portrait img,
+    .team-portrait-glitch {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .team-portrait img {
+      display: block;
+      filter: grayscale(1) sepia(0.28) saturate(2.4) hue-rotate(162deg) contrast(1.17) brightness(0.82);
+      animation: teamPortraitFrame 1.8s infinite steps(1, end);
+    }
+
+    .team-portrait-glitch {
+      z-index: 1;
+      background-image: var(--portrait-image);
+      background-position: center;
+      background-size: cover;
+      opacity: 0.62;
+      filter: grayscale(1) sepia(0.5) saturate(4) hue-rotate(158deg) contrast(1.3) brightness(0.88);
+      -webkit-mask-image: repeating-linear-gradient(to bottom, transparent 0 14px, #000 14px 21px, transparent 21px 43px);
+      mask-image: repeating-linear-gradient(to bottom, transparent 0 14px, #000 14px 21px, transparent 21px 43px);
+      animation: teamPortraitBands 1.25s infinite steps(1, end);
+      pointer-events: none;
+    }
+
+    .team-portrait::before {
+      content: "";
+      position: absolute;
+      z-index: 3;
+      left: -8%;
+      top: -5%;
+      width: 116%;
+      height: 3px;
+      background: rgba(119,221,255,0.94);
+      box-shadow:
+        0 0 8px rgba(83,233,255,0.95),
+        0 0 20px rgba(83,233,255,0.58);
+      mix-blend-mode: screen;
+      pointer-events: none;
+      animation: teamScanline 3.2s infinite linear;
+    }
+
+    .team-portrait::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 5px),
+        linear-gradient(90deg, rgba(83,233,255,0.08), transparent 32%, transparent 76%, rgba(56,121,255,0.06));
       mix-blend-mode: screen;
       pointer-events: none;
     }
 
-    .video-placeholder::after {
-      content: "";
-      width: 72px;
-      height: 72px;
-      border: 1px solid rgba(83,233,255,0.34);
-      background:
-        linear-gradient(135deg, rgba(83,233,255,0.09), rgba(255,79,203,0.08)),
-        rgba(5,8,11,0.74);
-      box-shadow:
-        3px 0 0 rgba(83,233,255,0.5),
-        -3px 0 0 rgba(255,79,203,0.42),
-        0 0 36px rgba(83,233,255,0.14);
-      clip-path: polygon(34% 24%, 34% 76%, 78% 50%);
+    .team-member:nth-child(2) .team-portrait img,
+    .team-member:nth-child(2) .team-portrait-glitch,
+    .team-member:nth-child(2) .team-portrait::before {
+      animation-delay: -0.82s;
     }
 
-    .video-label {
-      position: absolute;
-      left: 18px;
-      top: 16px;
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: 0.16em;
+    .team-name {
+      margin: 0;
+      min-height: 1.96em;
+      font-family: var(--display);
+      font-size: clamp(27px, 3vw, 40px);
+      line-height: 0.98;
+      letter-spacing: 0.02em;
       text-transform: uppercase;
+    }
+
+    .team-role {
+      margin: 13px 0 0;
+      min-height: 5.2em;
+      color: var(--cyan);
+      font-family: var(--display);
+      font-size: 12px;
+      line-height: 1.45;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .team-role span {
+      display: block;
+    }
+
+    .team-description {
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.58;
     }
 
     footer {
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 34px;
+      border-top: 1px solid var(--line);
     }
 
     .linkedin {
@@ -246,6 +479,11 @@
       color: #7defff;
     }
 
+    button.linkedin {
+      appearance: none;
+      cursor: pointer;
+    }
+
     @keyframes logoPulse {
       0%, 88%, 100% { transform: translate(0, 0); }
       89% { transform: translate(1px, -1px); }
@@ -265,10 +503,44 @@
       89% { opacity: .42; transform: translateX(-3px); }
     }
 
+    @keyframes teamPortraitFrame {
+      0%, 22%, 26%, 54%, 58%, 82%, 86%, 100% { transform: translate(0, 0) scale(1.002); }
+      23% { transform: translate(1px, 0) scale(1.006); }
+      24% { transform: translate(-1px, 1px) scale(1.004); }
+      55% { transform: translate(-2px, 0) scale(1.007); }
+      56% { transform: translate(1px, -1px) scale(1.004); }
+      83% { transform: translate(1px, 1px) scale(1.006); }
+      84% { transform: translate(-1px, 0) scale(1.003); }
+    }
+
+    @keyframes teamPortraitBands {
+      0%, 12%, 28%, 46%, 62%, 78%, 100% { transform: translateX(3px); }
+      13%, 29%, 63% { transform: translateX(9px); }
+      14%, 47%, 79% { transform: translateX(-7px); }
+      15%, 30%, 48%, 64%, 80% { transform: translateX(5px); }
+    }
+
+    @keyframes teamScanline {
+      0% { top: -5%; transform: translateX(0); opacity: 0; }
+      4% { opacity: 0.9; }
+      24% { transform: translateX(10px); }
+      26% { transform: translateX(0); }
+      53% { transform: translateX(-12px); opacity: 0.45; }
+      55% { transform: translateX(0); opacity: 1; }
+      79% { transform: translateX(9px); }
+      81% { transform: translateX(0); }
+      96% { opacity: 0.9; }
+      100% { top: 105%; transform: translateX(0); opacity: 0; }
+    }
+
     @media (max-width: 760px) {
       .page {
         width: calc(100% - 32px);
         padding: 32px 0 24px;
+      }
+
+      .hero {
+        padding: 62px 0 46px;
       }
 
       h1 {
@@ -280,15 +552,63 @@
         margin-top: 14px;
       }
 
-      .video-placeholder {
-        width: 100%;
+      .product-card {
+        grid-template-columns: 1fr;
+        min-height: 0;
+      }
+
+      .product-visual {
+        min-height: 0;
+        aspect-ratio: 16 / 9;
+      }
+
+      .product-visual::after {
+        background:
+          linear-gradient(180deg, transparent 60%, rgba(4, 7, 10, 0.82) 100%),
+          repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 6px);
+      }
+
+      .product-copy {
+        padding: 28px 24px 32px;
+      }
+
+      .in-development {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .team-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .team-heading {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .team-member + .team-member {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .team-member {
+        grid-template-columns: 1fr;
+      }
+
+      .team-portrait {
+        width: min(100%, 220px);
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
       h1,
       h1::before,
-      h1::after {
+      h1::after,
+      .team-portrait img,
+      .team-portrait-glitch,
+      .team-portrait::before {
         animation: none;
       }
     }
@@ -303,13 +623,62 @@
           <p class="subtitle">Interactive experience design studio</p>
         </div>
 
-        <div class="video-placeholder" aria-label="Future video placeholder">
-          <span class="video-label">Future video signal</span>
+      </section>
+
+      <section class="product-shelf" aria-labelledby="products-title">
+        <h2 class="shelf-title" id="products-title">Ready-to-Deploy Experiences</h2>
+        <a class="product-card" href="crowdscape/" aria-label="Explore ATTAQ Crowdscape">
+          <div class="product-visual">
+            <img src="images/crowdscape-space.jpg" alt="Crowdscape virtual space filled with participant portraits" />
+          </div>
+          <div class="product-copy">
+            <h2>ATTAQ Crowdscape</h2>
+            <p>A live digital space that turns an audience into a moving collective portrait and brings the crowd together through a live prize draw.</p>
+            <span class="product-link">Explore Crowdscape</span>
+          </div>
+        </a>
+
+        <div class="in-development">
+          <p class="development-label">In development</p>
+          <p class="development-copy">Several new ATTAQ LAB experiences are currently in development.</p>
+        </div>
+      </section>
+
+      <section class="team-section" aria-labelledby="team-title">
+        <div class="team-heading">
+          <h2 class="team-title" id="team-title">People behind ATTAQ LAB</h2>
+          <p class="team-location">Based in Belgrade, Serbia. Available for international projects and on-site installation support.</p>
+        </div>
+        <div class="team-grid">
+          <article class="team-member">
+            <div class="team-portrait" style="--portrait-image: url('images/artem-naidenov.jpg')">
+              <img src="images/artem-naidenov.jpg" alt="Artem Naidenov" />
+              <span class="team-portrait-glitch" aria-hidden="true"></span>
+            </div>
+            <div class="team-details">
+              <h3 class="team-name">Artem<br />Naidenov</h3>
+              <p class="team-role"><span>Co-founder</span><span>Interactive Experience Designer</span><span>Developer</span></p>
+              <p class="team-description">Artem designs and builds interactive experiences for events, exhibitions and branded spaces. His background in game development helps him combine real-time technology, playful mechanics and audience participation into reliable, adaptable installations.</p>
+            </div>
+          </article>
+
+          <article class="team-member">
+            <div class="team-portrait" style="--portrait-image: url('images/alena-aksenova.png')">
+              <img src="images/alena-aksenova.png" alt="Alena Aksenova" />
+              <span class="team-portrait-glitch" aria-hidden="true"></span>
+            </div>
+            <div class="team-details">
+              <h3 class="team-name">Alena<br />Aksenova</h3>
+              <p class="team-role"><span>Co-founder</span><span>Business Operations</span></p>
+              <p class="team-description">Alena oversees contracts, client coordination and the operational side of ATTAQ LAB projects.</p>
+            </div>
+          </article>
         </div>
       </section>
     </main>
 
     <footer>
+      <button class="linkedin" type="button" data-email-contact aria-label="Copy ATTAQ LAB email" aria-live="polite">Copy email</button>
       <a class="linkedin" href="https://www.linkedin.com/company/attaq-lab" target="_blank" rel="noreferrer" aria-label="ATTAQ LAB on LinkedIn">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.86-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.33V9h3.42v1.56h.05c.48-.9 1.64-1.86 3.37-1.86 3.6 0 4.27 2.37 4.27 5.46v6.29ZM5.31 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12Zm1.78 13.02H3.53V9h3.56v11.45ZM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.72V1.72C24 .77 23.21 0 22.23 0Z" />
@@ -318,5 +687,42 @@
       </a>
     </footer>
   </div>
+  <script>
+    (() => {
+      const addressCodes = [104, 101, 108, 108, 111, 64, 97, 116, 116, 97, 113, 108, 97, 98, 46, 99, 111, 109];
+      const copyAddress = async (address) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(address);
+          return true;
+        }
+
+        const field = document.createElement("textarea");
+        field.value = address;
+        field.setAttribute("readonly", "");
+        field.style.position = "fixed";
+        field.style.opacity = "0";
+        document.body.appendChild(field);
+        field.select();
+        const copied = document.execCommand("copy");
+        field.remove();
+        return copied;
+      };
+
+      document.querySelectorAll("[data-email-contact]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const address = String.fromCharCode(...addressCodes);
+          try {
+            const copied = await copyAddress(address);
+            if (!copied) throw new Error("Copy unavailable");
+            button.textContent = "Email copied";
+            window.setTimeout(() => { button.textContent = "Copy email"; }, 2200);
+          } catch {
+            button.textContent = address;
+            button.setAttribute("aria-label", "Email address. Select and copy manually.");
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

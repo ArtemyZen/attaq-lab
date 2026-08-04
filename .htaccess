@@ -17,6 +17,7 @@ RewriteRule ^attaq-vinyl-wrecker/?$ audio/vinyl-wrecker.html [L]
 RewriteRule ^attaq-audio-converter/?$ audio/audio-converter.html [L]
 RewriteRule ^attaq-focus-map/?$ prod/focusmap/attaq-focus-map.html [L]
 RewriteRule ^about-focus-map/?$ prod/focusmap/about-focus-map.html [L]
+RewriteRule ^crowdscape/?$ crowdscape/index.html [L]
 
 RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
 RewriteRule ^ %1 [R=301,L]
