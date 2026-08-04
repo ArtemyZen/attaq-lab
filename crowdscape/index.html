@@ -232,6 +232,16 @@
       line-height: 1.55;
     }
 
+    .flow-note {
+      margin: 26px 0 0;
+      color: var(--cyan);
+      font-family: var(--display);
+      font-size: 12px;
+      line-height: 1.5;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
     .value-heading {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(300px, 0.65fr);
@@ -408,6 +418,67 @@
       font-size: 16px;
     }
 
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: clamp(50px, 7vw, 82px);
+      border: 1px solid var(--line);
+      background: var(--line);
+    }
+
+    .feature-item {
+      min-height: 142px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 26px;
+      background: var(--bg);
+    }
+
+    .feature-item span {
+      color: var(--cyan);
+      font-family: var(--display);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+
+    .feature-item strong {
+      font-family: var(--display);
+      font-size: clamp(17px, 1.8vw, 22px);
+      line-height: 1.15;
+      text-transform: uppercase;
+    }
+
+    .use-case-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: clamp(50px, 7vw, 82px);
+      border: 1px solid var(--line);
+      background: var(--line);
+    }
+
+    .use-case {
+      min-height: 220px;
+      padding: 28px;
+      background: var(--panel);
+    }
+
+    .use-case h3 {
+      color: var(--acid);
+      font-size: clamp(18px, 2vw, 24px);
+      line-height: 1.08;
+    }
+
+    .use-case p {
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
     .founder-grid {
       display: grid;
       grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
@@ -582,7 +653,8 @@
       .hero-content { width: 100%; padding: 130px 0 54px; }
       h1 { font-size: clamp(50px, 15vw, 88px); }
       .intro-grid, .value-heading, .demo-heading, .draw-grid { grid-template-columns: 1fr; }
-      .steps, .value-grid, .setup-grid { grid-template-columns: 1fr; }
+      .steps, .value-grid, .setup-grid, .feature-list { grid-template-columns: 1fr; }
+      .use-case-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .setup-item-reliability { grid-column: auto; grid-template-columns: 1fr; }
       .setup-item-reliability p { margin-top: 0; }
       .founder-grid { grid-template-columns: 1fr; }
@@ -602,6 +674,8 @@
       .hero-copy { font-size: 17px; }
       .section { padding: 68px 0; }
       .step, .value, .setup-item { padding: 24px 20px; }
+      .use-case-grid { grid-template-columns: 1fr; }
+      .feature-item, .use-case { min-height: 0; }
       .footer-row { flex-direction: column; align-items: center; text-align: center; }
     }
 
@@ -694,6 +768,7 @@
             <p>The scene keeps growing, turning everyone who joined into part of one evolving visual.</p>
           </article>
         </div>
+        <p class="flow-note">Designed for a continuous event flow and short participant sessions.</p>
       </div>
     </section>
 
@@ -702,7 +777,7 @@
         <div class="demo-heading">
           <div>
             <p class="eyebrow">Working installation</p>
-            <h2>Already running in a real space.</h2>
+            <h2>Tested as a complete physical installation.</h2>
           </div>
           <p class="lede">Recorded during a home setup test, this footage shows the complete Crowdscape experience working in a physical environment: participant portraits enter the scene, become moving 3D objects, build a collective visual and take part in the live prize draw and winner reveal.</p>
         </div>
@@ -712,6 +787,46 @@
             <source src="../assets/video/attaqcrowdscapehometestdemo.mp4" type="video/mp4" />
             Your browser does not support embedded video.
           </video>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="intro-grid">
+          <div>
+            <p class="eyebrow">Adapted to your event</p>
+            <h2>Your visual code.</h2>
+          </div>
+          <p class="lede">Crowdscape can be shaped around the identity, partners and purpose of each activation without rebuilding the core experience from scratch.</p>
+        </div>
+
+        <div class="feature-list" aria-label="Crowdscape customization options">
+          <div class="feature-item"><span>01</span><strong>Brand colors</strong></div>
+          <div class="feature-item"><span>02</span><strong>Logos and partner zones</strong></div>
+          <div class="feature-item"><span>03</span><strong>Custom object shapes</strong></div>
+          <div class="feature-item"><span>04</span><strong>Event-specific environments</strong></div>
+          <div class="feature-item"><span>05</span><strong>Prize draw presentation</strong></div>
+          <div class="feature-item"><span>06</span><strong>Optional QR integration</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark">
+      <div class="shell">
+        <div class="intro-grid">
+          <div>
+            <p class="eyebrow">Where it works</p>
+            <h2>Built around the crowd you have.</h2>
+          </div>
+          <p class="lede">The format can serve as a shared artwork, an audience magnet or a live activation mechanic, depending on what the event needs.</p>
+        </div>
+
+        <div class="use-case-grid">
+          <article class="use-case"><h3>Community wall</h3><p>A growing collective portrait for conferences, exhibitions and professional gatherings.</p></article>
+          <article class="use-case"><h3>Sponsor activation</h3><p>A participatory visual for booths and branded spaces that people choose to enter.</p></article>
+          <article class="use-case"><h3>Festival portrait</h3><p>A live audience artwork that develops throughout a festival, show or public program.</p></article>
+          <article class="use-case"><h3>Branded prize draw</h3><p>A transparent live reveal that turns participation into a shared crowd moment.</p></article>
         </div>
       </div>
     </section>
@@ -780,19 +895,19 @@
           <article class="setup-item"><strong>Space</strong><p>A small standing area for visitors and a table for the operator.</p></article>
           <article class="setup-item"><strong>Access</strong><p>Time before opening for setup, calibration and a test run.</p></article>
           <article class="setup-item"><strong>Consent</strong><p>Clear on-site notice explaining portrait capture and usage.</p></article>
-          <article class="setup-item"><strong>Adaptation</strong><p>Event palette, partner branding, custom logo zones and optional QR placement.</p></article>
-          <article class="setup-item setup-item-reliability"><strong>Ready for the whole event</strong><p>Crowdscape continuously saves participant entries and restores the complete installation state after a restart. No faces are lost, and the collective portrait continues growing from exactly where it left off.</p></article>
+          <article class="setup-item"><strong>Operation</strong><p>ATTAQ LAB handles calibration, launch and on-site operation of the installation.</p></article>
+          <article class="setup-item setup-item-reliability"><strong>Ready for the whole event</strong><p>Participant entries are saved continuously, allowing the installation to restore its latest saved state after a restart. The collective portrait can continue growing with minimal interruption.</p></article>
         </div>
       </div>
     </section>
 
     <section class="section section-dark cta" id="contact">
       <div class="shell">
-        <p class="eyebrow">ATTAQ Crowdscape</p>
-        <h2>Turn your audience into the experience.</h2>
-        <p class="lede">Crowdscape can be adapted for events, exhibitions, festivals, branded spaces and live activations.</p>
+        <p class="eyebrow">Plan an activation</p>
+        <h2>Bring Crowdscape to your event.</h2>
+        <p class="lede">Tell us your event date, venue, expected audience and branding needs.</p>
         <div class="cta-actions">
-          <button class="button" type="button" data-email-contact aria-label="Copy ATTAQ LAB email" aria-live="polite">Copy email</button>
+          <button class="button" type="button" data-email-contact data-default-label="Discuss your event" aria-label="Copy ATTAQ LAB email to discuss your event" aria-live="polite">Discuss your event</button>
           <a class="button button-secondary" href="https://www.linkedin.com/company/attaq-lab" target="_blank" rel="noreferrer">LinkedIn</a>
         </div>
       </div>
@@ -828,13 +943,14 @@
       };
 
       document.querySelectorAll("[data-email-contact]").forEach((button) => {
+        const defaultLabel = button.dataset.defaultLabel || button.textContent;
         button.addEventListener("click", async () => {
           const address = String.fromCharCode(...addressCodes);
           try {
             const copied = await copyAddress(address);
             if (!copied) throw new Error("Copy unavailable");
             button.textContent = "Email copied";
-            window.setTimeout(() => { button.textContent = "Copy email"; }, 2200);
+            window.setTimeout(() => { button.textContent = defaultLabel; }, 2200);
           } catch {
             button.textContent = address;
             button.setAttribute("aria-label", "Email address. Select and copy manually.");
