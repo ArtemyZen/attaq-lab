@@ -124,8 +124,8 @@
     .hero-media::after {
       content: "";
       background:
-        linear-gradient(90deg, rgba(2,4,7,0.92) 0%, rgba(2,4,7,0.64) 34%, rgba(2,4,7,0.04) 70%),
-        linear-gradient(180deg, rgba(2,4,7,0.14), transparent 48%, rgba(2,4,7,0.72) 100%);
+        linear-gradient(90deg, rgba(2,4,7,0.96) 0%, rgba(2,4,7,0.74) 36%, rgba(2,4,7,0.14) 72%),
+        linear-gradient(180deg, rgba(2,4,7,0.26), transparent 45%, rgba(2,4,7,0.92) 100%);
     }
 
     .hero-content {
@@ -182,6 +182,38 @@
       grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
       gap: clamp(48px, 8vw, 110px);
       align-items: end;
+    }
+
+    .core-grid {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.68fr) minmax(0, 1.32fr);
+      gap: clamp(40px, 7vw, 90px);
+      align-items: center;
+    }
+
+    .core-copy .lede {
+      margin-top: 26px;
+    }
+
+    .core-visual {
+      margin: 0;
+    }
+
+    .core-visual img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .core-visual figcaption {
+      margin-top: 12px;
+      color: #7f8b96;
+      font-size: 12px;
+      line-height: 1.4;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     h2 {
@@ -695,12 +727,12 @@
       .hero-media { background-position: 58% center; }
       .hero-media::after {
         background:
-          linear-gradient(180deg, rgba(2,4,7,0.14), rgba(2,4,7,0.34) 42%, rgba(2,4,7,0.84) 100%),
-          linear-gradient(90deg, rgba(2,4,7,0.38), transparent 76%);
+          linear-gradient(180deg, rgba(2,4,7,0.25), rgba(2,4,7,0.48) 42%, rgba(2,4,7,0.95) 100%),
+          linear-gradient(90deg, rgba(2,4,7,0.45), transparent 80%);
       }
       .hero-content { width: 100%; padding: 130px 0 54px; }
       h1 { font-size: clamp(50px, 15vw, 88px); }
-      .intro-grid, .value-heading, .demo-heading, .draw-grid { grid-template-columns: 1fr; }
+      .intro-grid, .core-grid, .value-heading, .demo-heading, .draw-grid { grid-template-columns: 1fr; }
       .steps, .value-grid, .setup-grid, .feature-list { grid-template-columns: 1fr; }
       .use-case-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .setup-item-reliability { grid-column: auto; grid-template-columns: 1fr; }
@@ -793,12 +825,16 @@
 
     <section class="section section-dark">
       <div class="shell">
-        <div class="intro-grid">
-          <div>
+        <div class="core-grid">
+          <div class="core-copy">
             <p class="eyebrow">Core idea</p>
             <h2>Everyone becomes part of the scene.</h2>
+            <p class="lede">Each visitor is captured by a camera and appears as a textured 3D object inside a shared virtual space. As more people join, the screen grows into a living archive of the crowd.</p>
           </div>
-          <p class="lede">Each visitor is captured by a camera and appears as a textured 3D object inside a shared virtual space. As more people join, the screen grows into a living archive of the crowd.</p>
+          <figure class="core-visual">
+            <img src="../images/crowdscape-space.jpg" alt="Crowdscape virtual space filled with participant portraits" />
+            <figcaption>The collective Crowdscape environment populated by participant portraits.</figcaption>
+          </figure>
         </div>
 
         <div class="steps" aria-label="How Crowdscape works">
