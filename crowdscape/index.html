@@ -284,6 +284,54 @@
       display: block;
       object-fit: contain;
       background: #000;
+      transition: filter 180ms ease;
+    }
+
+    .demo-stage:not(.is-playing) video {
+      filter: brightness(0.72);
+    }
+
+    .demo-play {
+      position: absolute;
+      z-index: 3;
+      top: 50%;
+      left: 50%;
+      min-width: 188px;
+      min-height: 76px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 0 26px;
+      border: 1px solid var(--cyan);
+      border-radius: 2px;
+      background: rgba(2, 7, 10, 0.88);
+      color: var(--text);
+      box-shadow: 7px 7px 0 rgba(255, 79, 203, 0.72);
+      font-family: var(--display);
+      font-size: 18px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: opacity 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .demo-play:hover {
+      transform: translate(-50%, calc(-50% - 3px));
+      box-shadow: 9px 10px 0 rgba(255, 79, 203, 0.82);
+    }
+
+    .demo-play-icon {
+      color: var(--acid);
+      font-family: Arial, sans-serif;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .demo-stage.is-playing .demo-play {
+      opacity: 0;
+      pointer-events: none;
     }
 
     .value-grid {
@@ -674,6 +722,8 @@
       .hero-copy { font-size: 17px; }
       .section { padding: 68px 0; }
       .step, .value, .setup-item { padding: 24px 20px; }
+      .demo-play { min-width: 154px; min-height: 62px; gap: 14px; font-size: 15px; }
+      .demo-play-icon { font-size: 25px; }
       .use-case-grid { grid-template-columns: 1fr; }
       .feature-item, .use-case { min-height: 0; }
       .footer-row { flex-direction: column; align-items: center; text-align: center; }
@@ -783,6 +833,10 @@
         </div>
 
         <div class="demo-stage">
+          <button class="demo-play" type="button" aria-label="Play the Crowdscape installation test video">
+            <span class="demo-play-icon" aria-hidden="true">&#9654;</span>
+            <span>Play</span>
+          </button>
           <video controls muted loop playsinline preload="metadata" aria-label="ATTAQ Crowdscape home installation test">
             <source src="../assets/video/attaqcrowdscapehometestdemo.mp4" type="video/mp4" />
             Your browser does not support embedded video.
@@ -886,7 +940,7 @@
             <p class="eyebrow">Lightweight setup</p>
             <h2>Built for real venues.</h2>
           </div>
-          <p class="lede">ATTAQ LAB provides the software, laptop, camera, setup and on-site operator. The venue side stays compact and predictable.</p>
+          <p class="lede">Choose full on-site operation by ATTAQ LAB or a branded build for your own operator, including operator training and remote technical support before and throughout the event.</p>
         </div>
 
         <div class="setup-grid">
@@ -895,7 +949,7 @@
           <article class="setup-item"><strong>Space</strong><p>A small standing area for visitors and a table for the operator.</p></article>
           <article class="setup-item"><strong>Access</strong><p>Time before opening for setup, calibration and a test run.</p></article>
           <article class="setup-item"><strong>Consent</strong><p>Clear on-site notice explaining portrait capture and usage.</p></article>
-          <article class="setup-item"><strong>Operation</strong><p>ATTAQ LAB handles calibration, launch and on-site operation of the installation.</p></article>
+          <article class="setup-item"><strong>Operation</strong><p>Run by our on-site operator or your trained operator with remote ATTAQ LAB support.</p></article>
           <article class="setup-item setup-item-reliability"><strong>Ready for the whole event</strong><p>Participant entries are saved continuously, allowing the installation to restore its latest saved state after a restart. The collective portrait can continue growing with minimal interruption.</p></article>
         </div>
       </div>
@@ -956,6 +1010,19 @@
             button.setAttribute("aria-label", "Email address. Select and copy manually.");
           }
         });
+      });
+
+      document.querySelectorAll(".demo-stage").forEach((stage) => {
+        const video = stage.querySelector("video");
+        const playButton = stage.querySelector(".demo-play");
+        if (!video || !playButton) return;
+
+        playButton.addEventListener("click", () => {
+          video.play();
+        });
+        video.addEventListener("play", () => stage.classList.add("is-playing"));
+        video.addEventListener("pause", () => stage.classList.remove("is-playing"));
+        video.addEventListener("ended", () => stage.classList.remove("is-playing"));
       });
     })();
   </script>
