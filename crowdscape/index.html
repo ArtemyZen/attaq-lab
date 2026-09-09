@@ -28,6 +28,7 @@
       --magenta: #ff4fcb;
       --acid: #d7ff57;
       --line: rgba(236, 244, 255, 0.17);
+      --background-lines: repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 6px);
       --display: "Quantify", Impact, Haettenschweiler, "Arial Black", sans-serif;
       --body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
@@ -37,25 +38,26 @@
     html {
       min-width: 320px;
       scroll-behavior: smooth;
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image: var(--background-lines);
     }
 
     body {
       margin: 0;
       min-width: 320px;
       color: var(--text);
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image: var(--background-lines);
       font-family: var(--body);
       overflow-x: hidden;
     }
 
-    body::before {
+    .hero::after {
       content: "";
-      position: fixed;
+      position: absolute;
       inset: 0;
-      z-index: 20;
-      background: repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 6px);
-      mix-blend-mode: screen;
+      z-index: 1;
+      background-image: var(--background-lines);
       pointer-events: none;
     }
 
@@ -130,7 +132,7 @@
 
     .hero-content {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       width: min(820px, 78%);
       padding: 170px 0 clamp(68px, 9vw, 110px);
     }
@@ -171,10 +173,11 @@
     }
 
     .section-dark {
-      background:
+      background-color: var(--panel);
+      background-image:
         radial-gradient(circle at 8% 20%, rgba(83,233,255,0.07), transparent 30%),
         radial-gradient(circle at 92% 72%, rgba(255,79,203,0.07), transparent 30%),
-        var(--panel);
+        var(--background-lines);
     }
 
     .intro-grid {
@@ -199,22 +202,7 @@
       margin: 0;
     }
 
-    .core-visual img {
-      display: block;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      object-fit: contain;
-      background: #000;
-    }
-
-    .core-visual figcaption {
-      margin-top: 12px;
-      color: #7f8b96;
-      font-size: 12px;
-      line-height: 1.4;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
+    .core-visual .demo-stage { margin-top: 0; }
 
     h2 {
       max-width: 900px;
@@ -831,10 +819,18 @@
             <h2>Everyone becomes part of the scene.</h2>
             <p class="lede">Each visitor is captured by a camera and appears as a textured 3D object inside a shared virtual space. As more people join, the screen grows into a living archive of the crowd.</p>
           </div>
-          <figure class="core-visual">
-            <img src="../images/crowdscape-space.jpg" alt="Crowdscape virtual space filled with participant portraits" />
-            <figcaption>The collective Crowdscape environment populated by participant portraits.</figcaption>
-          </figure>
+          <div class="core-visual">
+            <div class="demo-stage">
+              <button class="demo-play" type="button" aria-label="Play the Crowdscape installation test video">
+                <span class="demo-play-icon" aria-hidden="true">&#9654;</span>
+                <span>Play</span>
+              </button>
+              <video controls muted loop playsinline preload="metadata" aria-label="ATTAQ Crowdscape home installation test">
+                <source src="../assets/video/attaqcrowdscapehometestdemo.mp4" type="video/mp4" />
+                Your browser does not support embedded video.
+              </video>
+            </div>
+          </div>
         </div>
 
         <div class="steps" aria-label="How Crowdscape works">
@@ -860,50 +856,6 @@
 
     <section class="section">
       <div class="shell">
-        <div class="demo-heading">
-          <div>
-            <p class="eyebrow">Working installation</p>
-            <h2>Tested as a complete physical installation.</h2>
-          </div>
-          <p class="lede">Recorded during a home setup test, this footage shows the complete Crowdscape experience working in a physical environment: participant portraits enter the scene, become moving 3D objects, build a collective visual and take part in the live prize draw and winner reveal.</p>
-        </div>
-
-        <div class="demo-stage">
-          <button class="demo-play" type="button" aria-label="Play the Crowdscape installation test video">
-            <span class="demo-play-icon" aria-hidden="true">&#9654;</span>
-            <span>Play</span>
-          </button>
-          <video controls muted loop playsinline preload="metadata" aria-label="ATTAQ Crowdscape home installation test">
-            <source src="../assets/video/attaqcrowdscapehometestdemo.mp4" type="video/mp4" />
-            Your browser does not support embedded video.
-          </video>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="shell">
-        <div class="intro-grid">
-          <div>
-            <p class="eyebrow">Adapted to your event</p>
-            <h2>Your visual code.</h2>
-          </div>
-          <p class="lede">Crowdscape can be shaped around the identity, partners and purpose of each activation without rebuilding the core experience from scratch.</p>
-        </div>
-
-        <div class="feature-list" aria-label="Crowdscape customization options">
-          <div class="feature-item"><span>01</span><strong>Brand colors</strong></div>
-          <div class="feature-item"><span>02</span><strong>Logos and partner zones</strong></div>
-          <div class="feature-item"><span>03</span><strong>Custom object shapes</strong></div>
-          <div class="feature-item"><span>04</span><strong>Event-specific environments</strong></div>
-          <div class="feature-item"><span>05</span><strong>Prize draw presentation</strong></div>
-          <div class="feature-item"><span>06</span><strong>Optional QR integration</strong></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section-dark">
-      <div class="shell">
         <div class="intro-grid">
           <div>
             <p class="eyebrow">Where it works</p>
@@ -921,7 +873,7 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section section-dark">
       <div class="shell">
         <div class="value-heading">
           <div>
@@ -944,6 +896,27 @@
             <h3>For partners</h3>
             <p>A format that can carry a brand palette, logo zones, custom graphics and a live prize draw built into the experience.</p>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="intro-grid">
+          <div>
+            <p class="eyebrow">Adapted to your event</p>
+            <h2>Your visual code.</h2>
+          </div>
+          <p class="lede">Crowdscape can be shaped around the identity, partners and purpose of each activation without rebuilding the core experience from scratch.</p>
+        </div>
+
+        <div class="feature-list" aria-label="Crowdscape customization options">
+          <div class="feature-item"><span>01</span><strong>Brand colors</strong></div>
+          <div class="feature-item"><span>02</span><strong>Logos and partner zones</strong></div>
+          <div class="feature-item"><span>03</span><strong>Custom object shapes</strong></div>
+          <div class="feature-item"><span>04</span><strong>Event-specific environments</strong></div>
+          <div class="feature-item"><span>05</span><strong>Prize draw presentation</strong></div>
+          <div class="feature-item"><span>06</span><strong>Optional QR integration</strong></div>
         </div>
       </div>
     </section>
