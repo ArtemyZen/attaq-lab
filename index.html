@@ -202,6 +202,10 @@
       border-color: rgba(83, 233, 255, 0.5);
     }
 
+    .product-card + .product-card {
+      margin-top: 16px;
+    }
+
     .product-visual {
       position: relative;
       min-height: 440px;
@@ -291,6 +295,26 @@
     .development-label {
       margin: 0;
       color: var(--magenta);
+      font-family: var(--display);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .development-shelf {
+      padding-top: 0;
+    }
+
+    .product-card-development {
+      border-color: rgba(215, 255, 87, 0.34);
+    }
+
+    .product-status {
+      align-self: flex-start;
+      margin-bottom: 20px;
+      padding: 8px 10px;
+      border: 1px solid var(--acid);
+      color: var(--acid);
       font-family: var(--display);
       font-size: 10px;
       letter-spacing: 0.14em;
@@ -729,9 +753,49 @@
           </div>
         </a>
 
+        <a class="product-card" href="motion-canvas/" aria-label="Explore ATTAQ Motion Canvas">
+          <div class="product-visual">
+            <img src="images/motion-canvas/motion-canvas-color.webp" alt="Colorful generative artwork created with Motion Canvas" loading="lazy" decoding="async" />
+          </div>
+          <div class="product-copy">
+            <h2>ATTAQ Motion Canvas</h2>
+            <p>An interactive installation that transforms movement into expressive generative artwork in real time.</p>
+            <span class="product-link">Explore Motion Canvas</span>
+          </div>
+        </a>
+
+        <a class="product-card" href="ti-si-boja/" aria-label="Explore TI SI BOJA">
+          <div class="product-visual">
+            <img src="images/ti-si-boja/ti-si-boja-03.jpg" alt="A participant transformed into vivid virtual paint in TI SI BOJA" loading="lazy" decoding="async" />
+          </div>
+          <div class="product-copy">
+            <h2>TI SI BOJA</h2>
+            <p>An interactive digital art installation where movement becomes fluid virtual paint and every participant creates a temporary, unrepeatable work.</p>
+            <span class="product-link">Explore TI SI BOJA</span>
+          </div>
+        </a>
+
+      </section>
+
+      <section class="product-shelf development-shelf" aria-labelledby="development-title">
+        <p class="development-label">In development</p>
+        <h2 class="shelf-title" id="development-title">Playable concepts in progress</h2>
+
+        <a class="product-card product-card-development" href="hidden-hunt-game/" aria-label="Preview Hidden Hunt Game, currently in development">
+          <div class="product-visual">
+            <img src="images/hidden-hunt/hidden-hunt-halloween.png" alt="Halloween Hidden Hunt installation in a dark stylized graveyard" loading="lazy" decoding="async" />
+          </div>
+          <div class="product-copy">
+            <span class="product-status">In development</span>
+            <h2>Hidden Hunt Game</h2>
+            <p>A hand-controlled hidden-object installation created around the client's chosen setting, theme, brand or campaign.</p>
+            <span class="product-link">Preview Hidden Hunt</span>
+          </div>
+        </a>
+
         <div class="in-development">
           <p class="development-label">Coming next</p>
-          <p class="development-copy">Gesture-controlled games, motion-reactive environments and customizable brand activations are currently in development.</p>
+          <p class="development-copy">Hidden Hunt and several additional customizable interactive experiences are currently in active development.</p>
         </div>
       </section>
 

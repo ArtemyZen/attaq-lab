@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href="../images/motion-canvas/motion-canvas-hero.webp" as="image" type="image/webp" fetchpriority="high" />
+  <link rel="canonical" href="https://attaqlab.com/motion-canvas/" />
+  <meta name="description" content="ATTAQ Motion Canvas is a ready-to-deploy interactive installation that transforms movement into expressive generative artwork." />
+  <meta property="og:title" content="ATTAQ Motion Canvas" />
+  <meta property="og:description" content="Interactive generative art created through movement." />
+  <meta property="og:image" content="https://attaqlab.com/images/motion-canvas/motion-canvas-hero.webp" />
+  <title>ATTAQ Motion Canvas - ATTAQ LAB</title>
+  <style>
+    @font-face {
+      font-family: "Quantify";
+      src: url("../assets/fonts/Quantify-Bold-v2.6.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --bg: #13102c;
+      --panel: #0e0c22;
+      --deep: #090817;
+      --text: #f5f4ef;
+      --muted: #bbb9ca;
+      --cyan: #53e9ff;
+      --magenta: #ff4fcb;
+      --acid: #d7ff57;
+      --line: rgba(245, 244, 239, 0.18);
+      --background-lines: repeating-linear-gradient(0deg, rgba(245,244,239,0.035) 0 1px, transparent 1px 6px);
+      --display: "Quantify", Impact, Haettenschweiler, "Arial Black", sans-serif;
+      --body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-width: 320px;
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--text);
+      background-color: var(--bg);
+      background-image: var(--background-lines);
+      font-family: var(--body);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; }
+    button, input, textarea { font: inherit; }
+
+    .shell {
+      width: min(100% - 48px, 1180px);
+      margin: 0 auto;
+    }
+
+    header {
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 10;
+      border-bottom: 1px solid rgba(255,255,255,0.14);
+      background: linear-gradient(180deg, rgba(8,7,20,0.86), transparent);
+    }
+
+    .nav {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-family: var(--display);
+      font-size: 18px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 1px 0 var(--cyan), -1px 0 var(--magenta);
+    }
+
+    .nav-link {
+      color: var(--muted);
+      font-family: var(--display);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .nav-link:hover { color: var(--cyan); }
+
+    .hero {
+      position: relative;
+      min-height: min(900px, 94svh);
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      background: var(--deep);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image: var(--background-lines);
+      opacity: 0.72;
+    }
+
+    .hero-media,
+    .hero-media::after {
+      position: absolute;
+      inset: 0;
+    }
+
+    .hero-media {
+      background: url("../images/motion-canvas/motion-canvas-hero.webp") center / cover no-repeat;
+      transform: scale(1.012);
+    }
+
+    .hero-media::after {
+      content: "";
+      background:
+        linear-gradient(90deg, rgba(9,8,23,0.92) 0%, rgba(9,8,23,0.56) 38%, rgba(9,8,23,0.02) 76%),
+        linear-gradient(180deg, rgba(9,8,23,0.12), transparent 48%, rgba(9,8,23,0.9) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      width: min(900px, 78%);
+      padding: 170px 0 clamp(72px, 9vw, 112px);
+    }
+
+    .eyebrow {
+      margin: 0 0 20px;
+      color: var(--cyan);
+      font-family: var(--display);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: var(--display);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(58px, 10vw, 138px);
+      line-height: 0.84;
+      text-shadow: 3px 0 rgba(83,233,255,0.78), -3px 0 rgba(255,79,203,0.68);
+    }
+
+    h2 {
+      max-width: 980px;
+      font-size: clamp(40px, 6.2vw, 82px);
+      line-height: 0.98;
+    }
+
+    .hero-tagline {
+      max-width: 780px;
+      margin: 26px 0 0;
+      color: #f2f0f5;
+      font-size: clamp(20px, 2.35vw, 30px);
+      line-height: 1.34;
+    }
+
+    .hero-copy {
+      max-width: 650px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: clamp(16px, 1.65vw, 20px);
+      line-height: 1.5;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .button {
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+      border: 1px solid var(--cyan);
+      border-radius: 0;
+      background: var(--cyan);
+      color: #071014;
+      font-family: var(--display);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 4px 4px 0 var(--magenta);
+    }
+
+    .button-secondary {
+      background: transparent;
+      color: var(--cyan);
+    }
+
+    .demo-heading {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.72fr);
+      gap: clamp(44px, 8vw, 110px);
+      align-items: end;
+    }
+
+    .demo-stage {
+      position: relative;
+      margin-top: clamp(46px, 6vw, 76px);
+      overflow: hidden;
+      background: var(--deep);
+    }
+
+    .demo-stage video {
+      width: 100%;
+      display: block;
+      aspect-ratio: 16 / 8;
+      object-fit: contain;
+      background: #05050a;
+      filter: brightness(0.72);
+      transition: filter 180ms ease;
+    }
+
+    .demo-stage.is-playing video { filter: none; }
+
+    .demo-stage::after {
+      content: "MOTION CANVAS / DEMO VIDEO";
+      position: absolute;
+      left: 18px;
+      top: 16px;
+      padding: 7px 9px;
+      background: rgba(9,8,23,0.8);
+      color: var(--cyan);
+      font-family: var(--display);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      pointer-events: none;
+    }
+
+    .demo-play {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      left: 50%;
+      min-width: 220px;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 0 22px;
+      border: 1px solid rgba(245,244,239,0.7);
+      background: rgba(9,8,23,0.82);
+      color: var(--text);
+      font-family: var(--display);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .demo-play:hover {
+      transform: translate(-50%, calc(-50% - 2px));
+      border-color: var(--cyan);
+    }
+
+    .demo-stage.is-playing .demo-play {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .play-icon {
+      color: var(--acid);
+      font-family: Arial, sans-serif;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .section {
+      padding: clamp(78px, 10vw, 138px) 0;
+      border-top: 1px solid var(--line);
+      background-color: var(--bg);
+      background-image: var(--background-lines);
+    }
+
+    .section-deep { background-color: var(--deep); }
+    .section-panel { background-color: var(--panel); }
+    .gallery-section { background-color: #0b091f; }
+
+    .lede {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(18px, 2vw, 24px);
+      line-height: 1.55;
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.7fr);
+      gap: clamp(44px, 8vw, 110px);
+      align-items: end;
+    }
+
+    .motion-flow {
+      margin-top: clamp(58px, 8vw, 94px);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .flow-main {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: stretch;
+    }
+
+    .flow-step {
+      min-height: 270px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(28px, 4vw, 48px);
+    }
+
+    .flow-step h3 {
+      font-size: clamp(42px, 6vw, 76px);
+      line-height: 0.9;
+    }
+
+    .flow-step p {
+      max-width: 390px;
+      margin: 34px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .flow-arrow {
+      display: grid;
+      place-items: center;
+      padding: 0 22px;
+      color: var(--cyan);
+      font-size: clamp(32px, 5vw, 58px);
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+    }
+
+    .print-option {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr);
+      gap: clamp(30px, 7vw, 90px);
+      align-items: center;
+      padding: clamp(28px, 4vw, 44px);
+      border-top: 1px solid var(--line);
+    }
+
+    .print-option strong {
+      color: var(--acid);
+      font-family: var(--display);
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .print-option p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.5;
+    }
+
+    .gallery {
+      columns: 2;
+      column-gap: 14px;
+      margin-top: clamp(52px, 7vw, 86px);
+    }
+
+    .gallery-item {
+      width: 100%;
+      display: block;
+      margin: 0 0 14px;
+      overflow: hidden;
+      break-inside: avoid;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .art-feature,
+    .print-layout,
+    .ready-grid {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.76fr) minmax(0, 1.24fr);
+      gap: clamp(42px, 8vw, 110px);
+      align-items: center;
+    }
+
+    .art-feature-copy .lede { margin-top: 28px; }
+
+    .art-detail {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .integration-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 34px;
+      margin: 42px 0 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid var(--line);
+    }
+
+    .integration-list li {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .print-copy .lede { margin-top: 28px; }
+
+    .print-note {
+      margin: 28px 0 0;
+      color: var(--acid);
+      font-family: var(--display);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .print-mockups {
+      position: relative;
+      min-height: 680px;
+      background: transparent;
+      overflow: visible;
+    }
+
+    .art-print {
+      position: absolute;
+      width: min(68%, 430px);
+      aspect-ratio: 15 / 10;
+      padding: 7px;
+      background: #f2f0e8;
+      box-shadow: 0 28px 55px rgba(0,0,0,0.48);
+    }
+
+    .art-print img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: right center;
+      background: #13102c;
+    }
+
+    .art-print-one { top: 4%; left: 2%; z-index: 1; transform: rotate(-5deg); }
+    .art-print-two { top: 31%; right: 1%; z-index: 2; transform: rotate(6deg); }
+    .art-print-three { bottom: 3%; left: 7%; z-index: 3; transform: rotate(-2deg); }
+
+    .places-list {
+      margin-top: clamp(52px, 7vw, 84px);
+      border-top: 1px solid var(--line);
+    }
+
+    .place {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: center;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--line);
+      transition: padding-left 160ms ease, color 160ms ease;
+    }
+
+    .place:hover { padding-left: 10px; color: var(--cyan); }
+
+    .place span {
+      color: var(--muted);
+      font-family: var(--display);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+
+    .place strong {
+      font-family: var(--display);
+      font-size: clamp(23px, 3vw, 38px);
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .place b {
+      color: var(--cyan);
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+    }
+
+    .ready-column {
+      align-self: stretch;
+      padding: clamp(28px, 4vw, 44px);
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .ready-column h3 {
+      color: var(--cyan);
+      font-size: clamp(22px, 2.5vw, 32px);
+    }
+
+    .ready-column ul {
+      margin: 32px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ready-column li {
+      padding: 13px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .ready-intro { margin-bottom: clamp(48px, 7vw, 82px); }
+    .ready-intro .lede { max-width: 760px; margin-top: 26px; }
+
+    .cta {
+      text-align: center;
+    }
+
+    .cta h2 {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .cta p {
+      max-width: 650px;
+      margin: 24px auto 36px;
+    }
+
+    .cta-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    footer {
+      padding: 30px 0;
+      border-top: 1px solid var(--line);
+      background: var(--deep);
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      color: #918fa5;
+      font-family: var(--display);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+      .hero-content { width: 100%; }
+      .section-heading, .demo-heading, .art-feature, .print-layout, .ready-grid { grid-template-columns: 1fr; }
+      .print-mockups { min-height: 680px; }
+    }
+
+    @media (max-width: 720px) {
+      .shell { width: calc(100% - 32px); }
+      .nav { min-height: 66px; }
+      .hero { min-height: 820px; }
+      .hero-media { background-position: 58% center; }
+      .hero-media::after {
+        background:
+          linear-gradient(180deg, rgba(9,8,23,0.2), rgba(9,8,23,0.48) 42%, rgba(9,8,23,0.96) 100%),
+          linear-gradient(90deg, rgba(9,8,23,0.5), transparent 82%);
+      }
+      h1 { font-size: clamp(52px, 17vw, 88px); }
+      .flow-main { grid-template-columns: 1fr; }
+      .flow-arrow {
+        min-height: 72px;
+        border: 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        transform: rotate(90deg);
+      }
+      .flow-step { min-height: 230px; }
+      .print-option { grid-template-columns: 1fr; gap: 14px; }
+      .gallery { columns: 1; }
+      .integration-list { grid-template-columns: 1fr; }
+      .place { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; }
+      .footer-row { flex-direction: column; align-items: center; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .brand { font-size: 15px; }
+      .nav-link { font-size: 9px; }
+      .hero { min-height: 760px; }
+      .hero-content { padding: 128px 0 78px; }
+      .hero-tagline { font-size: 19px; }
+      .hero-actions { align-items: stretch; }
+      .hero-actions .button { flex: 1 1 100%; }
+      .demo-play { min-width: 0; width: calc(100% - 48px); }
+      .section { padding: 68px 0; }
+      .art-print { width: 78%; }
+      .print-mockups { min-height: 500px; }
+      .place strong { font-size: 20px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav shell">
+      <a class="brand" href="../" aria-label="ATTAQ LAB home">ATTAQ LAB</a>
+      <a class="nav-link" href="#contact">Request a project</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="motion-title">
+      <div class="hero-media" aria-hidden="true"></div>
+      <div class="hero-content shell">
+        <p class="eyebrow">Interactive generative installation</p>
+        <h1 id="motion-title">Motion<br />Canvas</h1>
+        <p class="hero-tagline">Interactive generative art created through movement.</p>
+        <p class="hero-copy">Visitors move in front of the screen and create unique flowing artworks in real time.</p>
+        <div class="hero-actions">
+          <a class="button" href="#contact">Request a project</a>
+          <a class="button button-secondary" href="#how-it-works">See how it works</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-deep" id="how-it-works">
+      <div class="shell">
+        <p class="eyebrow">How it works</p>
+        <div class="motion-flow">
+          <div class="flow-main">
+            <article class="flow-step">
+              <h3>Move</h3>
+              <p>Step in front of the screen and move naturally.</p>
+            </article>
+            <div class="flow-arrow" aria-hidden="true">&#8594;</div>
+            <article class="flow-step">
+              <h3>Create</h3>
+              <p>Your movement is transformed into flowing generative artwork in real time.</p>
+            </article>
+          </div>
+          <div class="print-option">
+            <strong>Print / optional</strong>
+            <p>Selected moments can be turned into physical branded art prints.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="demo-heading">
+          <div>
+            <p class="eyebrow">Motion Canvas in action</p>
+            <h2>Movement becomes the artwork.</h2>
+          </div>
+          <p class="lede">See the participant, the live screen and the artwork evolving together in real time.</p>
+        </div>
+        <div class="demo-stage">
+          <video controls playsinline preload="metadata" poster="../images/motion-canvas/motion-canvas-color.webp" aria-label="Motion Canvas demonstration video">
+            <source src="../assets/video/motion-canvas-demo.mp4" type="video/mp4" />
+          </video>
+          <button class="demo-play" type="button" data-demo-play aria-label="Play Motion Canvas demonstration video">
+            <span class="play-icon" aria-hidden="true">&#9654;</span>
+            <span>Motion Canvas demo video</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section gallery-section" id="gallery">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Artwork gallery</p>
+            <h2>Every movement creates something unique.</h2>
+          </div>
+          <p class="lede">Motion Canvas turns spontaneous movement into expressive generative artwork.</p>
+        </div>
+
+        <div class="gallery">
+          <figure class="gallery-item">
+            <img src="../images/motion-canvas/motion-canvas-color.webp" alt="Layered orange, red and magenta Motion Canvas artwork" loading="lazy" decoding="async" />
+          </figure>
+          <figure class="gallery-item">
+            <img src="../images/motion-canvas/motion-canvas-blue.webp" alt="Blue and cyan Motion Canvas artwork" loading="lazy" decoding="async" />
+          </figure>
+          <figure class="gallery-item">
+            <img src="../images/motion-canvas/motion-canvas-flow.webp" alt="Flowing blue Motion Canvas artwork" loading="lazy" decoding="async" />
+          </figure>
+          <figure class="gallery-item">
+            <img src="../images/motion-canvas/motion-canvas-red.webp" alt="Red portrait-like Motion Canvas artwork" loading="lazy" decoding="async" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-panel">
+      <div class="shell art-feature">
+        <div class="art-feature-copy">
+          <p class="eyebrow">Designed to look good</p>
+          <h2>No drawing skills required.</h2>
+          <p class="lede">Motion Canvas is designed so that spontaneous movement can produce visually rich, layered compositions. Particles disperse, blend and evolve continuously as the participant moves.</p>
+        </div>
+        <img class="art-detail" src="../images/motion-canvas/motion-canvas-hero.webp" alt="Multicolor Motion Canvas artwork" loading="lazy" decoding="async" />
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Brand integration</p>
+            <h2>Built around your event.</h2>
+          </div>
+          <div>
+            <p class="lede">Brand identity can be integrated into the experience without turning the artwork itself into an advertisement.</p>
+            <ul class="integration-list">
+              <li>Client or event logo</li>
+              <li>Live-screen placement</li>
+              <li>Event name and message</li>
+              <li>Branded print frame</li>
+              <li>Date and location</li>
+              <li>Optional visual adaptation</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section section-deep">
+      <div class="shell print-layout">
+        <div class="print-copy">
+          <p class="eyebrow">Physical print</p>
+          <h2>From screen to physical art.</h2>
+          <p class="lede">Selected moments from the experience can be printed instantly as unique branded keepsakes.</p>
+          <p class="print-note">Instant printing is optional.</p>
+        </div>
+
+        <div class="print-mockups" aria-label="Examples of Motion Canvas art prints">
+          <article class="art-print art-print-one">
+            <img src="../images/motion-canvas/motion-canvas-blue.webp" alt="" loading="lazy" />
+          </article>
+          <article class="art-print art-print-two">
+            <img src="../images/motion-canvas/motion-canvas-red.webp" alt="" loading="lazy" />
+          </article>
+          <article class="art-print art-print-three">
+            <img src="../images/motion-canvas/motion-canvas-color.webp" alt="" loading="lazy" />
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-panel">
+      <div class="shell">
+        <p class="eyebrow">Where it works</p>
+        <h2>Made for physical spaces.</h2>
+        <div class="places-list">
+          <div class="place"><span>01</span><strong>Shopping malls</strong><b aria-hidden="true">&#8594;</b></div>
+          <div class="place"><span>02</span><strong>Brand activations</strong><b aria-hidden="true">&#8594;</b></div>
+          <div class="place"><span>03</span><strong>Corporate events</strong><b aria-hidden="true">&#8594;</b></div>
+          <div class="place"><span>04</span><strong>Conferences &amp; exhibitions</strong><b aria-hidden="true">&#8594;</b></div>
+          <div class="place"><span>05</span><strong>Festivals</strong><b aria-hidden="true">&#8594;</b></div>
+          <div class="place"><span>06</span><strong>Product launches &amp; pop-ups</strong><b aria-hidden="true">&#8594;</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="ready-intro">
+          <p class="eyebrow">Ready to deploy</p>
+          <h2>A finished experience, prepared for your space.</h2>
+          <p class="lede">Motion Canvas can be adapted and prepared for a specific event, venue or campaign.</p>
+        </div>
+        <div class="ready-grid">
+          <article class="ready-column">
+            <h3>ATTAQ LAB provides</h3>
+            <ul>
+              <li>Motion Canvas software</li>
+              <li>Tracking system, computer and camera</li>
+              <li>Required participant lighting</li>
+              <li>Configuration and calibration</li>
+              <li>On-site operation if required</li>
+              <li>Optional printing setup</li>
+            </ul>
+          </article>
+          <article class="ready-column">
+            <h3>Venue / client provides</h3>
+            <ul>
+              <li>Display, LED wall or projector</li>
+              <li>Suitable event space</li>
+              <li>Venue power and infrastructure</li>
+              <li>Physical structures where required</li>
+              <li>AV installation where required</li>
+              <li>Access time for setup and testing</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-deep cta" id="contact">
+      <div class="shell">
+        <p class="eyebrow">Plan an activation</p>
+        <h2>Bring Motion Canvas to your event.</h2>
+        <p class="lede">Tell us your event date, venue, expected audience and branding needs.</p>
+        <div class="cta-actions">
+          <button class="button" type="button" data-email-contact data-default-label="Discuss your event" aria-label="Copy ATTAQ LAB email to discuss your event" aria-live="polite">Discuss your event</button>
+          <a class="button button-secondary" href="https://www.linkedin.com/company/attaq-lab" target="_blank" rel="noreferrer">LinkedIn</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-row shell">
+      <a href="../">ATTAQ LAB</a>
+      <span>Interactive experience design studio</span>
+      <a href="https://www.linkedin.com/company/attaq-lab" target="_blank" rel="noreferrer">LinkedIn</a>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const demoStage = document.querySelector(".demo-stage");
+      const demoVideo = demoStage?.querySelector("video");
+      const demoButton = demoStage?.querySelector("[data-demo-play]");
+      if (demoStage && demoVideo && demoButton) {
+        demoButton.addEventListener("click", () => demoVideo.play());
+        demoVideo.addEventListener("play", () => demoStage.classList.add("is-playing"));
+        demoVideo.addEventListener("pause", () => demoStage.classList.remove("is-playing"));
+        demoVideo.addEventListener("ended", () => demoStage.classList.remove("is-playing"));
+      }
+
+      const addressCodes = [104, 101, 108, 108, 111, 64, 97, 116, 116, 97, 113, 108, 97, 98, 46, 99, 111, 109];
+      const copyAddress = async (address) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(address);
+          return true;
+        }
+
+        const field = document.createElement("textarea");
+        field.value = address;
+        field.setAttribute("readonly", "");
+        field.style.position = "fixed";
+        field.style.opacity = "0";
+        document.body.appendChild(field);
+        field.select();
+        const copied = document.execCommand("copy");
+        field.remove();
+        return copied;
+      };
+
+      document.querySelectorAll("[data-email-contact]").forEach((button) => {
+        const defaultLabel = button.dataset.defaultLabel || button.textContent;
+        button.addEventListener("click", async () => {
+        const address = String.fromCharCode(...addressCodes);
+        try {
+            const copied = await copyAddress(address);
+            if (!copied) throw new Error("Copy unavailable");
+            button.textContent = "Email copied";
+            window.setTimeout(() => { button.textContent = defaultLabel; }, 2200);
+        } catch {
+            button.textContent = address;
+            button.setAttribute("aria-label", "Email address. Select and copy manually.");
+        }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -26,6 +26,9 @@
     { "source": "/attaq-audio-converter", "destination": "/audio/audio-converter.html" },
     { "source": "/attaq-focus-map", "destination": "/prod/focusmap/attaq-focus-map.html" },
     { "source": "/about-focus-map", "destination": "/prod/focusmap/about-focus-map.html" },
-    { "source": "/crowdscape", "destination": "/crowdscape/index.html" }
+    { "source": "/crowdscape", "destination": "/crowdscape/index.html" },
+    { "source": "/motion-canvas", "destination": "/motion-canvas/index.html" },
+    { "source": "/ti-si-boja", "destination": "/ti-si-boja/index.html" },
+    { "source": "/hidden-hunt-game", "destination": "/hidden-hunt-game/index.html" }
   ]
 }
