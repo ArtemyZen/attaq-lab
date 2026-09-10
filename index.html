@@ -59,21 +59,16 @@
       inset: 0;
       z-index: -2;
       background:
+        radial-gradient(ellipse at center, transparent 0 44%, rgba(0,0,0,0.48) 100%),
+        linear-gradient(180deg, transparent 0 56%, rgba(0,0,0,0.42) 100%),
         repeating-linear-gradient(0deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 6px),
         linear-gradient(90deg, rgba(83,233,255,0.045), transparent 20%, transparent 80%, rgba(255,79,203,0.045));
-      mix-blend-mode: screen;
+      transform: translateZ(0);
       pointer-events: none;
     }
 
     body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background:
-        radial-gradient(ellipse at center, transparent 0 44%, rgba(0,0,0,0.48) 100%),
-        linear-gradient(180deg, transparent 0 56%, rgba(0,0,0,0.42) 100%);
-      pointer-events: none;
+      content: none;
     }
 
     a {
@@ -401,6 +396,7 @@
       display: block;
       filter: grayscale(1) sepia(0.28) saturate(2.4) hue-rotate(162deg) contrast(1.17) brightness(0.82);
       animation: teamPortraitFrame 1.8s infinite steps(1, end);
+      animation-play-state: paused;
     }
 
     .team-portrait-glitch {
@@ -413,6 +409,7 @@
       -webkit-mask-image: repeating-linear-gradient(to bottom, transparent 0 14px, #000 14px 21px, transparent 21px 43px);
       mask-image: repeating-linear-gradient(to bottom, transparent 0 14px, #000 14px 21px, transparent 21px 43px);
       animation: teamPortraitBands 1.25s infinite steps(1, end);
+      animation-play-state: paused;
       pointer-events: none;
     }
 
@@ -431,6 +428,13 @@
       mix-blend-mode: screen;
       pointer-events: none;
       animation: teamScanline 3.2s infinite linear;
+      animation-play-state: paused;
+    }
+
+    .team-section.is-visible .team-portrait img,
+    .team-section.is-visible .team-portrait-glitch,
+    .team-section.is-visible .team-portrait::before {
+      animation-play-state: running;
     }
 
     .team-portrait::after {
@@ -885,6 +889,18 @@
           }
         });
       });
+
+      const teamSection = document.querySelector(".team-section");
+      if (teamSection) {
+        if ("IntersectionObserver" in window) {
+          const observer = new IntersectionObserver(([entry]) => {
+            teamSection.classList.toggle("is-visible", entry.isIntersecting);
+          }, { rootMargin: "120px 0px" });
+          observer.observe(teamSection);
+        } else {
+          teamSection.classList.add("is-visible");
+        }
+      }
     })();
   </script>
 </body>
