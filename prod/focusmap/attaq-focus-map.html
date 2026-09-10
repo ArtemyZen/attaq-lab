@@ -68,15 +68,7 @@
     }
 
     body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-      background-size: 44px 44px;
-      mask-image: radial-gradient(circle at center, black 0%, transparent 86%);
+      content: none;
     }
 
     #app {
@@ -1512,9 +1504,7 @@
       z-index: 20;
       opacity: 0.22;
       mix-blend-mode: screen;
-      background:
-        repeating-linear-gradient(0deg, rgba(255,255,255,0.075) 0 1px, transparent 1px 4px),
-        linear-gradient(90deg, rgba(255,0,90,0.05), transparent 18%, rgba(0,235,255,0.045) 82%, transparent);
+      background: linear-gradient(90deg, rgba(255,0,90,0.05), transparent 18%, rgba(0,235,255,0.045) 82%, transparent);
     }
     body[data-theme="attaq"] .panel,
     body[data-theme="attaq"] .context-menu,
